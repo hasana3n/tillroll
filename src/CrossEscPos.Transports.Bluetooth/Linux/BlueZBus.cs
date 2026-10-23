@@ -233,6 +233,78 @@ internal sealed class BlueZBus : IAsyncDisposable
         }
     }
 
+    public const string AdapterTurnedOff = "Bluetooth was turned off. Turn it back on, then start again.";
+    public const string BluetoothdStopped = "BlueZ (bluetoothd) stopped. Start the bluetooth service, then start again.";
+
+    /// <summary>
+    /// Calls <paramref name="onLost"/> with a plain-language reason when the adapter is powered off or bluetoothd
+    /// goes away, so a server never keeps saying it's running when phones can't reach it.
+    /// </summary>
+    public async Task<IDisposable> WatchForLossAsync(string adapterPath, Action<string> onLost)
+    {
+        var powered = await Connection.AddMatchAsync(
+            new MatchRule
+            {
+                Type = MessageType.Signal,
+                Sender = Service,
+                Path = adapterPath,
+                Interface = PropertiesInterface,
+                Member = "PropertiesChanged",
+                Arg0 = Adapter1,
+            },
+            (message, _) => IsPoweredOff(message),
+            (Exception? ex, bool off, object? _, object? __) =>
+            {
+                if (ex is null && off)
+                    onLost(AdapterTurnedOff);
+            },
+            ObserverFlags.None, emitOnCapturedContext: false).ConfigureAwait(false);
+
+        var owner = await Connection.AddMatchAsync(
+            new MatchRule
+            {
+                Type = MessageType.Signal,
+                Sender = "org.freedesktop.DBus",
+                Interface = "org.freedesktop.DBus",
+                Member = "NameOwnerChanged",
+                Arg0 = Service,
+            },
+            (message, _) =>
+            {
+                var reader = message.GetBodyReader();
+                reader.ReadString();
+                reader.ReadString();
+                return reader.ReadString(); // new owner; empty when bluetoothd went away
+            },
+            (Exception? ex, string newOwner, object? _, object? __) =>
+            {
+                if (ex is null && newOwner.Length == 0)
+                    onLost(BluetoothdStopped);
+            },
+            ObserverFlags.None, emitOnCapturedContext: false).ConfigureAwait(false);
+
+        return new CompositeDisposable(powered, owner);
+    }
+
+    private static bool IsPoweredOff(Message message)
+    {
+        var reader = message.GetBodyReader();
+        reader.ReadString();
+        var changed = reader.ReadDictionaryOfStringToVariantValue();
+        return changed.TryGetValue("Powered", out var powered) && !powered.GetBool();
+    }
+
+    private sealed class CompositeDisposable : IDisposable
+    {
+        private readonly IDisposable[] _parts;
+        public CompositeDisposable(params IDisposable[] parts) => _parts = parts;
+        public void Dispose()
+        {
+            foreach (var part in _parts)
+                part.Dispose();
+        }
+    }
+
     /// <summary>Turns a D-Bus failure into a plain-language reason for the status line.</summary>
     public static BluetoothSupport MapError(Exception ex) => ex switch
     {

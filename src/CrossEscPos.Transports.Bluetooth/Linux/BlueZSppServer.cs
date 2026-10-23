@@ -37,6 +37,7 @@ internal sealed class BlueZSppServer : IBluetoothPrinterServer, IPathMethodHandl
 
     private BlueZBus? _bus;
     private BlueZAgent? _agent;
+    private IDisposable? _lossWatch;
     private CancellationTokenSource? _cts;
     private string _name = string.Empty;
     private string _alias = string.Empty;
@@ -99,6 +100,7 @@ internal sealed class BlueZSppServer : IBluetoothPrinterServer, IPathMethodHandl
 
                 _cts = new CancellationTokenSource();
                 _bus.Connection.AddMethodHandler(this);
+                _lossWatch = await _bus.WatchForLossAsync(adapter, OnBlueZLost).ConfigureAwait(false);
                 await _bus.CallAsync("/org/bluez", "org.bluez.ProfileManager1", "RegisterProfile", "osa{sv}", (ref MessageWriter w) =>
                 {
                     w.WriteObjectPath(ObjectPath);
@@ -258,6 +260,8 @@ internal sealed class BlueZSppServer : IBluetoothPrinterServer, IPathMethodHandl
 
     private async Task TearDownAsync()
     {
+        _lossWatch?.Dispose();
+        _lossWatch = null;
         _cts?.Cancel();
         _cts = null;
 
@@ -286,6 +290,29 @@ internal sealed class BlueZSppServer : IBluetoothPrinterServer, IPathMethodHandl
             _bus = null;
         }
         IsRunning = false;
+    }
+
+    /// <summary>The adapter or bluetoothd went away: say so at once, then clean up in the background.</summary>
+    private void OnBlueZLost(string message)
+    {
+        if (!IsRunning)
+            return;
+        Logger.Info($"{DisplayName}: {message}");
+        SetStatus(false, message);
+        _ = Task.Run(async () =>
+        {
+            await _lifecycle.WaitAsync().ConfigureAwait(false);
+            try
+            {
+                if (_bus is not null)
+                    await TearDownAsync().ConfigureAwait(false);
+            }
+            finally
+            {
+                _lifecycle.Release();
+            }
+            SetStatus(false, message);
+        });
     }
 
     private async Task<BluetoothSupport> FailAsync(BluetoothSupport support)

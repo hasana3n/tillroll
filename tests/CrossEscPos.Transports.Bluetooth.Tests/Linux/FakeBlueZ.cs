@@ -227,6 +227,31 @@ internal sealed class FakeBlueZ : IAsyncDisposable
             w.WriteMethodCallHeader(sender, characteristicPath, "org.bluez.GattCharacteristic1", "StopNotify")));
     }
 
+    /// <summary>Powers the adapter off and announces it, like `bluetoothctl power off` or rfkill would.</summary>
+    public void PowerOff()
+    {
+        lock (Gate) Adapter["Powered"] = false;
+        _connection.TrySendMessage(Build((ref MessageWriter w) =>
+        {
+            w.WriteSignalHeader(null, AdapterPath, "org.freedesktop.DBus.Properties", "PropertiesChanged", "sa{sv}as");
+            w.WriteString("org.bluez.Adapter1");
+            w.WriteDictionary(new Dictionary<string, VariantValue> { ["Powered"] = false });
+            w.WriteArray(System.Array.Empty<string>());
+        }));
+    }
+
+    /// <summary>Withdraws the registered advertisement, as BlueZ does when the controller drops it.</summary>
+    public Task ReleaseAdvertisementAsync()
+    {
+        (string Sender, string Path) adv;
+        lock (Gate) adv = Advertisements.Single();
+        return _connection.CallMethodAsync(Build((ref MessageWriter w) =>
+            w.WriteMethodCallHeader(adv.Sender, adv.Path, "org.bluez.LEAdvertisement1", "Release")));
+    }
+
+    /// <summary>Stops owning "org.bluez", as if bluetoothd quit or crashed.</summary>
+    public Task<bool> QuitAsync() => _connection.ReleaseNameAsync("org.bluez");
+
     /// <summary>Announces that a device disconnected (Device1.Connected = false), like bluetoothd does.</summary>
     public void EmitDeviceDisconnected(string devicePath)
     {

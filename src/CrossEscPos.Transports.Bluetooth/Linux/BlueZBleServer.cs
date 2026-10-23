@@ -41,6 +41,7 @@ internal sealed class BlueZBleServer : IBluetoothPrinterServer, IBleNotifier
     private BlueZAgent? _agent;
     private BleGattPrinter? _engine;
     private IDisposable? _deviceWatch;
+    private IDisposable? _lossWatch;
     private string? _adapter;
     private bool _applicationRegistered;
     private bool _advertisementRegistered;
@@ -91,6 +92,7 @@ internal sealed class BlueZBleServer : IBluetoothPrinterServer, IBleNotifier
                 _bus.Connection.AddMethodHandler(new ApplicationHandler(this));
                 _bus.Connection.AddMethodHandler(new AdvertisementHandler(this));
                 _deviceWatch = await WatchDeviceDisconnectsAsync(_bus).ConfigureAwait(false);
+                _lossWatch = await _bus.WatchForLossAsync(_adapter, OnBlueZLost).ConfigureAwait(false);
 
                 await _bus.CallAsync(_adapter, GattManager1, "RegisterApplication", "oa{sv}", (ref MessageWriter w) =>
                 {
@@ -264,6 +266,8 @@ internal sealed class BlueZBleServer : IBluetoothPrinterServer, IBleNotifier
 
         _deviceWatch?.Dispose();
         _deviceWatch = null;
+        _lossWatch?.Dispose();
+        _lossWatch = null;
 
         if (_engine is not null)
         {
@@ -286,6 +290,29 @@ internal sealed class BlueZBleServer : IBluetoothPrinterServer, IBleNotifier
             _bus = null;
         }
         IsRunning = false;
+    }
+
+    /// <summary>The adapter or bluetoothd went away: say so at once, then clean up in the background.</summary>
+    private void OnBlueZLost(string message)
+    {
+        if (!IsRunning)
+            return;
+        Logger.Info($"{DisplayName}: {message}");
+        SetStatus(false, message);
+        _ = Task.Run(async () =>
+        {
+            await _lifecycle.WaitAsync().ConfigureAwait(false);
+            try
+            {
+                if (_bus is not null)
+                    await TearDownAsync().ConfigureAwait(false);
+            }
+            finally
+            {
+                _lifecycle.Release();
+            }
+            SetStatus(false, message);
+        });
     }
 
     private async Task<BluetoothSupport> FailAsync(BluetoothSupport support)
@@ -543,6 +570,7 @@ internal sealed class BlueZBleServer : IBluetoothPrinterServer, IBleNotifier
                     Logger.Info("BlueZ released the BLE advertisement");
                     _server._advertisementRegistered = false;
                     ReplyEmpty(context);
+                    _server.OnBlueZLost("BlueZ stopped advertising the printer (the adapter went off or ran out of advertising slots). Start again.");
                     break;
                 default:
                     context.ReplyUnknownMethodError();

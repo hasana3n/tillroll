@@ -173,6 +173,61 @@ public class BlueZIntegrationTests
         Assert.Equal(180u, bluez.AdapterUInt("DiscoverableTimeout"));
     }
 
+    private static async Task<bool> WaitUntilStopped(IBluetoothPrinterServer server)
+    {
+        var deadline = Environment.TickCount64 + 3000;
+        while (server.IsRunning && Environment.TickCount64 < deadline)
+            await Task.Delay(20);
+        return !server.IsRunning;
+    }
+
+    [Fact]
+    public async Task AdapterPoweredOff_StopsBothRowsWithAPlainMessage()
+    {
+        var address = TestBus.Require();
+        await using var bluez = await FakeBlueZ.StartAsync(address);
+        var printer = NewPrinter(out _);
+        await using var spp = new BlueZSppServer(printer, Options(address));
+        await using var ble = new BlueZBleServer(printer, Options(address));
+        await spp.StartAsync(TestContext.Current.CancellationToken);
+        await ble.StartAsync(TestContext.Current.CancellationToken);
+
+        bluez.PowerOff();
+
+        Assert.True(await WaitUntilStopped(spp), spp.StatusText);
+        Assert.True(await WaitUntilStopped(ble), ble.StatusText);
+        Assert.Contains("turned off", spp.StatusText);
+        Assert.Contains("turned off", ble.StatusText);
+    }
+
+    [Fact]
+    public async Task BluetoothdQuits_StopsWithAPlainMessage()
+    {
+        var address = TestBus.Require();
+        await using var bluez = await FakeBlueZ.StartAsync(address);
+        await using var spp = new BlueZSppServer(NewPrinter(out _), Options(address));
+        await spp.StartAsync(TestContext.Current.CancellationToken);
+
+        await bluez.QuitAsync();
+
+        Assert.True(await WaitUntilStopped(spp), spp.StatusText);
+        Assert.Contains("bluetoothd", spp.StatusText);
+    }
+
+    [Fact]
+    public async Task Ble_AdvertisementReleased_SaysItIsNoLongerAdvertising()
+    {
+        var address = TestBus.Require();
+        var (bluez, server, _, _) = await StartBleAsync(address);
+        await using var _1 = bluez;
+        await using var _2 = server;
+
+        await bluez.ReleaseAdvertisementAsync();
+
+        Assert.True(await WaitUntilStopped(server), server.StatusText);
+        Assert.Contains("stopped advertising", server.StatusText);
+    }
+
     // ---- pairing agent ----------------------------------------------------------------------------
 
     [Fact]
