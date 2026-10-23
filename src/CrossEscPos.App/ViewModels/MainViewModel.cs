@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Threading;
@@ -68,6 +69,8 @@ public partial class MainViewModel : ObservableObject
     /// <summary>Raised on the UI thread after receipts change (the view scrolls to the newest).</summary>
     public event EventHandler? ReceiptsUpdated;
 
+    private int _refreshQueued;
+
     public MainViewModel(ReceiptPrinter printer, IPlatformServices platform)
     {
         _printer = printer;
@@ -80,7 +83,19 @@ public partial class MainViewModel : ObservableObject
         _toastTimer.Tick += (_, _) => { _toastTimer.Stop(); ToastVisible = false; };
 
         // Transport receive threads raise these — marshal to the UI thread.
-        _printer.OnActivityEvent += (_, _) => Dispatcher.UIThread.Post(() => { RefreshReceipts(); _notifications.NotifyActivity(); });
+        _printer.OnActivityEvent += (_, _) =>
+        {
+            // One refresh per batch of writes: a BLE job arrives as ~150 writes, and queueing a refresh for each
+            // kept the window busy long after the job finished.
+            if (Interlocked.Exchange(ref _refreshQueued, 1) == 1)
+                return;
+            Dispatcher.UIThread.Post(() =>
+            {
+                Volatile.Write(ref _refreshQueued, 0);
+                RefreshReceipts();
+                _notifications.NotifyActivity();
+            });
+        };
         _printer.OnBuzzer += () => Dispatcher.UIThread.Post(() => { _notifications.Beep(); ShowToast("🔔  Buzzer"); });
         _printer.OnCashDrawer += () => Dispatcher.UIThread.Post(() => { _notifications.OpenCashDrawer(); ShowToast("💵  Cash drawer opened"); });
         _printer.OnPrintBlocked += reason => Dispatcher.UIThread.Post(() => ShowToast($"🚫  {reason} — print dropped"));

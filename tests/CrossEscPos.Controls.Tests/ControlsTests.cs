@@ -62,10 +62,30 @@ public class ControlsTests
 
         var vm = new ReceiptViewModel(printer.CurrentReceipt, new SkiaImageEncoder(), new StubFileDialogService(), 1,
             render => { guarded++; render(); });
+        printer.FeedEscPos("More\n");
         vm.Refresh();
 
-        Assert.Equal(2, guarded);           // the first render in the constructor, then Refresh
+        Assert.Equal(2, guarded);           // the first render in the constructor, then the refresh after new content
         Assert.NotNull(vm.Image);
+    }
+
+    [AvaloniaFact]
+    public void ReceiptViewModel_Refresh_SkipsRenderingWhenTheReceiptHasNotChanged()
+    {
+        // Each BLE write triggers a refresh; re-rendering unchanged receipts every time froze the window.
+        var printer = new ReceiptPrinter(PaperConfiguration.Default, new SkiaImageFactory(), new SkiaTypefaceProvider());
+        printer.FeedEscPos("Hello\n");
+        var vm = new ReceiptViewModel(printer.CurrentReceipt, new SkiaImageEncoder(), new StubFileDialogService(), 1,
+            render => render());
+        var first = vm.Image;
+
+        vm.Refresh();
+        vm.Refresh();
+        Assert.Same(first, vm.Image);                             // nothing changed: no new bitmap was rendered
+
+        printer.FeedEscPos("More\n");
+        vm.Refresh();
+        Assert.NotSame(first, vm.Image);
     }
 
     private sealed class StubFileDialogService : IFileDialogService

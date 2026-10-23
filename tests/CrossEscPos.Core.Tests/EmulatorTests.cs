@@ -302,6 +302,20 @@ public class EmulatorTests
     }
 
     [Fact]
+    public void ReceiptVersion_ChangesOnlyWhenTheReceiptChanges()
+    {
+        var printer = NewPrinter();
+        printer.FeedEscPos("first\n");
+        int afterFirst = printer.CurrentReceipt.Version;
+
+        printer.FeedEscPos(Bytes(ESC, 'E', 1));                   // bold on: changes no content
+        Assert.Equal(afterFirst, printer.CurrentReceipt.Version);
+
+        printer.FeedEscPos("second\n");
+        Assert.True(printer.CurrentReceipt.Version > afterFirst);
+    }
+
+    [Fact]
     public void JobIdleTimeout_DefaultsToOneSecond()
         => Assert.Equal(TimeSpan.FromSeconds(1), NewPrinter().JobIdleTimeout);
 }

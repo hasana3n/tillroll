@@ -20,6 +20,7 @@ public partial class ReceiptViewModel : ObservableObject
     private readonly IFileDialogService _dialogs;
     private readonly int _index;
     private readonly Action<Action> _guard;
+    private int _renderedVersion = -1;
 
     [ObservableProperty]
     private Bitmap? _image;
@@ -63,9 +64,22 @@ public partial class ReceiptViewModel : ObservableObject
         if (_receipt.IsEmpty)
             return;
 
+        // Skip the work when nothing changed since the last render: a phone sends a job as many small writes,
+        // and each one asks every receipt on screen to refresh.
+        IReceiptImage? image = null;
+        _guard(() =>
+        {
+            if (_receipt.Version == _renderedVersion && Image is not null)
+                return;
+            _renderedVersion = _receipt.Version;
+            image = _receipt.Render();
+        });
+        if (image is null)
+            return;
+
         var old = Image;
-        using var image = RenderGuarded();
-        Image = image.ToAvaloniaBitmap(_encoder);
+        using (image)
+            Image = image.ToAvaloniaBitmap(_encoder);
         old?.Dispose();
     }
 

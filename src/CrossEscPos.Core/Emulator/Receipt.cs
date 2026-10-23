@@ -25,6 +25,9 @@ public class Receipt
     private int _lineSpacing;
     private int _tabSpacing;
 
+    /// <summary>Goes up whenever the receipt's printed content changes, so a view can skip re-rendering it.</summary>
+    public int Version { get; private set; }
+
     public bool IsEmpty => (_currentTextLine == null || _currentTextLine.IsEmpty) && _renderLines.Count == 0;
 
     public Receipt(PaperConfiguration paperConfiguration, PrintMode printMode, int lineSpacing,
@@ -64,6 +67,9 @@ public class Receipt
 
     public void PrintText(string text,PrintMode printMode)
     {
+        if (text.Length == 0)
+            return; // the interpreter flushes its (often empty) text buffer before every command
+        Version++;
         if (_currentTextLine is null)
             _currentTextLine = CreateNewTextLine();
 
@@ -89,13 +95,17 @@ public class Receipt
         if (_currentTextLine != null)
         {
             if (!_currentTextLine.IsEmpty)
+            {
                 _renderLines.Add(_currentTextLine);
+                Version++;
+            }
             _currentTextLine = null;
         }
 
         if (insertLineSpacing)
         {
             _renderLines.Add(new ReceiptEmptyLine(_lineSpacing));
+            Version++;
         }
     }
 
@@ -103,6 +113,7 @@ public class Receipt
 
     public void PrintBitmap(IReceiptImage image)
     {
+        Version++;
         FinalizeTextLine(false);
 
         _renderLines.Add(new ReceiptBitmapLine(_paperConfiguration, image));
