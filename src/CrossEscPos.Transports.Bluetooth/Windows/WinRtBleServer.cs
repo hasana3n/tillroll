@@ -29,6 +29,7 @@ internal sealed class WinRtBleServer : IBluetoothPrinterServer, IBleNotifier
     private readonly List<Published> _published = new();
     private readonly Dictionary<string, GattSession> _sessions = new();
     private BleGattPrinter? _engine;
+    private BleWriteSequencer _sequencer = new((_, _, _, _) => { });
     private Radio? _radio;
 
     public WinRtBleServer(ReceiptPrinter printer, BluetoothPrinterOptions options)
@@ -72,6 +73,8 @@ internal sealed class WinRtBleServer : IBluetoothPrinterServer, IBleNotifier
             try
             {
                 _engine = new BleGattPrinter(_printer, this);
+                var engine = _engine;
+                _sequencer = new BleWriteSequencer((client, profile, bytes, mtu) => engine.OnWrite(client, profile, bytes, mtu));
                 _engine.ClientsChanged += OnClientsChanged;
 
                 foreach (var profile in BlePrinterProfiles.All)
@@ -307,18 +310,22 @@ internal sealed class WinRtBleServer : IBluetoothPrinterServer, IBleNotifier
     private async void OnWriteRequested(BlePrinterProfile profile, GattWriteRequestedEventArgs args)
     {
         using var deferral = args.GetDeferral();
+        // Take this write's place in line before awaiting anything: GetRequestAsync can complete out of order.
+        var session = args.Session;
+        var clientId = session.DeviceId.Id;
+        var sequencer = _sequencer;
+        long ticket = sequencer.Reserve(clientId);
+        byte[]? data = null;
         try
         {
             var request = await args.GetRequestAsync();
             if (request is null)
                 return; // the app has no access, or the request was cancelled
 
-            var session = args.Session;
             TrackSession(session);
             var reader = DataReader.FromBuffer(request.Value);
-            var data = new byte[reader.UnconsumedBufferLength];
+            data = new byte[reader.UnconsumedBufferLength];
             reader.ReadBytes(data);
-            _engine?.OnWrite(session.DeviceId.Id, profile, data, session.MaxPduSize);
 
             if (request.Option == GattWriteOption.WriteWithResponse)
                 request.Respond();
@@ -329,6 +336,7 @@ internal sealed class WinRtBleServer : IBluetoothPrinterServer, IBleNotifier
         }
         finally
         {
+            sequencer.Complete(clientId, ticket, profile, data, session.MaxPduSize); // null data just frees the slot
             deferral.Complete();
         }
     }
@@ -399,6 +407,7 @@ internal sealed class WinRtBleServer : IBluetoothPrinterServer, IBleNotifier
                 p.Subscribers.Remove(id);
         }
         session.SessionStatusChanged -= OnSessionStatusChanged;
+        _sequencer.Forget(id);
         _engine?.OnDisconnected(id);
     }
 
