@@ -1,0 +1,20 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- Outline icons on a 24-unit grid, from Lucide (ISC licence), drawn by controls:IconView with a 1.5px stroke.
+         Written with absolute commands only so every platform's path parser reads them the same way. -->
+    <StreamGeometry x:Key="Icon.Plug">M12 22 V17 M9 8 V2 M15 8 V2 M18 8 V13 A4 4 0 0 1 14 17 H10 A4 4 0 0 1 6 13 V8 Z</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Printer">M6 18 H4 A2 2 0 0 1 2 16 V11 A2 2 0 0 1 4 9 H20 A2 2 0 0 1 22 11 V16 A2 2 0 0 1 20 18 H18 M6 9 V3 A1 1 0 0 1 7 2 H17 A1 1 0 0 1 18 3 V9 M7 14 H17 A1 1 0 0 1 18 15 V21 A1 1 0 0 1 17 22 H7 A1 1 0 0 1 6 21 V15 A1 1 0 0 1 7 14 Z</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Code">M16 18 L22 12 L16 6 M8 6 L2 12 L8 18</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Activity">M22 12 H18 L15 21 L9 3 L6 12 H2</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Download">M21 15 V19 A2 2 0 0 1 19 21 H5 A2 2 0 0 1 3 19 V15 M7 10 L12 15 L17 10 M12 15 V3</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Trash">M3 6 H21 M19 6 V20 C19 21 18 22 17 22 H7 C6 22 5 21 5 20 V6 M8 6 V4 C8 3 9 2 10 2 H14 C15 2 16 3 16 4 V6</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Bluetooth">M7 7 L17 17 L12 22 V2 L17 7 L7 17</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Network">M10 2 H14 A1 1 0 0 1 15 3 V7 A1 1 0 0 1 14 8 H10 A1 1 0 0 1 9 7 V3 A1 1 0 0 1 10 2 Z M3 16 H7 A1 1 0 0 1 8 17 V21 A1 1 0 0 1 7 22 H3 A1 1 0 0 1 2 21 V17 A1 1 0 0 1 3 16 Z M17 16 H21 A1 1 0 0 1 22 17 V21 A1 1 0 0 1 21 22 H17 A1 1 0 0 1 16 21 V17 A1 1 0 0 1 17 16 Z M5 16 V13 A1 1 0 0 1 6 12 H18 A1 1 0 0 1 19 13 V16 M12 12 V8</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Cable">M17 21 V19 A1 1 0 0 1 16 18 V17 A2 2 0 0 1 18 15 H20 A2 2 0 0 1 22 17 V18 A1 1 0 0 1 21 19 V21 M19 15 V6.5 A3.5 3.5 0 0 0 12 6.5 V17.5 A3.5 3.5 0 0 1 5 17.5 V9 M3 5 H7 V3 M7 5 A1 1 0 0 1 8 6 V7 A2 2 0 0 1 6 9 H4 A2 2 0 0 1 2 7 V6 A1 1 0 0 1 3 5 V3</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Globe">M22 12 A10 10 0 1 1 2 12 A10 10 0 1 1 22 12 Z M12 2 A14.5 14.5 0 0 0 12 22 A14.5 14.5 0 0 0 12 2 M2 12 H22</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Refresh">M3 12 A9 9 0 0 1 12 3 A9.75 9.75 0 0 1 18.74 5.74 L21 8 M21 3 V8 H16 M21 12 A9 9 0 0 1 12 21 A9.75 9.75 0 0 1 5.26 18.26 L3 16 M8 16 H3 V21</StreamGeometry>
+    <StreamGeometry x:Key="Icon.X">M18 6 L6 18 M6 6 L18 18</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Chevron">M6 9 L12 15 L18 9</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Copy">M10 8 H20 A2 2 0 0 1 22 10 V20 A2 2 0 0 1 20 22 H10 A2 2 0 0 1 8 20 V10 A2 2 0 0 1 10 8 Z M4 16 C2.9 16 2 15.1 2 14 V4 C2 2.9 2.9 2 4 2 H14 C15.1 2 16 2.9 16 4</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Settings">M4 21 V14 M4 10 V3 M12 21 V12 M12 8 V3 M20 21 V16 M20 12 V3 M2 14 H6 M10 8 H14 M18 16 H22</StreamGeometry>
+</ResourceDictionary>

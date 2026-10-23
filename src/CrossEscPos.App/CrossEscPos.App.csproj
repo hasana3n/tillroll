@@ -32,6 +32,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Embedded UI fonts (Public Sans and JetBrains Mono, both OFL) and the brand mark, so every head renders
+         the same interface without relying on installed fonts. -->
+    <AvaloniaResource Include="Assets\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <!-- Sample ESC/POS ticket (text + barcodes + QR) for the "Load sample" button. -->
     <EmbeddedResource Include="sample.escpos" LogicalName="sample.escpos" />
     <!-- Full-feature test receipt sent by the Monitor's "full feature test" (works on both heads). -->
