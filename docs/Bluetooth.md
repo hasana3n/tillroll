@@ -273,6 +273,17 @@ While a Bluetooth row is running, the computer is visible to nearby devices and 
 - **The iPhone can't find the BLE printer.** Scan for service `18F0` (not by name: Windows uses the PC's name). If
   the BLE status says the adapter can't act as a peripheral, that adapter can't do BLE printing; most built-in
   laptop adapters can, some USB dongles can't.
+- **The iPhone only prints again after "Forget This Device" and re-pairing, every time the emulator restarts.**
+  Don't pair the iPhone with the computer at all: BLE printing doesn't need it (the printer service is open).
+  When they *are* paired (for example after pairing in iOS Settings, which also bonds BLE), iOS remembers the
+  printer's service layout, and after the emulator restarts Windows registers the services again, so that
+  remembered layout goes stale and writes go nowhere. Fix it once: forget the computer on the iPhone (Settings >
+  Bluetooth > the PC > Forget This Device) and remove the iPhone on the PC (Settings > Bluetooth & devices), then
+  connect only from your app.
+- **An Android phone connects but nothing prints, or only after re-pairing.** Windows may have its own incoming
+  Bluetooth COM port ("Standard Serial over Bluetooth link", Settings > Bluetooth & devices > More Bluetooth
+  settings > COM Ports), which publishes the same SPP UUID; a phone can connect to that one instead of
+  CrossEscPos. Remove the incoming port there, or open that COM port in the Serial row to receive through it.
 - **Connected, but no status replies over BLE.** Enable notifications on `2AF0` (or the shared characteristic)
   before sending the query.
 - **Linux says access was denied.** Add your user to the `bluetooth` group and log in again.
