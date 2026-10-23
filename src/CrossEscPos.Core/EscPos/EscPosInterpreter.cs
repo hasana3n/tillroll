@@ -15,8 +15,9 @@ public class EscPosInterpreter
     private readonly StringBuilder _printBuffer;
     private readonly StringBuilder _commandBuffer;
     private readonly Dictionary<string, BaseCommand> _commandRegistry;
-
-    private int _maxCommandPrefixLength;
+    // Every proper prefix of every registered command (e.g. "GS", "GS(" for "GS(k"), so an unknown
+    // sequence is detected as soon as it can no longer become a command.
+    private readonly HashSet<string> _partialPrefixes = new();
 
     private bool _interpretingCommandPrefix;
     private bool _interpretingCommandArgs;
@@ -31,8 +32,6 @@ public class EscPosInterpreter
         _printBuffer = new StringBuilder();
         _commandBuffer = new StringBuilder();
         _commandRegistry = new();
-
-        _maxCommandPrefixLength = 0;
 
         _interpretingCommandPrefix = false;
         _interpretingCommandArgs = false;
@@ -121,8 +120,8 @@ public class EscPosInterpreter
 
         _commandRegistry.Add(prefix, command);
 
-        if (prefix.Length > _maxCommandPrefixLength)
-            _maxCommandPrefixLength = prefix.Length;
+        for (var length = 1; length < prefix.Length; length++)
+            _partialPrefixes.Add(prefix[..length]);
     }
 
     #endregion
@@ -132,8 +131,24 @@ public class EscPosInterpreter
     public void ClearBuffers()
     {
         FinalizePrintBuffer();
-        FinalizeCommandBuffer();
+        ResetParserState();
     }
+
+    /// <summary>
+    /// Abandons any half-read command or real-time sequence and returns to normal mode. The print
+    /// buffer (text not yet printed) is kept.
+    /// </summary>
+    public void ResetParserState()
+    {
+        _commandBuffer.Clear();
+        _realtimeBuffer.Clear();
+        _realtimeMode = false;
+        _interpretingCommandPrefix = false;
+        _interpretingCommandArgs = false;
+        _activeCommand = null;
+    }
+
+    private static bool IsCommandStarter(char c) => c == ESC || c == FS || c == GS || c == DLE;
     
     private string FinalizePrintBuffer()
     {
@@ -240,19 +255,21 @@ public class EscPosInterpreter
 
             if (_interpretingCommandPrefix)
             {
-                // Reading command prefix: keep reading until we find a match or hit _maxCommandPrefixLength
+                // Reading command prefix: keep reading until it matches a command or can no longer match one
                 _commandBuffer.Append(currentChar);
 
                 var commandText = _commandBuffer.ToString();
 
-                if (commandText.Length > _maxCommandPrefixLength)
+                if (!_commandRegistry.ContainsKey(commandText) && !_partialPrefixes.Contains(commandText))
                 {
-                	string byteText;
-                	
-                	if (i > 0) byteText = string.Format("0x{0:X2} 0x{1:X2}", (int)ascii[i - 1], (int)ascii[i]);
-                	else byteText = string.Format("0x{0:X2}", (int)ascii[i]);
-                	
-                	throw new InvalidOperationException("Invalid or unsupported command encountered: " + byteText);
+                    // Not a command and can't become one: skip it, like a real printer ignores an
+                    // undefined command, and keep parsing. If the byte that broke the match starts a
+                    // new command (e.g. "ESC GS r 1"), parse it again in normal mode.
+                    Logger.Info($"Unsupported command: {DescribeBytes(commandText)}");
+                    ResetParserState();
+                    if (commandText.Length > 1 && IsCommandStarter(currentChar))
+                        i--;
+                    continue;
                 }
 
                 if (_commandRegistry.ContainsKey(commandText))
@@ -356,6 +373,17 @@ public class EscPosInterpreter
 
             #endregion
         }
+    }
+
+    private static string DescribeBytes(string text)
+    {
+        var sb = new StringBuilder();
+        foreach (var c in text)
+        {
+            if (sb.Length > 0) sb.Append(' ');
+            sb.Append($"0x{(int)c:X2}");
+        }
+        return sb.ToString();
     }
 
     public static readonly char NUL = Convert.ToChar(0);

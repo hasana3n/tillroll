@@ -326,6 +326,40 @@ public class EscPosInterpretationTests
     }
 
     [Fact]
+    public void UnknownCommand_TextAfterItInSamePayload_StillPrints()
+    {
+        _printer.FeedEscPos(Bytes(ESC, 0x99) + "after" + Bytes(LF));
+        Assert.Contains("after", RenderReceipt().DrawnText);
+    }
+
+    [Fact]
+    public void UnknownCommand_DoesNotBreakLaterJobs()
+    {
+        _printer.FeedEscPos(Bytes(GS, '(', 'Z'));          // unknown 3-byte prefix
+        _printer.FeedEscPos("next job" + Bytes(LF));
+        Assert.Contains("next job", RenderReceipt().DrawnText);
+    }
+
+    [Fact]
+    public void UnknownCommand_FollowedByCommandStarter_ReprocessesStarter()
+    {
+        // "ESC GS" is not a command; the GS must be reprocessed so "GS r 1" is still answered.
+        var responder = new CapturingResponder();
+        _printer.FeedEscPos(Bytes(ESC, GS, 'r', 1), responder);
+        Assert.Single(responder.Bytes);                    // GS r 1 answered
+    }
+
+    [Fact]
+    public void CommandThatThrows_DoesNotBreakLaterJobs()
+    {
+        _factory.ThrowOnFromPixels = true;
+        _printer.FeedEscPos(Raster());                     // GS v 0 throws inside Execute
+        _factory.ThrowOnFromPixels = false;
+        _printer.FeedEscPos("next job" + Bytes(LF));
+        Assert.Contains("next job", RenderReceipt().DrawnText);
+    }
+
+    [Fact]
     public void FeedEscPos_RaisesActivityEvent()
     {
         int activity = 0;

@@ -214,6 +214,8 @@ public class ReceiptPrinter
         catch (Exception ex)
         {
             Logger.Exception(ex, "ESC/POS Interpreter Error");
+            // A command that threw mid-way must not leave the parser stuck inside it.
+            _escPosInterpreter.ResetParserState();
         }
         finally
         {

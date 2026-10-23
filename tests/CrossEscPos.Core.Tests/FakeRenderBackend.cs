@@ -16,7 +16,11 @@ public sealed class FakeImageFactory : IReceiptImageFactory
 
     public IReceiptImage Create(int width, int height, ReceiptColor fill) => new FakeImage(width, height);
 
-    public IReceiptImage FromPixels(int width, int height, ReceiptColor[] rowMajorPixels) => new FakeImage(width, height);
+    /// <summary>Makes <see cref="FromPixels"/> throw, to simulate a backend failing mid-command.</summary>
+    public bool ThrowOnFromPixels { get; set; }
+
+    public IReceiptImage FromPixels(int width, int height, ReceiptColor[] rowMajorPixels)
+        => ThrowOnFromPixels ? throw new InvalidOperationException("simulated backend failure") : new FakeImage(width, height);
 
     public IReceiptCanvas CreateCanvas(IReceiptImage image)
     {
