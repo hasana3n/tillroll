@@ -105,10 +105,29 @@ internal sealed class BlueZAgent : IPathMethodHandler, IAsyncDisposable
             }
             case "RequestConfirmation":
             case "RequestAuthorization":
-            case "AuthorizeService":
+                // Pairing itself ("Just Works"): accepted while the printer runs; the agent is gone when it stops.
                 Logger.Info($"BlueZ agent: accepted {context.Request.MemberAsString}");
                 ReplyEmpty(context);
                 break;
+            case "AuthorizeService":
+            {
+                // As the default agent we'd be asked about every service on this machine (file transfer, audio,
+                // input, …). Only the printer's serial port is ours to approve.
+                var reader = context.Request.GetBodyReader();
+                var device = reader.ReadObjectPathAsString();
+                var uuid = reader.ReadString();
+                if (string.Equals(uuid, Ble.BlePrinterProfiles.SppServiceUuid.ToString(), StringComparison.OrdinalIgnoreCase))
+                {
+                    Logger.Info($"BlueZ agent: authorized the printer serial port for {device}");
+                    ReplyEmpty(context);
+                }
+                else
+                {
+                    Logger.Info($"BlueZ agent: rejected service {uuid} for {device}");
+                    context.ReplyError("org.bluez.Error.Rejected", "Only the CrossEscPos printer service is authorized");
+                }
+                break;
+            }
             case "DisplayPinCode":
             case "DisplayPasskey":
             case "Cancel":

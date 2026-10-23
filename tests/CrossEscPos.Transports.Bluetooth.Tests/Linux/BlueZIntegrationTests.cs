@@ -180,6 +180,21 @@ public class BlueZIntegrationTests
         Assert.Equal(agent.Path, Assert.Single(bluez.DefaultAgents));
     }
 
+    [Fact]
+    public async Task Agent_AuthorizesOnlyThePrinterSerialPort()
+    {
+        var address = TestBus.Require();
+        await using var bluez = await FakeBlueZ.StartAsync(address);
+        await using var server = new BlueZSppServer(NewPrinter(out _), Options(address, autoPair: true));
+        await server.StartAsync(TestContext.Current.CancellationToken);
+
+        var spp = await bluez.AuthorizeServiceAsync(Phone, "00001101-0000-1000-8000-00805f9b34fb");
+        var obexFileTransfer = await bluez.AuthorizeServiceAsync(Phone, "00001106-0000-1000-8000-00805f9b34fb");
+
+        Assert.Null(spp);
+        Assert.Equal("org.bluez.Error.Rejected", obexFileTransfer);
+    }
+
     // ---- BLE GATT peripheral ----------------------------------------------------------------------
 
     private static async Task<(FakeBlueZ BlueZ, BlueZBleServer Server, ReceiptPrinter Printer, FakeImageFactory Factory)> StartBleAsync(

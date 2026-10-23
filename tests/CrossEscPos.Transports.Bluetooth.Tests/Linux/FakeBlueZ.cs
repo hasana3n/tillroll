@@ -136,6 +136,27 @@ internal sealed class FakeBlueZ : IAsyncDisposable
         return _connection.CallMethodAsync(Build((ref MessageWriter w) => w.WriteMethodCallHeader(sender, path, "org.bluez.Profile1", "Release")));
     }
 
+    /// <summary>Asks the registered agent to authorize a service connection, as bluetoothd does; returns the D-Bus error name or null.</summary>
+    public async Task<string?> AuthorizeServiceAsync(string devicePath, string uuid)
+    {
+        (string Sender, string Path, string Capability) agent;
+        lock (Gate) agent = Agents.Single();
+        try
+        {
+            await _connection.CallMethodAsync(Build((ref MessageWriter w) =>
+            {
+                w.WriteMethodCallHeader(agent.Sender, agent.Path, "org.bluez.Agent1", "AuthorizeService", "os");
+                w.WriteObjectPath(devicePath);
+                w.WriteString(uuid);
+            }));
+            return null;
+        }
+        catch (DBusErrorReplyException ex)
+        {
+            return ex.ErrorName;
+        }
+    }
+
     /// <summary>The registered GATT application's objects: path → interface → properties.</summary>
     public Task<Dictionary<string, Dictionary<string, Dictionary<string, VariantValue>>>> GetApplicationObjectsAsync()
     {
