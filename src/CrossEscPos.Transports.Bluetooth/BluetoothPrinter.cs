@@ -34,6 +34,8 @@ public static class BluetoothPrinter
 #if WINDOWS_BT
         return new Windows.WinRtBleServer(printer, options);
 #else
+        if (OperatingSystem.IsLinux())
+            return new Linux.BlueZBleServer(printer, options);
         return new UnsupportedBluetoothServer(BleDisplayName, UnsupportedReason());
 #endif
     }
