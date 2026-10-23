@@ -203,6 +203,13 @@ public class ReceiptPrinter
     /// </summary>
     public TimeSpan JobIdleTimeout { get; set; } = TimeSpan.FromSeconds(1);
 
+    /// <summary>
+    /// Whether a sender waits while another sender's job is in progress (the default where threads can block).
+    /// Off on single-threaded runtimes such as the browser, where blocking isn't possible: a new sender then
+    /// takes over at once (any half-read command of the previous one is dropped).
+    /// </summary>
+    public bool WaitForOtherSenders { get; set; } = !(OperatingSystem.IsBrowser() || OperatingSystem.IsWasi());
+
     private readonly object _feedLock = new();
     private IPrinterResponder? _owner;
     private long _ownerLastFeed; // Stopwatch timestamp of the owner's last feed
@@ -244,7 +251,11 @@ public class ReceiptPrinter
 
         lock (_feedLock)
         {
-            if (responder is not null && !IsFreeFor(responder) && RealtimeQuery.IsRealtimeOnly(ascii))
+            // Real-time queries (DLE EOT/ENQ/DC4) are answered at once and never take or extend a sender's hold
+            // on the printer: a host polling status must not lock the others out. The owner's own query goes
+            // through the parser if it's in the middle of one of its commands.
+            if (responder is not null && RealtimeQuery.IsRealtimeOnly(ascii)
+                && !(ReferenceEquals(_owner, responder) && _escPosInterpreter.IsMidCommand))
             {
                 RunWithResponder(responder, () => RealtimeQuery.Dispatch(this, ascii));
             }
@@ -285,7 +296,7 @@ public class ReceiptPrinter
     /// <summary>Waits (lock held, released while waiting) until the printer is free for this sender.</summary>
     private void TakeOwnership(IPrinterResponder responder)
     {
-        while (!IsFreeFor(responder))
+        while (WaitForOtherSenders && !IsFreeFor(responder))
         {
             var remaining = JobIdleTimeout - Stopwatch.GetElapsedTime(_ownerLastFeed);
             if (remaining > TimeSpan.Zero)

@@ -138,7 +138,10 @@ public class EscPosInterpreter
     /// Abandons any half-read command or real-time sequence and returns to normal mode. The print
     /// buffer (text not yet printed) is kept.
     /// </summary>
-    public void ResetParserState()
+    /// <summary>True while part of a command or real-time sequence has been read but not executed.</summary>
+    public bool IsMidCommand => _interpretingCommandPrefix || _interpretingCommandArgs || _realtimeMode;
+
+        public void ResetParserState()
     {
         _commandBuffer.Clear();
         _realtimeBuffer.Clear();

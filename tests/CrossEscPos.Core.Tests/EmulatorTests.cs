@@ -207,6 +207,55 @@ public class EmulatorTests
     }
 
     [Fact]
+    public async Task StatusPolling_DoesNotHoldThePrinter()
+    {
+        // A POS app that keeps its connection open and polls DLE EOT more often than the idle timeout
+        // must not lock every other sender out.
+        var poller = new CapturingResponder(); var b = new CapturingResponder();
+        var printer = NewPrinter(out var factory); printer.JobIdleTimeout = TimeSpan.FromSeconds(1);
+        using var stop = new CancellationTokenSource();
+        var polling = Task.Run(async () =>
+        {
+            while (!stop.IsCancellationRequested)
+            {
+                printer.FeedEscPos(Bytes(DLE, EOT, 1), poller);
+                await Task.Delay(300);
+            }
+        });
+        await Task.Delay(400);
+
+        var sw = Stopwatch.StartNew();
+        var job = Task.Run(() => printer.FeedEscPos("B's job" + Bytes(LF), b));
+        var finished = await Task.WhenAny(job, Task.Delay(3000)) == job;
+        stop.Cancel();
+        await polling;
+
+        Assert.True(finished, "the polling sender kept the printer");
+        Assert.True(sw.ElapsedMilliseconds < 1500, $"took {sw.ElapsedMilliseconds} ms");
+        Assert.Contains("B's job", string.Join("|", RenderedText(printer, factory)));
+        Assert.NotEmpty(poller.Bytes);
+    }
+
+    [Fact]
+    public void WithoutBlockingWaits_ASecondSenderTakesOverInsteadOfWaiting()
+    {
+        // Single-threaded runtimes (the browser) can't block in Monitor.Wait.
+        var a = new CapturingResponder(); var b = new CapturingResponder();
+        var printer = NewPrinter(out var factory);
+        printer.JobIdleTimeout = TimeSpan.FromSeconds(30);
+        printer.WaitForOtherSenders = false;
+        printer.FeedEscPos(Bytes(GS, 'r'), a);                        // A stops mid-command
+
+        var sw = Stopwatch.StartNew();
+        var ex = Record.Exception(() => printer.FeedEscPos("Hello" + Bytes(LF), b));
+
+        Assert.Null(ex);
+        Assert.True(sw.ElapsedMilliseconds < 500, $"took {sw.ElapsedMilliseconds} ms");
+        Assert.Empty(b.Bytes);                                         // B's bytes weren't read as A's argument
+        Assert.Contains("Hello", string.Join("|", RenderedText(printer, factory)));
+    }
+
+    [Fact]
     public void JobIdleTimeout_DefaultsToOneSecond()
         => Assert.Equal(TimeSpan.FromSeconds(1), NewPrinter().JobIdleTimeout);
 }
