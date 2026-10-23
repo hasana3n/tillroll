@@ -1,16 +1,16 @@
 # Adding a Render Backend
 
-A **render backend** is what turns the receipt document model into pixels. `CrossEscPos.Core` only ever
-talks to the five interfaces in `CrossEscPos.Graphics`, so you can render with anything —
+A **render backend** is what turns the receipt document model into pixels. `Tillroll.Core` only ever
+talks to the five interfaces in `Tillroll.Graphics`, so you can render with anything —
 System.Drawing, a GPU canvas, an HTML5 `<canvas>`, a headless measuring stub — by implementing them and
 injecting your types. No change to `Core`.
 
-> ### 📌 The worked sample: `CrossEscPos.Rendering.ImageSharp`
+> ### 📌 The worked sample: `Tillroll.Rendering.ImageSharp`
 > The managed **ImageSharp backend** was contributed as a complete, class-for-class mirror of the Skia
 > one and is the reference example for this guide. Read it alongside these steps:
-> - **[PR #11 — Add a managed ImageSharp render backend](https://github.com/danielmeza/CrossEscPosEmulator/pull/11)** by [@yhonc9](https://github.com/yhonc9)
-> - Sources: [`src/CrossEscPos.Rendering.ImageSharp/`](https://github.com/danielmeza/CrossEscPosEmulator/tree/main/src/CrossEscPos.Rendering.ImageSharp)
-> - The existing Skia backend to diff against: [`src/CrossEscPos.Rendering.Skia/`](https://github.com/danielmeza/CrossEscPosEmulator/tree/main/src/CrossEscPos.Rendering.Skia)
+> - **[PR #11 — Add a managed ImageSharp render backend](https://github.com/hasana3n/tillroll/pull/11)** by [@yhonc9](https://github.com/yhonc9)
+> - Sources: [`src/Tillroll.Rendering.ImageSharp/`](https://github.com/hasana3n/tillroll/tree/main/src/Tillroll.Rendering.ImageSharp)
+> - The existing Skia backend to diff against: [`src/Tillroll.Rendering.Skia/`](https://github.com/hasana3n/tillroll/tree/main/src/Tillroll.Rendering.Skia)
 
 ## What you implement
 
@@ -156,7 +156,7 @@ public float MeasureText(string text);        // ADVANCE width — not glyph bou
   returns glyph *bounds* (too small — drops side bearings and trailing spaces); `MeasureAdvance` returns
   the advance but still trims trailing whitespace, so the backend re-adds it with a sentinel character.
   *(This was the one bug found reviewing PR #11 — see the fix in
-  [`ImageSharpReceiptFont.cs`](https://github.com/danielmeza/CrossEscPosEmulator/blob/main/src/CrossEscPos.Rendering.ImageSharp/ImageSharpReceiptFont.cs).)*
+  [`ImageSharpReceiptFont.cs`](https://github.com/hasana3n/tillroll/blob/main/src/Tillroll.Rendering.ImageSharp/ImageSharpReceiptFont.cs).)*
 - **`FontMetrics.Ascent` is negative, `Descent` positive** (distance above / below the baseline).
 
 ## Step 5 — the encoder (`IImageEncoder`)
@@ -186,7 +186,7 @@ backend):
 - Barcode modules stay crisp (⇒ `DrawRect` AA is off).
 
 Add an end-to-end test mirroring
-[`SkiaRenderTests`](https://github.com/danielmeza/CrossEscPosEmulator/blob/main/tests/CrossEscPos.Core.Tests)
+[`SkiaRenderTests`](https://github.com/hasana3n/tillroll/blob/main/tests/Tillroll.Core.Tests)
 (the ImageSharp backend added `ImageSharpRenderTests` the same way).
 
 ## Packaging

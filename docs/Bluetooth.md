@@ -1,6 +1,6 @@
 # Bluetooth
 
-CrossEscPos can make a Windows or Linux computer look like a Bluetooth receipt printer, so a phone app can
+Tillroll can make a Windows or Linux computer look like a Bluetooth receipt printer, so a phone app can
 pair with it, send ESC/POS, and get status replies back, the same way it would with a real thermal printer.
 
 There are two kinds, because phones use two kinds of Bluetooth printer:
@@ -30,12 +30,12 @@ From the command line (useful for automated tests):
 |---|---|
 | `ESCPOS_BT_SPP=1` | Start the SPP row at launch. |
 | `ESCPOS_BT_BLE=1` | Start the BLE row at launch. |
-| `ESCPOS_BT_NAME=Kitchen` | Printer name (default `CrossEscPos`). |
+| `ESCPOS_BT_NAME=Kitchen` | Printer name (default `Tillroll`). |
 | `ESCPOS_BT_AUTO_PAIR=1` | Linux only: accept pairing requests automatically (see below). |
 | `ESCPOS_PAPER_WIDTH=58` | Emulate 58 mm paper (384 dots), the size most Bluetooth printers use, so receipts wrap like on the real thing. |
 
 ```sh
-ESCPOS_BT_SPP=1 ESCPOS_BT_BLE=1 dotnet run --project src/CrossEscPos.App.Desktop
+ESCPOS_BT_SPP=1 ESCPOS_BT_BLE=1 dotnet run --project src/Tillroll.App.Desktop
 ```
 
 ### Windows
@@ -53,10 +53,10 @@ ESCPOS_BT_SPP=1 ESCPOS_BT_BLE=1 dotnet run --project src/CrossEscPos.App.Desktop
 - `bluetoothd` must be running (`systemctl status bluetooth`) and your user needs access to BlueZ over D-Bus:
   on most distributions that means being in the `bluetooth` group (`sudo usermod -aG bluetooth $USER`, then log
   in again). Desktop sessions usually already have access.
-- While a row is running, CrossEscPos powers the adapter and makes it discoverable and pairable with no timeout.
+- While a row is running, Tillroll powers the adapter and makes it discoverable and pairable with no timeout.
   When you stop it, it puts back whatever it changed.
 - Pairing on a desktop shows your desktop's normal pairing prompt. On a headless machine (no pairing prompt at
-  all), set `ESCPOS_BT_AUTO_PAIR=1`: CrossEscPos then registers a "Just Works" pairing agent that accepts
+  all), set `ESCPOS_BT_AUTO_PAIR=1`: Tillroll then registers a "Just Works" pairing agent that accepts
   pairings while it runs, and only authorizes connections to the printer's serial port. It never replaces a
   desktop's pairing agent unless you set this.
 - If BLE says the adapter can't advertise, the controller doesn't support the LE peripheral role (or another
@@ -232,7 +232,7 @@ iPhone: **nRF Connect** or **LightBlue** (BLE). Send the bytes as **hex**.
 
 | # | Do | Send (hex) | You should see |
 |---|---|---|---|
-| 1 | SPP: pair the phone with the PC, connect to it in the terminal app | `48 65 6C 6C 6F 0A 0A 0A 1D 56 00` | A "Hello" receipt with a cut appears in CrossEscPos; the SPP status says 1 connected |
+| 1 | SPP: pair the phone with the PC, connect to it in the terminal app | `48 65 6C 6C 6F 0A 0A 0A 1D 56 00` | A "Hello" receipt with a cut appears in Tillroll; the SPP status says 1 connected |
 | 2 | SPP: ask for the status | `10 04 01` | One byte back: `12` (online, no errors) |
 | 3 | In **Printer state**, switch **Cover** to open, then ask for the offline status | `10 04 02` | `16` (cover open). A print sent now is dropped and a toast says the cover is open |
 | 4 | BLE: scan, connect to the device advertising `18F0` (on Windows it has the PC's name), enable notifications on `2AF0` | | The BLE status says 1 connected |
@@ -283,7 +283,7 @@ While a Bluetooth row is running, the computer is visible to nearby devices and 
 - **An Android phone connects but nothing prints, or only after re-pairing.** Windows may have its own incoming
   Bluetooth COM port ("Standard Serial over Bluetooth link", Settings > Bluetooth & devices > More Bluetooth
   settings > COM Ports), which publishes the same SPP UUID; a phone can connect to that one instead of
-  CrossEscPos. Remove the incoming port there, or open that COM port in the Serial row to receive through it.
+  Tillroll. Remove the incoming port there, or open that COM port in the Serial row to receive through it.
 - **Connected, but no status replies over BLE.** Enable notifications on `2AF0` (or the shared characteristic)
   before sending the query.
 - **Linux says access was denied.** Add your user to the `bluetooth` group and log in again.
@@ -292,7 +292,7 @@ While a Bluetooth row is running, the computer is visible to nearby devices and 
 ## Using the library directly
 
 ```csharp
-using CrossEscPos.Transports.Bluetooth;
+using Tillroll.Transports.Bluetooth;
 
 var options = new BluetoothPrinterOptions { Name = "Kitchen" };
 await using var spp = BluetoothPrinter.CreateSpp(printer, options);
@@ -303,6 +303,6 @@ var result = await spp.StartAsync();          // result.IsSupported, result.Stat
 await ble.StartAsync();
 ```
 
-Reference `CrossEscPos.Transports.Bluetooth`. On Windows, target `net10.0-windows10.0.19041.0` (or later) to get
+Reference `Tillroll.Transports.Bluetooth`. On Windows, target `net10.0-windows10.0.19041.0` (or later) to get
 the WinRT servers; on Linux, plain `net10.0` uses BlueZ. Elsewhere the servers start with
 `BluetoothSupportState.UnsupportedPlatform` and a message saying why.

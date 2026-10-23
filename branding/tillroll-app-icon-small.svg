@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <title>Tillroll app icon (small sizes)</title>
+  <rect width="256" height="256" rx="48" fill="#141416"/>
+  <g transform="translate(25.60 19.60) scale(0.8)">
+    <path fill="#F2B33D" d="M58 36 H198 A26 26 0 0 1 198 88 H58 A26 26 0 0 1 58 36 Z"/>
+  <path fill="#FFFFFF" d="M96 104 H160 V220 L128 188 L96 220 Z"/>
+  </g>
+</svg>

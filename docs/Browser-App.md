@@ -1,17 +1,17 @@
-# Browser App (`src/CrossEscPos.App.Browser` + `samples/CrossEscPos.Host`)
+# Browser App (`src/Tillroll.App.Browser` + `samples/Tillroll.Host`)
 
 The emulator runs **in the browser** as the *same* Avalonia application as the desktop — same views,
 view models, receipts, printer-state panel, PNG export, and Monitor. There's no separate Blazor app; the
-[desktop and browser are two thin heads over one shared `CrossEscPos.App`](README.md), and the browser head is
+[desktop and browser are two thin heads over one shared `Tillroll.App`](README.md), and the browser head is
 that app compiled to **WebAssembly** (Avalonia's `net10.0-browser` target, rendering with SkiaSharp).
 
 ```mermaid
 flowchart LR
-    subgraph host["samples/CrossEscPos.Host (one origin)"]
+    subgraph host["samples/Tillroll.Host (one origin)"]
         static["static files<br/>(the WASM app)"]
         hub["SignalR /bridge<br/>+ per-session TCP listener"]
     end
-    browser["Avalonia WASM app<br/>(src/CrossEscPos.App.Browser)"] -->|"served by"| static
+    browser["Avalonia WASM app<br/>(src/Tillroll.App.Browser)"] -->|"served by"| static
     browser -->|"emulator attaches"| hub
     pos["POS software"] -->|"TCP :port"| hub
     monitor["in-page Monitor"] -->|"SignalR"| hub
@@ -23,11 +23,11 @@ Two ways, depending on whether you need TCP reception:
 
 ```sh
 # Just the app (paste/upload, Web Serial, WebUSB) on a dev server:
-dotnet run --project src/CrossEscPos.App.Browser
+dotnet run --project src/Tillroll.App.Browser
 
 # App + backend on ONE origin — adds the SignalR TCP proxy so real POS software can reach it.
 # The first run publishes the WASM app into the host's wwwroot (cached after); browse to the printed URL.
-dotnet run --project samples/CrossEscPos.Host
+dotnet run --project samples/Tillroll.Host
 ```
 
 > **Building the WASM head needs the `wasm-tools` workload** (`dotnet workload install wasm-tools`).
@@ -80,7 +80,7 @@ Serial/USB use their own JS sender channels so they don't clash with the emulato
 
 ## The host in one paragraph
 
-`samples/CrossEscPos.Host` is a small ASP.NET Core app that does two jobs on one origin: it serves the
+`samples/Tillroll.Host` is a small ASP.NET Core app that does two jobs on one origin: it serves the
 published WASM app as static files (`UseBlazorFrameworkFiles()` + a fallback to `index.html`), and it
 hosts the SignalR broker at `/bridge`. Same origin means the browser reaches the hub with **no CORS**.
 A `net10.0` host can't `ProjectReference` the `net10.0-browser` WASM head (unlike Blazor's hosted
@@ -90,7 +90,7 @@ instead (skipped during a solution build to avoid racing the shared-library buil
 ## Publish / host it yourself
 
 ```sh
-dotnet publish samples/CrossEscPos.Host -c Release -o publish/host -p:PublishWasmClient=true
+dotnet publish samples/Tillroll.Host -c Release -o publish/host -p:PublishWasmClient=true
 ```
 
 `publish/host` is a self-contained ASP.NET Core app: run it, and it serves the WASM app plus the broker.
@@ -98,13 +98,13 @@ If you only want the **static** app (no TCP proxy), publish the head alone and s
 any static host:
 
 ```sh
-dotnet publish src/CrossEscPos.App.Browser -c Release -p:PublishTrimmed=false -o publish/web
+dotnet publish src/Tillroll.App.Browser -c Release -p:PublishTrimmed=false -o publish/web
 ```
 
 ## Embedding the pipeline in your own app
 
-Don't need the UI? The render pipeline is headless and managed — reference `CrossEscPos.Core` +
-`CrossEscPos.Rendering.ImageSharp` and call the two-line pipeline from [Getting Started](Getting-Started.md).
+Don't need the UI? The render pipeline is headless and managed — reference `Tillroll.Core` +
+`Tillroll.Rendering.ImageSharp` and call the two-line pipeline from [Getting Started](Getting-Started.md).
 The managed **ImageSharp** backend needs no native relink, so it "just works" in WASM:
 
 ```csharp

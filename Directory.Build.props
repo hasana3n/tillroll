@@ -7,8 +7,8 @@
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
     <!-- One shared root namespace across every assembly, so types resolve by feature/directory
-         (e.g. CrossEscPos.Emulator, CrossEscPos.Graphics) regardless of which package they live in. -->
-    <RootNamespace>CrossEscPos</RootNamespace>
+         (e.g. Tillroll.Emulator, Tillroll.Graphics) regardless of which package they live in. -->
+    <RootNamespace>Tillroll</RootNamespace>
     <!-- The codebase uses explicit usings; keep implicit usings off to match. -->
     <ImplicitUsings>disable</ImplicitUsings>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -19,9 +19,9 @@
   </PropertyGroup>
 
   <!-- SixLabors.ImageSharp advisories (published 2026) that are fixed only in ImageSharp 4.1.2+, which needs
-       a Six Labors license key to build in Release. None of them is reachable from CrossEscPos: they affect
+       a Six Labors license key to build in Release. None of them is reachable from Tillroll: they affect
        image *decoding* (ICC CLUT parsing, BigTIFF), the TIFF CCITT T4/T6 *encoders* and HistogramEqualization.
-       CrossEscPos only creates images, draws on them and encodes PNG; ESCPOS_NET's ImageSharp-based image
+       Tillroll only creates images, draws on them and encodes PNG; ESCPOS_NET's ImageSharp-based image
        printing is never called. Remove these once the project moves to ImageSharp 4 with a license key. -->
   <ItemGroup>
     <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-gwg2-r3hj-4w44" />
@@ -37,10 +37,10 @@
     <Authors>Daniel Meza</Authors>
     <!-- Packages are published to the Gasoleo Technology organization on nuget.org. -->
     <Company>Gasoleo Technology</Company>
-    <Product>CrossEscPos</Product>
+    <Product>Tillroll</Product>
     <Copyright>Copyright (c) 2026 Daniel Meza / Gasoleo Technology</Copyright>
-    <PackageProjectUrl>https://github.com/danielmeza/CrossEscPosEmulator</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/danielmeza/CrossEscPosEmulator</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/hasana3n/tillroll</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/hasana3n/tillroll</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>escpos;receipt;printer;emulator;thermal;pos</PackageTags>
     <!-- SPDX license expression; the LICENSE file at the repo root is packed via Directory.Build.targets. -->

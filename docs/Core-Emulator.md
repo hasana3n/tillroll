@@ -1,12 +1,12 @@
-# Core Emulator (`CrossEscPos.Core`)
+# Core Emulator (`Tillroll.Core`)
 
 The headless emulator: the ESC/POS interpreter, the `ReceiptPrinter` state machine, the receipt
 document model, and barcode/QR generation. No SkiaSharp, no Avalonia — you supply a render backend
 (an `IReceiptImageFactory` + `ITypefaceProvider`) when you construct the printer.
 
 ```csharp
-using CrossEscPos.Emulator;
-using CrossEscPos.Graphics;   // the abstraction types
+using Tillroll.Emulator;
+using Tillroll.Graphics;   // the abstraction types
 ```
 
 ## Constructing a printer
@@ -79,7 +79,7 @@ printer.FeedEscPos(requestBytes, new MyResponder());
 printer.RegisterResponder(myResponder);
 ```
 
-The transports in `CrossEscPos.Transports` already implement `IPrinterResponder` for you — see
+The transports in `Tillroll.Transports` already implement `IPrinterResponder` for you — see
 **[Transports](Transports.md)**.
 
 ## Events

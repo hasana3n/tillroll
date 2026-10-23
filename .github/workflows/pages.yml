@@ -34,7 +34,7 @@ jobs:
       # can't serve the precompressed .br/.gz copies, so skip generating them.
       - name: Publish the browser app
         run: >
-          dotnet publish src/CrossEscPos.App.Browser/CrossEscPos.App.Browser.csproj
+          dotnet publish src/Tillroll.App.Browser/Tillroll.App.Browser.csproj
           -c Release
           -p:PublishTrimmed=false
           -p:CompressionEnabled=false

@@ -19,7 +19,7 @@ port + baud and Open/Close it (⟳ refreshes the port list). The environment var
 | `ESCPOS_SERIAL_BAUD` | `9600` | Serial baud rate. |
 | `ESCPOS_DEBUG_DUMP` | *(off)* | Set to `1` to dump every received payload to `last_*` files. |
 | `ESCPOS_BT_SPP` / `ESCPOS_BT_BLE` | *(off)* | Set to `1` to start the Bluetooth SPP / BLE printer at launch. See [Bluetooth](Bluetooth.md). |
-| `ESCPOS_BT_NAME` | `CrossEscPos` | Bluetooth printer name. |
+| `ESCPOS_BT_NAME` | `Tillroll` | Bluetooth printer name. |
 | `ESCPOS_PAPER_WIDTH` | `80` | Paper width: `58` emulates a 58 mm printer (384-dot head, typical of Bluetooth/handheld printers). |
 | `ESCPOS_BT_AUTO_PAIR` | *(off)* | Linux: set to `1` to accept Bluetooth pairing automatically (headless machines). |
 | `ESCPOS_RENDER_BACKEND` | `skia` | Render backend: `skia` (default) or `imagesharp` (managed). The `--backend` arg overrides it. |
@@ -27,11 +27,11 @@ port + baud and Open/Close it (⟳ refreshes the port list). The environment var
 Examples:
 
 ```sh
-# (run is shorthand for: dotnet run --project src/CrossEscPos.App.Desktop)
-dotnet run --project src/CrossEscPos.App.Desktop                  # TCP only, port 9100
-ESCPOS_TCP_PORT=9200 dotnet run --project src/CrossEscPos.App.Desktop   # TCP on 9200
-ESCPOS_SERIAL_PORT=/dev/ttys004 dotnet run --project src/CrossEscPos.App.Desktop  # TCP 9100 + serial
-ESCPOS_TCP_PORT=off ESCPOS_SERIAL_PORT=COM3 dotnet run --project src/CrossEscPos.App.Desktop  # serial only
+# (run is shorthand for: dotnet run --project src/Tillroll.App.Desktop)
+dotnet run --project src/Tillroll.App.Desktop                  # TCP only, port 9100
+ESCPOS_TCP_PORT=9200 dotnet run --project src/Tillroll.App.Desktop   # TCP on 9200
+ESCPOS_SERIAL_PORT=/dev/ttys004 dotnet run --project src/Tillroll.App.Desktop  # TCP 9100 + serial
+ESCPOS_TCP_PORT=off ESCPOS_SERIAL_PORT=COM3 dotnet run --project src/Tillroll.App.Desktop  # serial only
 ```
 
 The status panel shows the active TCP endpoint and serial port.
@@ -57,7 +57,7 @@ Then, in two more terminals:
 
 ```sh
 # Terminal 2 — run the emulator on port A
-ESCPOS_SERIAL_PORT=/dev/ttys004 dotnet run --project src/CrossEscPos.App.Desktop
+ESCPOS_SERIAL_PORT=/dev/ttys004 dotnet run --project src/Tillroll.App.Desktop
 
 # Terminal 3 — send a receipt from "another app" on port B
 cat test_receipt.txt > /dev/ttys005
@@ -81,17 +81,17 @@ drivers (PDF, XPS, PCL) produce.
 **Windows** (PowerShell as administrator):
 
 ```powershell
-Add-PrinterPort -Name "CrossEscPos_9100" -PrinterHostAddress "127.0.0.1" -PortNumber 9100
-Add-Printer -Name "CrossEscPos" -DriverName "Generic / Text Only" -PortName "CrossEscPos_9100"
-# remove later: Remove-Printer -Name "CrossEscPos"; Remove-PrinterPort -Name "CrossEscPos_9100"
+Add-PrinterPort -Name "Tillroll_9100" -PrinterHostAddress "127.0.0.1" -PortNumber 9100
+Add-Printer -Name "Tillroll" -DriverName "Generic / Text Only" -PortName "Tillroll_9100"
+# remove later: Remove-Printer -Name "Tillroll"; Remove-PrinterPort -Name "Tillroll_9100"
 ```
 
 **Linux / macOS** (CUPS):
 
 ```sh
-sudo lpadmin -p CrossEscPos -E -v socket://127.0.0.1:9100 -m raw
-lp -d CrossEscPos -o raw receipt.bin          # send ESC/POS bytes straight through
-# remove later: sudo lpadmin -x CrossEscPos
+sudo lpadmin -p Tillroll -E -v socket://127.0.0.1:9100 -m raw
+lp -d Tillroll -o raw receipt.bin          # send ESC/POS bytes straight through
+# remove later: sudo lpadmin -x Tillroll
 ```
 
 Newer CUPS versions warn that raw queues are deprecated; they still work.

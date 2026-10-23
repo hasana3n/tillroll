@@ -5,19 +5,19 @@ The smallest useful setup: turn a stream of ESC/POS bytes into a PNG, with no UI
 ## 1. Reference the packages
 
 ```sh
-dotnet add package CrossEscPos.Core
-dotnet add package CrossEscPos.Rendering.Skia
+dotnet add package Tillroll.Core
+dotnet add package Tillroll.Rendering.Skia
 ```
 
 Prefer a **fully managed** backend (no native dependency — needed for the browser (WASM) without a native
-relink)? Swap the render package for `CrossEscPos.Rendering.ImageSharp`; everything below is identical
+relink)? Swap the render package for `Tillroll.Rendering.ImageSharp`; everything below is identical
 apart from the `Skia*` type names becoming `ImageSharp*`.
 
 ## 2. Compose a printer and render
 
 ```csharp
-using CrossEscPos.Emulator;       // ReceiptPrinter, PaperConfiguration
-using CrossEscPos.Rendering.Skia; // SkiaImageFactory, SkiaTypefaceProvider, SkiaImageEncoder
+using Tillroll.Emulator;       // ReceiptPrinter, PaperConfiguration
+using Tillroll.Rendering.Skia; // SkiaImageFactory, SkiaTypefaceProvider, SkiaImageEncoder
 
 // The composition root: pick a render backend and inject it.
 var imageFactory = new SkiaImageFactory();
@@ -36,13 +36,13 @@ using var output = File.Create("ticket.png");
 encoder.EncodePng(image, output);
 ```
 
-That's the entire headless pipeline. No Avalonia, no window, no UI thread — `CrossEscPos.Core` has no
+That's the entire headless pipeline. No Avalonia, no window, no UI thread — `Tillroll.Core` has no
 dependency on a graphics framework; the render backend is what you plugged in.
 
 ### The same thing with the managed backend
 
 ```csharp
-using CrossEscPos.Rendering.ImageSharp;
+using Tillroll.Rendering.ImageSharp;
 
 var printer = new ReceiptPrinter(
     PaperConfiguration.Default,

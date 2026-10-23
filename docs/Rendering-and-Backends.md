@@ -1,23 +1,23 @@
 # Rendering & Backends
 
-`CrossEscPos.Core` renders the receipt document model through the **abstraction** in
-`CrossEscPos.Abstractions` (`CrossEscPos.Graphics`), never against a concrete graphics library. A
+`Tillroll.Core` renders the receipt document model through the **abstraction** in
+`Tillroll.Abstractions` (`Tillroll.Graphics`), never against a concrete graphics library. A
 **render backend** implements that abstraction. Two ship in-box:
 
 | Backend | Package | Best for |
 | --- | --- | --- |
-| **SkiaSharp** (default) | `CrossEscPos.Rendering.Skia` | Desktop / server — fast native rasterization |
-| **ImageSharp** (managed) | `CrossEscPos.Rendering.ImageSharp` | the browser (WASM) / anywhere native deps are unwanted — no native relink, byte-compatible output |
+| **SkiaSharp** (default) | `Tillroll.Rendering.Skia` | Desktop / server — fast native rasterization |
+| **ImageSharp** (managed) | `Tillroll.Rendering.ImageSharp` | the browser (WASM) / anywhere native deps are unwanted — no native relink, byte-compatible output |
 
 Both embed the same monospace font (JetBrains Mono, OFL) and produce the **same receipts**; a host picks
 one and injects it. Want to write your own? See **[Adding a Render Backend](Adding-a-Render-Backend.md)**.
 
 ```mermaid
 flowchart LR
-    subgraph core["CrossEscPos.Core"]
+    subgraph core["Tillroll.Core"]
         receipt["Receipt / printables"]
     end
-    subgraph abs["CrossEscPos.Abstractions (CrossEscPos.Graphics)"]
+    subgraph abs["Tillroll.Abstractions (Tillroll.Graphics)"]
         factory["IReceiptImageFactory"]
         canvas["IReceiptCanvas"]
         font["ITypefaceProvider / IReceiptFont"]
@@ -37,7 +37,7 @@ flowchart LR
 ## The Skia backend (native, default)
 
 ```csharp
-using CrossEscPos.Rendering.Skia;
+using Tillroll.Rendering.Skia;
 
 var imageFactory = new SkiaImageFactory();       // IReceiptImageFactory
 var typefaces    = new SkiaTypefaceProvider();   // ITypefaceProvider (fonts embedded)
@@ -53,7 +53,7 @@ Same three types, same output — but pure managed code, so **no native dependen
 other assembly and runs in **the browser (WASM) with no native relink**.
 
 ```csharp
-using CrossEscPos.Rendering.ImageSharp;
+using Tillroll.Rendering.ImageSharp;
 
 var imageFactory = new ImageSharpImageFactory();
 var typefaces    = new ImageSharpTypefaceProvider();
@@ -77,7 +77,7 @@ byte[] png = encoder.EncodePng(image);  // or get the bytes
 Stack every receipt into one tall image (the "export all" use case):
 
 ```csharp
-using CrossEscPos.Emulator.Rendering;
+using Tillroll.Emulator.Rendering;
 
 var images = printer.ReceiptStack.Where(r => !r.IsEmpty).Select(r => r.Render()).ToList();
 using var combined = ReceiptExporter.StackVertical(images, imageFactory);

@@ -1,0 +1,464 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:Tillroll.App.ViewModels"
+             xmlns:tr="using:Tillroll.App.Transports"
+             xmlns:views="using:Tillroll.App.Views"
+             xmlns:controls="using:Tillroll.Controls"
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="780"
+             x:Class="Tillroll.App.Views.MainView"
+             x:DataType="vm:MainViewModel"
+             Background="{DynamicResource GroundBrush}"
+             Foreground="{DynamicResource InkBrush}"
+             FontFamily="{DynamicResource UiFont}"
+             FontSize="13">
+
+    <UserControl.Styles>
+        <!-- Side panel cards: one step darker than the ground, divided by a hairline, no shadow. -->
+        <Style Selector="Border.card">
+            <Setter Property="Background" Value="{DynamicResource PanelBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="{DynamicResource CardRadius}"/>
+            <Setter Property="Padding" Value="14"/>
+        </Style>
+        <!-- Connection rows: a list divided by hairlines, not a stack of boxes. -->
+        <Style Selector="Border.conn">
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="0 0 0 1"/>
+            <Setter Property="Padding" Value="4 16"/>
+        </Style>
+        <Style Selector="Ellipse.dot">
+            <Setter Property="Width" Value="7"/>
+            <Setter Property="Height" Value="7"/>
+            <Setter Property="Fill" Value="#5A5A60"/>
+        </Style>
+        <Style Selector="Ellipse.dot.live">
+            <Setter Property="Fill" Value="{DynamicResource PositiveBrush}"/>
+        </Style>
+
+        <!-- Settings disclosure inside a connection card -->
+        <Style Selector="ToggleButton.disclose">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{DynamicResource InkMutedBrush}"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="MinHeight" Value="0"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style Selector="ToggleButton.disclose /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="Transparent"/>
+        </Style>
+        <Style Selector="ToggleButton.disclose:pointerover">
+            <Setter Property="Foreground" Value="{DynamicResource InkBrush}"/>
+        </Style>
+        <Style Selector="ToggleButton.disclose:pointerover /template/ ContentPresenter#PART_ContentPresenter,
+                         ToggleButton.disclose:checked /template/ ContentPresenter#PART_ContentPresenter,
+                         ToggleButton.disclose:pressed /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{DynamicResource InkBrush}"/>
+        </Style>
+        <Style Selector="ToggleButton.disclose controls|IconView.chevron">
+            <Setter Property="RenderTransform" Value="rotate(-90deg)"/>
+            <Setter Property="Transitions">
+                <Transitions>
+                    <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.16" Easing="0.23,1,0.32,1"/>
+                </Transitions>
+            </Setter>
+        </Style>
+        <Style Selector="ToggleButton.disclose:checked controls|IconView.chevron">
+            <Setter Property="RenderTransform" Value="rotate(0deg)"/>
+        </Style>
+
+        <!-- Arrivals board rows -->
+        <Style Selector="ListBox.board">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Padding" Value="8 0"/>
+        </Style>
+        <Style Selector="ListBox.board ListBoxItem">
+            <Setter Property="Padding" Value="10 0"/>
+            <Setter Property="MinHeight" Value="34"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style Selector="ListBox.board ListBoxItem /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="Transparent"/>
+        </Style>
+        <Style Selector="ListBox.board ListBoxItem:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource RaisedBrush}"/>
+        </Style>
+        <Style Selector="ListBox.board ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource RaisedBrush}"/>
+        </Style>
+        <Style Selector="ListBox.board ListBoxItem Rectangle.selection">
+            <Setter Property="IsVisible" Value="False"/>
+        </Style>
+        <Style Selector="ListBox.board ListBoxItem:selected Rectangle.selection">
+            <Setter Property="IsVisible" Value="True"/>
+        </Style>
+        <Style Selector="TextBlock.board">
+            <Setter Property="FontFamily" Value="{DynamicResource MonoFont}"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="{DynamicResource InkMutedBrush}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <!-- Text link (status strip, "mark all seen") -->
+        <Style Selector="Button.link">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Padding" Value="6 0"/>
+            <Setter Property="MinHeight" Value="24"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="FontWeight" Value="Normal"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+
+        <!-- Announcement (buzzer, cash drawer, dropped print): appears in the status strip, never over the paper.
+             It rises 4 px and fades in, then fades out. -->
+        <Style Selector="Border.announce">
+            <Setter Property="Opacity" Value="0"/>
+            <Setter Property="RenderTransform" Value="translateY(4px)"/>
+            <Setter Property="Transitions">
+                <Transitions>
+                    <DoubleTransition Property="Opacity" Duration="0:0:0.18" Easing="0.23,1,0.32,1"/>
+                    <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.18" Easing="0.23,1,0.32,1"/>
+                </Transitions>
+            </Setter>
+        </Style>
+        <Style Selector="Border.announce.shown">
+            <Setter Property="Opacity" Value="1"/>
+            <Setter Property="RenderTransform" Value="translateY(0px)"/>
+        </Style>
+        <Style Selector="TextBlock.warn">
+            <Setter Property="Foreground" Value="{DynamicResource WarningBrush}"/>
+        </Style>
+        <Style Selector="TextBlock.lamp">
+            <Setter Property="FontFamily" Value="{DynamicResource MonoFont}"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+    </UserControl.Styles>
+
+    <Grid RowDefinitions="*,28">
+        <Grid ColumnDefinitions="56,Auto,*">
+
+            <!-- Rail: the brand, the three panels, and the Monitor. -->
+            <Border Grid.Column="0" Background="{DynamicResource PanelBrush}"
+                    BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0 0 1 0">
+                <DockPanel Margin="0 14 0 12">
+                    <Image DockPanel.Dock="Top" Source="avares://Tillroll.App/Assets/logo.png"
+                           Width="28" Height="28" Margin="0 0 0 18" ToolTip.Tip="Tillroll"
+                           RenderOptions.BitmapInterpolationMode="HighQuality"/>
+                    <Button DockPanel.Dock="Bottom" Classes="rail" HorizontalAlignment="Center"
+                            Command="{Binding OpenMonitorCommand}" IsVisible="{Binding SupportsMonitor}"
+                            ToolTip.Tip="Monitor: a test client that prints to this emulator"
+                            ToolTip.Placement="Right" AutomationProperties.Name="Monitor">
+                        <controls:IconView Classes="lg" Data="{DynamicResource Icon.Activity}"/>
+                    </Button>
+                    <StackPanel Spacing="6">
+                        <Grid Height="40">
+                            <Button Classes="rail" Classes.active="{Binding IsConnectionsOpen}" HorizontalAlignment="Center"
+                                    Command="{Binding ShowPanelCommand}" CommandParameter="{x:Static vm:SidePanel.Connections}"
+                                    ToolTip.Tip="Connections" ToolTip.Placement="Right" AutomationProperties.Name="Connections">
+                                <controls:IconView Classes="lg" Data="{DynamicResource Icon.Plug}"/>
+                            </Button>
+                            <Rectangle Width="1" Height="22" HorizontalAlignment="Right" Fill="{DynamicResource AccentBrush}"
+                                       IsVisible="{Binding IsConnectionsOpen}"/>
+                        </Grid>
+                        <Grid Height="40">
+                            <Button Classes="rail" Classes.active="{Binding IsPrinterOpen}" HorizontalAlignment="Center"
+                                    Command="{Binding ShowPanelCommand}" CommandParameter="{x:Static vm:SidePanel.Printer}"
+                                    ToolTip.Tip="Printer state" ToolTip.Placement="Right" AutomationProperties.Name="Printer state">
+                                <controls:IconView Classes="lg" Data="{DynamicResource Icon.Printer}"/>
+                            </Button>
+                            <Rectangle Width="1" Height="22" HorizontalAlignment="Right" Fill="{DynamicResource AccentBrush}"
+                                       IsVisible="{Binding IsPrinterOpen}"/>
+                        </Grid>
+                        <Grid Height="40">
+                            <Button Classes="rail" Classes.active="{Binding IsTestPrintOpen}" HorizontalAlignment="Center"
+                                    Command="{Binding ShowPanelCommand}" CommandParameter="{x:Static vm:SidePanel.TestPrint}"
+                                    ToolTip.Tip="Test print" ToolTip.Placement="Right" AutomationProperties.Name="Test print">
+                                <controls:IconView Classes="lg" Data="{DynamicResource Icon.Code}"/>
+                            </Button>
+                            <Rectangle Width="1" Height="22" HorizontalAlignment="Right" Fill="{DynamicResource AccentBrush}"
+                                       IsVisible="{Binding IsTestPrintOpen}"/>
+                        </Grid>
+                    </StackPanel>
+                </DockPanel>
+            </Border>
+
+            <!-- Side panel: the view chosen on the rail. -->
+            <Border Grid.Column="1" Width="300" IsVisible="{Binding IsSidePanelOpen}"
+                    BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0 0 1 0">
+                <Panel>
+                    <!-- Connections -->
+                    <DockPanel IsVisible="{Binding IsConnectionsOpen}">
+                        <StackPanel DockPanel.Dock="Top" Margin="20 20 20 14" Spacing="4">
+                            <TextBlock Classes="h2" Text="Connections"/>
+                            <TextBlock Classes="muted" TextWrapping="Wrap"
+                                       Text="Start one, then print from your app or phone."/>
+                        </StackPanel>
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <ItemsControl ItemsSource="{Binding Transports}" Margin="16 0 16 16"
+                                          BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0 1 0 0">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="tr:TransportEntry">
+                                        <Border Classes="conn">
+                                            <StackPanel Spacing="10">
+                                                <Grid ColumnDefinitions="Auto,*,Auto">
+                                                    <controls:IconView Margin="0 1 10 0" VerticalAlignment="Top"
+                                                                       Foreground="{DynamicResource InkMutedBrush}"
+                                                                       Data="{Binding Kind, Converter={x:Static views:TransportIconConverter.Instance}}"/>
+                                                    <StackPanel Grid.Column="1" Spacing="2" VerticalAlignment="Center">
+                                                        <TextBlock Classes="title" Text="{Binding Name}" TextWrapping="Wrap"/>
+                                                        <TextBlock Classes="small" Text="{Binding Description}" TextWrapping="Wrap"
+                                                                   IsVisible="{Binding HasDescription}"/>
+                                                    </StackPanel>
+                                                    <Button Grid.Column="2" Margin="10 0 0 0" VerticalAlignment="Top" MinWidth="64"
+                                                            Classes.primary="{Binding ShowsPrimaryAction}" Classes.ghost="{Binding !ShowsPrimaryAction}"
+                                                            Content="{Binding ButtonText}" Command="{Binding ToggleCommand}"/>
+                                                </Grid>
+                                                <Grid ColumnDefinitions="Auto,*"
+                                                      IsVisible="{Binding Status, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                                                    <Ellipse Classes="dot" Classes.live="{Binding IsActive}"
+                                                             Margin="4 6 10 0" VerticalAlignment="Top"/>
+                                                    <TextBlock Grid.Column="1" Classes="small" Text="{Binding Status}" TextWrapping="Wrap"/>
+                                                </Grid>
+                                                <StackPanel Spacing="10">
+                                                    <ToggleButton Name="SettingsToggle" Classes="disclose" HorizontalAlignment="Left"
+                                                                  AutomationProperties.Name="Settings">
+                                                        <StackPanel Orientation="Horizontal" Spacing="4">
+                                                            <controls:IconView Classes="chevron" Width="14" Height="14"
+                                                                               Data="{DynamicResource Icon.Chevron}"/>
+                                                            <TextBlock Text="Settings"/>
+                                                        </StackPanel>
+                                                    </ToggleButton>
+                                                    <StackPanel Spacing="10" IsVisible="{Binding #SettingsToggle.IsChecked}">
+                                                        <!-- Locked while running: the endpoint can't change mid-session. -->
+                                                        <ItemsControl ItemsSource="{Binding Fields}" IsEnabled="{Binding !IsActive}">
+                                                            <ItemsControl.ItemsPanel>
+                                                                <ItemsPanelTemplate>
+                                                                    <StackPanel Spacing="10"/>
+                                                                </ItemsPanelTemplate>
+                                                            </ItemsControl.ItemsPanel>
+                                                            <ItemsControl.ItemTemplate>
+                                                                <DataTemplate x:DataType="tr:TransportField">
+                                                                    <StackPanel Spacing="6">
+                                                                        <TextBlock Classes="label" Text="{Binding Label}"/>
+                                                                        <ComboBox IsVisible="{Binding IsDropdown}" ItemsSource="{Binding Options}"
+                                                                                  SelectedItem="{Binding Value, Mode=TwoWay}"/>
+                                                                        <TextBox IsVisible="{Binding !IsDropdown}" Text="{Binding Value, Mode=TwoWay}"/>
+                                                                    </StackPanel>
+                                                                </DataTemplate>
+                                                            </ItemsControl.ItemTemplate>
+                                                        </ItemsControl>
+                                                        <Button Classes="ghost" HorizontalAlignment="Left" Command="{Binding RefreshCommand}"
+                                                                IsVisible="{Binding CanRefresh}" IsEnabled="{Binding !IsActive}"
+                                                                AutomationProperties.Name="Find ports again">
+                                                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                                                <controls:IconView Width="14" Height="14" Data="{DynamicResource Icon.Refresh}"/>
+                                                                <TextBlock Text="Find ports again"/>
+                                                            </StackPanel>
+                                                        </Button>
+                                                        <TextBlock Classes="small" Text="Stop the connection to change these."
+                                                                   IsVisible="{Binding IsActive}"/>
+                                                    </StackPanel>
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </DockPanel>
+
+                    <!-- Printer state -->
+                    <DockPanel IsVisible="{Binding IsPrinterOpen}">
+                        <StackPanel DockPanel.Dock="Top" Margin="20 20 20 16" Spacing="4">
+                            <TextBlock Classes="h2" Text="Printer"/>
+                            <TextBlock Classes="muted" TextWrapping="Wrap"
+                                       Text="Make the emulator behave like a printer in trouble. Apps see it in their status replies."/>
+                            <Border Classes="card" Margin="0 12 0 0" Padding="12 10">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <Ellipse Width="8" Height="8" VerticalAlignment="Center"
+                                             Fill="{Binding Health, Converter={x:Static views:HealthBrushConverter.Instance}}"/>
+                                    <TextBlock Classes="title" Text="{Binding HealthText}"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                        <controls:PrinterStatePanel State="{Binding State}" Margin="20 0 6 16"/>
+                    </DockPanel>
+
+                    <!-- Test print -->
+                    <DockPanel IsVisible="{Binding IsTestPrintOpen}">
+                        <StackPanel DockPanel.Dock="Top" Margin="20 20 20 14" Spacing="4">
+                            <TextBlock Classes="h2" Text="Test print"/>
+                            <TextBlock Classes="muted" TextWrapping="Wrap"
+                                       Text="Type or paste ESC/POS text and render it. Rendering replaces the receipts on screen."/>
+                        </StackPanel>
+                        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Spacing="8" Margin="20 12 20 20">
+                            <Button Classes="primary" Content="Render" Command="{Binding RenderCommand}"/>
+                            <Button Classes="ghost" Content="Load sample" Command="{Binding LoadSampleCommand}"
+                                    ToolTip.Tip="A receipt with barcodes and a QR code"/>
+                        </StackPanel>
+                        <TextBox Classes="mono" Margin="20 0" Text="{Binding Input, Mode=TwoWay}"
+                                 AcceptsReturn="True" TextWrapping="Wrap" VerticalContentAlignment="Top"
+                                 AutomationProperties.Name="ESC/POS input"/>
+                    </DockPanel>
+                </Panel>
+            </Border>
+
+            <!-- Canvas: the receipts and the arrivals board. -->
+            <Grid Grid.Column="2" Name="Canvas" RowDefinitions="Auto,*" Background="Transparent">
+                <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0 0 0 1">
+                    <Grid ColumnDefinitions="*,Auto" Margin="24 0 16 0" Height="60">
+                        <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                            <TextBlock Classes="h1" Text="Receipts" VerticalAlignment="Center"/>
+                            <TextBlock Classes="muted mono" FontSize="12" Text="{Binding ReceiptCountText}"
+                                       VerticalAlignment="Center" Margin="0 3 0 0" IsVisible="{Binding HasReceipts}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                            <Button Classes="ghost" Command="{Binding ClearCommand}" IsEnabled="{Binding HasReceipts}"
+                                    ToolTip.Tip="Remove every receipt from the screen" AutomationProperties.Name="Clear">
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <controls:IconView Width="15" Height="15" Data="{DynamicResource Icon.Trash}"/>
+                                    <TextBlock Text="Clear"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="ghost" IsEnabled="{Binding HasReceipts}" AutomationProperties.Name="Export">
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <controls:IconView Width="15" Height="15" Data="{DynamicResource Icon.Download}"/>
+                                    <TextBlock Text="Export"/>
+                                    <controls:IconView Width="14" Height="14" Data="{DynamicResource Icon.Chevron}"/>
+                                </StackPanel>
+                                <Button.Flyout>
+                                    <MenuFlyout Placement="BottomEdgeAlignedRight">
+                                        <MenuItem Header="All receipts as one image…" Command="{Binding ExportAllCommand}"/>
+                                        <MenuItem Header="Each receipt to a folder…" Command="{Binding ExportEachCommand}"/>
+                                    </MenuFlyout>
+                                </Button.Flyout>
+                            </Button>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <Grid Grid.Row="1" Name="Body" ColumnDefinitions="*,248">
+                    <controls:ReceiptView Name="Receipts" Receipts="{Binding Receipts}"/>
+
+                    <!-- First run: how to get the first receipt. -->
+                    <StackPanel IsVisible="{Binding !HasReceipts}" MaxWidth="380" Margin="24"
+                                HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8">
+                        <controls:IconView Width="32" Height="32" HorizontalAlignment="Left" Margin="0 0 0 8"
+                                           Foreground="{DynamicResource InkMutedBrush}" Data="{DynamicResource Icon.Printer}"/>
+                        <TextBlock Classes="h2" Text="Waiting for a print"/>
+                        <TextBlock Classes="muted" TextWrapping="Wrap"
+                                   Text="Start a connection, then print from your app or phone. Each receipt appears here as it arrives, dot for dot."/>
+                        <StackPanel Orientation="Horizontal" Spacing="8" Margin="0 12 0 0">
+                            <Button Classes="ghost" Content="Show connections" IsVisible="{Binding !IsConnectionsOpen}"
+                                    Command="{Binding OpenPanelCommand}" CommandParameter="{x:Static vm:SidePanel.Connections}"/>
+                            <Button Classes="ghost" Content="Print a sample" Command="{Binding LoadSampleCommand}"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- Arrivals board: one row per cut; a lamp stays lit until the receipt has been seen. -->
+                    <Border Grid.Column="1" Name="BoardPane" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1 0 0 0">
+                        <DockPanel>
+                            <Grid DockPanel.Dock="Top" ColumnDefinitions="*,Auto" Margin="18 16 18 10">
+                                <TextBlock Classes="title" Text="Arrivals" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="1" Classes="board" Text="{Binding Clock}"
+                                           ToolTip.Tip="The time now"/>
+                            </Grid>
+                            <Button DockPanel.Dock="Bottom" Classes="link" Content="Mark all seen" Margin="12 6 12 10"
+                                    HorizontalAlignment="Left"
+                                    Command="{Binding MarkAllSeenCommand}" IsVisible="{Binding HasNew}"/>
+                            <Border DockPanel.Dock="Top" Margin="18 0 18 4" Padding="0 0 0 6"
+                                    BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0 0 0 1"
+                                    IsVisible="{Binding HasReceipts}">
+                                <Grid ColumnDefinitions="40,*,64,44">
+                                    <TextBlock Classes="small" Text="Cut"/>
+                                    <TextBlock Grid.Column="1" Classes="small" Text="Arrived"/>
+                                    <TextBlock Grid.Column="2" Classes="small" Text="Length" HorizontalAlignment="Right"/>
+                                </Grid>
+                            </Border>
+                            <TextBlock DockPanel.Dock="Top" Classes="small" Margin="18 4 18 0" TextWrapping="Wrap"
+                                       Text="Nothing yet. Each cut is listed here as it lands."
+                                       IsVisible="{Binding !HasReceipts}"/>
+                            <ListBox Name="Board" Classes="board" ItemsSource="{Binding Receipts}"
+                                     SelectedItem="{Binding SelectedReceipt, Mode=TwoWay}"
+                                     AutomationProperties.Name="Arrivals">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate x:DataType="controls:ReceiptViewModel">
+                                        <Grid ColumnDefinitions="40,*,64,44" Height="34">
+                                            <Panel HorizontalAlignment="Left">
+                                                <TextBlock Classes="board" Text="{Binding Number, StringFormat='#{0}'}"
+                                                           Foreground="{DynamicResource InkBrush}"/>
+                                                <Rectangle Classes="selection" Height="1" VerticalAlignment="Bottom" Margin="0 0 0 7"
+                                                           Fill="{DynamicResource AccentBrush}"/>
+                                            </Panel>
+                                            <TextBlock Grid.Column="1" Classes="board" Text="{Binding ArrivalTime}"/>
+                                            <TextBlock Grid.Column="2" Classes="board" Text="{Binding LengthText}" HorizontalAlignment="Right"
+                                                       ToolTip.Tip="{Binding SizeText}"/>
+                                            <TextBlock Grid.Column="3" Classes="lamp" Text="NEW" HorizontalAlignment="Right"
+                                                       IsVisible="{Binding IsNew}" ToolTip.Tip="Not looked at yet"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </DockPanel>
+                    </Border>
+                </Grid>
+            </Grid>
+        </Grid>
+
+        <!-- Status strip: is the printer ready, what is running, what paper. -->
+        <Border Grid.Row="1" Background="{DynamicResource PanelBrush}"
+                BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0 1 0 0">
+            <Grid ColumnDefinitions="Auto,*,Auto" Margin="10 0 16 0">
+                <Button Classes="link" Command="{Binding OpenPanelCommand}" CommandParameter="{x:Static vm:SidePanel.Printer}"
+                        ToolTip.Tip="Printer state" AutomationProperties.Name="{Binding HealthText}">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Ellipse Width="7" Height="7" VerticalAlignment="Center"
+                                 Fill="{Binding Health, Converter={x:Static views:HealthBrushConverter.Instance}}"/>
+                        <TextBlock Text="{Binding HealthText}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <Border Grid.Column="1" Classes="announce" Classes.shown="{Binding ToastVisible}"
+                        HorizontalAlignment="Center" VerticalAlignment="Center" Padding="12 2"
+                        Background="{DynamicResource RaisedBrush}" CornerRadius="999" IsHitTestVisible="False">
+                    <TextBlock Text="{Binding ToastMessage}" FontSize="12" FontWeight="Medium"/>
+                </Border>
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="14" VerticalAlignment="Center">
+                    <TextBlock Classes="small" Text="{Binding LiveText}" VerticalAlignment="Center"/>
+                    <TextBlock Classes="small mono" Text="{Binding PaperText}" VerticalAlignment="Center"
+                               ToolTip.Tip="{Binding BackendName, StringFormat='Paper this printer emulates. Rendered with {0}.'}"/>
+                    <TextBlock Classes="small mono" Text="{Binding ScaleText}" VerticalAlignment="Center"
+                               Classes.warn="{Binding !IsScaleExact}"
+                               ToolTip.Tip="How receipts are drawn: whole screen pixels per printer dot, with no smoothing."/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- In-page Monitor (the browser hosts it here; desktop opens a window instead). -->
+        <Grid Grid.RowSpan="2" IsVisible="{Binding IsMonitorOpen}" Background="#99000000">
+            <Border HorizontalAlignment="Right" Width="460" Background="{DynamicResource GroundBrush}"
+                    BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1 0 0 0"
+                    BoxShadow="-8 0 32 0 #80000000">
+                <DockPanel>
+                    <Grid DockPanel.Dock="Top" Margin="0 12 12 -44" ZIndex="1">
+                        <Button HorizontalAlignment="Right" Classes="icon" Command="{Binding CloseMonitorCommand}"
+                                ToolTip.Tip="Close" AutomationProperties.Name="Close the monitor">
+                            <controls:IconView Data="{DynamicResource Icon.X}"/>
+                        </Button>
+                    </Grid>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <views:MonitorView DataContext="{Binding Monitor}"/>
+                    </ScrollViewer>
+                </DockPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

@@ -1,6 +1,6 @@
-# CrossEscPos documentation
+# Tillroll documentation
 
-CrossEscPos emulates a networked, serial, USB or Bluetooth receipt printer so you can test the ESC/POS your
+Tillroll emulates a networked, serial, USB or Bluetooth receipt printer so you can test the ESC/POS your
 point-of-sale software sends. It renders the receipts, answers status queries, and simulates paper,
 cover, drawer and error states. It ships as:
 
@@ -10,7 +10,7 @@ cover, drawer and error states. It ships as:
 - NuGet packages for each layer, so you take only what you need.
 
 These pages are the project's long-form documentation. They are also published as the
-[wiki](https://github.com/danielmeza/CrossEscPosEmulator/wiki); edit them in `docs/`, because the wiki is
+[wiki](https://github.com/hasana3n/tillroll/wiki); edit them in `docs/`, because the wiki is
 regenerated from here.
 
 ## Using the emulator
@@ -37,7 +37,7 @@ regenerated from here.
 - [Transports](Transports.md): feed the emulator over TCP, serial, USB or Bluetooth.
 - [Controls](Controls.md): the reusable Avalonia `ReceiptView` and `PrinterStatePanel`.
 
-## Working on CrossEscPos
+## Working on Tillroll
 
 - [Architecture](Architecture.md): the packages, one app with two heads, and the bundled font.
 - [Building and testing](Building-and-Testing.md): build every head, run the tests, and how releases,

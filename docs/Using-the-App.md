@@ -5,7 +5,7 @@ backend.
 
 ## The window
 
-![CrossEscPos with two receipts on the arrivals board, Windows at 150% scaling](Screenshot.png)
+![Tillroll with two receipts on the arrivals board, Windows at 150% scaling](Screenshot.png)
 
 The same layout runs on Windows, Linux, macOS and in the browser:
 
@@ -41,7 +41,7 @@ overlay in the browser. Its test jobs and status display are identical; only the
     VID:PID), via libusb. This is send-only (no status), and needs native **libusb** installed
     (macOS `brew install libusb`, Debian/Ubuntu `apt install libusb-1.0-0`; bundled on Windows) and the
     OS not already holding the device.
-- **Browser** — sends over the **SignalR proxy** (the `CrossEscPos.Host` hub) to the in-page emulator,
+- **Browser** — sends over the **SignalR proxy** (the `Tillroll.Host` hub) to the in-page emulator,
   for a full round-trip without any native transport.
 
 It then lets you exercise the target without writing any code:
@@ -77,8 +77,8 @@ Pick the render backend (for A/B testing the two rendering libraries) with `--ba
 status strip to see which backend is rendering.
 
 ```sh
-dotnet run --project src/CrossEscPos.App.Desktop -- --backend imagesharp   # managed ImageSharp backend
-dotnet run --project src/CrossEscPos.App.Desktop -- --backend skia         # default SkiaSharp backend
+dotnet run --project src/Tillroll.App.Desktop -- --backend imagesharp   # managed ImageSharp backend
+dotnet run --project src/Tillroll.App.Desktop -- --backend skia         # default SkiaSharp backend
 ```
 
 The `ESCPOS_RENDER_BACKEND` environment variable does the same; see [Connecting](Connecting.md#tcp-and-serial).

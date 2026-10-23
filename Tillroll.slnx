@@ -1,0 +1,26 @@
+<Solution>
+  <Folder Name="/samples/">
+    <Project Path="samples/Tillroll.Headless/Tillroll.Headless.csproj" />
+    <Project Path="samples/Tillroll.Host/Tillroll.Host.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/Tillroll.Abstractions/Tillroll.Abstractions.csproj" />
+    <Project Path="src/Tillroll.Bridge/Tillroll.Bridge.csproj" />
+    <Project Path="src/Tillroll.App/Tillroll.App.csproj" />
+    <Project Path="src/Tillroll.App.Browser/Tillroll.App.Browser.csproj" />
+    <Project Path="src/Tillroll.App.Desktop/Tillroll.App.Desktop.csproj" />
+    <Project Path="src/Tillroll.Controls/Tillroll.Controls.csproj" />
+    <Project Path="src/Tillroll.Core/Tillroll.Core.csproj" />
+    <Project Path="src/Tillroll.Rendering.ImageSharp/Tillroll.Rendering.ImageSharp.csproj" />
+    <Project Path="src/Tillroll.Rendering.Skia/Tillroll.Rendering.Skia.csproj" />
+    <Project Path="src/Tillroll.Transports/Tillroll.Transports.csproj" />
+    <Project Path="src/Tillroll.Transports.Bluetooth/Tillroll.Transports.Bluetooth.csproj" />
+    <Project Path="src/Tillroll.Transports.Browser/Tillroll.Transports.Browser.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Tillroll.Controls.Tests/Tillroll.Controls.Tests.csproj" />
+    <Project Path="tests/Tillroll.Core.Tests/Tillroll.Core.Tests.csproj" />
+    <Project Path="tests/Tillroll.Transports.Bluetooth.Tests/Tillroll.Transports.Bluetooth.Tests.csproj" />
+    <Project Path="tests/Tillroll.Transports.Tests/Tillroll.Transports.Tests.csproj" />
+  </Folder>
+</Solution>

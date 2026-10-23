@@ -1,4 +1,4 @@
-# Transports (`CrossEscPos.Transports`)
+# Transports (`Tillroll.Transports`)
 
 Desktop transports that feed an ESC/POS stream into a `ReceiptPrinter` the way a real device receives
 it — over **TCP/IP**, a **serial** port, or **USB**. They also implement `IPrinterResponder`, so the
@@ -22,7 +22,7 @@ network receipt printer (port 9100 by convention).
 
 ```csharp
 using System.Net;
-using CrossEscPos.Transports;
+using Tillroll.Transports;
 
 var tcp = new NetServer(printer);
 tcp.Start(IPAddress.Any, 9100);
@@ -47,7 +47,7 @@ hardware"*.
 
 ## Bluetooth
 
-Bluetooth lives in its own package, `CrossEscPos.Transports.Bluetooth`, because it needs platform APIs
+Bluetooth lives in its own package, `Tillroll.Transports.Bluetooth`, because it needs platform APIs
 (WinRT on Windows, BlueZ over D-Bus on Linux). It makes the computer a Bluetooth receipt printer for phones:
 Classic SPP for Android and a BLE GATT peripheral for iPhone. Setup, UUIDs and phone-side code are in
 [Bluetooth](Bluetooth.md).
@@ -86,7 +86,7 @@ serial.Stop();
 ## Browser transports
 
 The [Browser App](Browser-App.md) implements the same `IPrinterResponder` seam over browser APIs
-(`CrossEscPos.Transports.Browser`), so the receive → `FeedEscPos` → respond logic is identical to the
+(`Tillroll.Transports.Browser`), so the receive → `FeedEscPos` → respond logic is identical to the
 desktop ones. There are three:
 
 | Browser transport | Desktop analogue | API |
@@ -97,7 +97,7 @@ desktop ones. There are three:
 
 **Web Serial / WebUSB.** A shared `transports.js` owns the device I/O; the Avalonia WASM head bridges to
 it with `[JSImport]`/`[JSExport]` (the raw browser interop Avalonia uses). Bytes cross the boundary as
-**base64** (received bytes → `DeliverData`; outgoing status via `crossescpos.write`), keeping the interop
+**base64** (received bytes → `DeliverData`; outgoing status via `tillroll.write`), keeping the interop
 marshaling trivial:
 
 ```
@@ -112,8 +112,8 @@ device's bulk **IN** endpoint (incoming ESC/POS) and writes status to bulk **OUT
 ## Browser TCP over SignalR
 
 A browser can't open a raw **TCP** listen socket, so `SignalRTransport` connects to the broker in
-[`samples/CrossEscPos.Host`](Browser-App.md) and asks it to open one on the emulator's behalf. The hub is
-strongly typed on both ends via `CrossEscPos.Bridge`:
+[`samples/Tillroll.Host`](Browser-App.md) and asks it to open one on the emulator's behalf. The hub is
+strongly typed on both ends via `Tillroll.Bridge`:
 
 - `IBridgeServer` — what a client calls: `AttachEmulator(address, port)`, `SendToEmulator(bytes)`,
   `ReplyToSender(bytes)`. The hub is `Hub<IBridgeClient>` implementing this; clients call it through a

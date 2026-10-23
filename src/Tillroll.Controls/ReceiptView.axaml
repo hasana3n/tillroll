@@ -1,0 +1,52 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="using:Tillroll.Controls"
+             x:Class="Tillroll.Controls.ReceiptView">
+
+    <UserControl.Styles>
+        <Style Selector="TextBlock.caption">
+            <Setter Property="FontFamily" Value="{DynamicResource MonoFont}"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="{DynamicResource InkMutedBrush}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+    </UserControl.Styles>
+
+    <!-- The live stream of receipts, one paper slip per cut, each shown pixel-exact with a caption underneath.
+         Bind the Receipts property to an IEnumerable of ReceiptViewModel. -->
+    <ScrollViewer Name="ReceiptScrollView"
+                  HorizontalScrollBarVisibility="Disabled"
+                  VerticalScrollBarVisibility="Auto">
+        <ItemsControl Name="ReceiptItems" Margin="16 24 16 32"
+                      ItemsSource="{Binding Receipts, RelativeSource={RelativeSource AncestorType=controls:ReceiptView}}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="controls:ReceiptViewModel">
+                    <StackPanel HorizontalAlignment="Center" Margin="0 0 0 28">
+                        <!-- The paper. Pixel-exact: each printer dot is a whole number of screen pixels, unsmoothed. -->
+                        <Border Background="{DynamicResource PaperBrush}">
+                            <controls:PixelPerfectImage Source="{Binding Image}"/>
+                        </Border>
+                        <!-- Caption: the arrival lamp, the cut, when it came and how long it is. -->
+                        <Grid ColumnDefinitions="Auto,*,Auto" Margin="2 6 0 0">
+                            <TextBlock Margin="0 0 10 0" Text="NEW" IsVisible="{Binding IsNew}" ToolTip.Tip="Not looked at yet"
+                                       FontFamily="{DynamicResource MonoFont}" FontSize="11" FontWeight="Bold"
+                                       Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center"/>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10">
+                                <TextBlock Classes="caption" Text="{Binding Title}"
+                                           Foreground="{DynamicResource InkBrush}"/>
+                                <TextBlock Classes="caption" Text="{Binding ArrivalTime}"/>
+                                <TextBlock Classes="caption" Text="{Binding LengthText}"
+                                           ToolTip.Tip="{Binding SizeText}"/>
+                            </StackPanel>
+                            <Button Grid.Column="2" Classes="icon" Command="{Binding ExportCommand}"
+                                    ToolTip.Tip="Save this receipt as PNG"
+                                    AutomationProperties.Name="Save this receipt as PNG">
+                                <controls:IconView Data="{DynamicResource Icon.Download}"/>
+                            </Button>
+                        </Grid>
+                    </StackPanel>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </ScrollViewer>
+</UserControl>

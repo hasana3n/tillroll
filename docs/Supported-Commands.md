@@ -89,8 +89,8 @@ A few things remain partial or unimplemented:
 ## Adding a command
 
 Contributions are welcome. New commands follow the simple `BaseCommand` pattern in
-[`EscPos/Commands`](../src/CrossEscPos.Core/EscPos/Commands) and are registered in
-[`EscPosInterpreter.RegisterCommands`](../src/CrossEscPos.Core/EscPos/EscPosInterpreter.cs).
+[`EscPos/Commands`](../src/Tillroll.Core/EscPos/Commands) and are registered in
+[`EscPosInterpreter.RegisterCommands`](../src/Tillroll.Core/EscPos/EscPosInterpreter.cs).
 
 For the quirks found while implementing commands (for example, why italics are vendor-specific), see
 [ESC/POS notes](ESC-POS-Notes.md).

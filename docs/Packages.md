@@ -1,33 +1,33 @@
 # Packages
 
-CrossEscPos is split into layered, independently-usable packages so you can take only what you need —
+Tillroll is split into layered, independently-usable packages so you can take only what you need —
 the headless emulator, a render backend, the transports, and/or the Avalonia controls.
 
 | Package | What it gives you | Depends on |
 | --- | --- | --- |
-| **CrossEscPos.Abstractions** | Backend-agnostic contracts: `IReceiptCanvas`, `IReceiptImage`, `IReceiptImageFactory`, `ITypefaceProvider`, `IImageEncoder`, `IReceiptPrintable`, `IPrinterResponder` | — |
-| **CrossEscPos.Core** | The headless ESC/POS emulator: `ReceiptPrinter`, the interpreter, the receipt document model, barcode/QR | Abstractions |
-| **CrossEscPos.Rendering.Skia** | The default render backend (SkiaSharp, native); fonts embedded | Abstractions |
-| **CrossEscPos.Rendering.ImageSharp** | A 100% managed render backend (ImageSharp) — no native dependency, runs in the browser (WASM) with no native relink; byte-compatible output with Skia | Abstractions |
-| **CrossEscPos.Transports** | TCP / serial / USB transports that feed a printer (desktop) | Core |
-| **CrossEscPos.Transports.Bluetooth** | Makes the computer a Bluetooth printer: Classic SPP (Android) and a BLE GATT peripheral (iPhone). Windows (WinRT, `net10.0-windows10.0.19041.0`) and Linux (BlueZ). See [Bluetooth](Bluetooth.md) | Core, Tmds.DBus.Protocol (Linux) |
-| **CrossEscPos.Controls** | Reusable Avalonia controls: `ReceiptView`, `PrinterStatePanel` | Core, Avalonia |
+| **Tillroll.Abstractions** | Backend-agnostic contracts: `IReceiptCanvas`, `IReceiptImage`, `IReceiptImageFactory`, `ITypefaceProvider`, `IImageEncoder`, `IReceiptPrintable`, `IPrinterResponder` | — |
+| **Tillroll.Core** | The headless ESC/POS emulator: `ReceiptPrinter`, the interpreter, the receipt document model, barcode/QR | Abstractions |
+| **Tillroll.Rendering.Skia** | The default render backend (SkiaSharp, native); fonts embedded | Abstractions |
+| **Tillroll.Rendering.ImageSharp** | A 100% managed render backend (ImageSharp) — no native dependency, runs in the browser (WASM) with no native relink; byte-compatible output with Skia | Abstractions |
+| **Tillroll.Transports** | TCP / serial / USB transports that feed a printer (desktop) | Core |
+| **Tillroll.Transports.Bluetooth** | Makes the computer a Bluetooth printer: Classic SPP (Android) and a BLE GATT peripheral (iPhone). Windows (WinRT, `net10.0-windows10.0.19041.0`) and Linux (BlueZ). See [Bluetooth](Bluetooth.md) | Core, Tmds.DBus.Protocol (Linux) |
+| **Tillroll.Controls** | Reusable Avalonia controls: `ReceiptView`, `PrinterStatePanel` | Core, Avalonia |
 
-Everything lives under the single `CrossEscPos.*` namespace root (organized by feature, e.g.
-`CrossEscPos.Emulator`, `CrossEscPos.Graphics`, `CrossEscPos.Controls`), so types resolve across the
+Everything lives under the single `Tillroll.*` namespace root (organized by feature, e.g.
+`Tillroll.Emulator`, `Tillroll.Graphics`, `Tillroll.Controls`), so types resolve across the
 packages regardless of which one they ship in.
 
 ## How the packages depend on each other
 
 ```mermaid
 flowchart BT
-    Abstractions["CrossEscPos.Abstractions"]
-    Core["CrossEscPos.Core"] --> Abstractions
-    Skia["CrossEscPos.Rendering.Skia"] --> Abstractions
-    ImageSharp["CrossEscPos.Rendering.ImageSharp"] --> Abstractions
-    Transports["CrossEscPos.Transports"] --> Core
-    Bluetooth["CrossEscPos.Transports.Bluetooth"] --> Core
-    Controls["CrossEscPos.Controls"] --> Core
+    Abstractions["Tillroll.Abstractions"]
+    Core["Tillroll.Core"] --> Abstractions
+    Skia["Tillroll.Rendering.Skia"] --> Abstractions
+    ImageSharp["Tillroll.Rendering.ImageSharp"] --> Abstractions
+    Transports["Tillroll.Transports"] --> Core
+    Bluetooth["Tillroll.Transports.Bluetooth"] --> Core
+    Controls["Tillroll.Controls"] --> Core
     Controls --> Abstractions
 
     Host(["your host app"]) -.-> Core
@@ -55,10 +55,10 @@ Both embed JetBrains Mono and produce the same receipts. See **[Rendering & Back
 The packages are on NuGet, published by the `Release` workflow on each `v*` tag:
 
 ```sh
-dotnet add package CrossEscPos.Core
-dotnet add package CrossEscPos.Rendering.Skia
+dotnet add package Tillroll.Core
+dotnet add package Tillroll.Rendering.Skia
 # or the managed backend:
-dotnet add package CrossEscPos.Rendering.ImageSharp
+dotnet add package Tillroll.Rendering.ImageSharp
 # …and Controls / Transports as needed
 ```
 

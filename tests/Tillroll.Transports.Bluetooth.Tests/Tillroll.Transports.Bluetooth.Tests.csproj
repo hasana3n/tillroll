@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- Directory.Build.props sets TargetFramework; clear it so TargetFrameworks drives the build. -->
+    <TargetFramework></TargetFramework>
+    <TargetFrameworks>net10.0</TargetFrameworks>
+    <!-- The WinRT (Windows) servers are only built and tested on a Windows host. -->
+    <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('Windows'))">net10.0;net10.0-windows10.0.19041.0</TargetFrameworks>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <!-- xUnit analyzers emit warnings the repo-wide warnings-as-errors would otherwise fail on. -->
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Tillroll.Core\Tillroll.Core.csproj" />
+    <ProjectReference Include="..\..\src\Tillroll.Transports.Bluetooth\Tillroll.Transports.Bluetooth.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Reuse the Core tests' fake render backend so these tests need no graphics library. -->
+    <Compile Include="..\Tillroll.Core.Tests\FakeRenderBackend.cs" Link="Shared\FakeRenderBackend.cs" />
+    <Compile Include="..\Tillroll.Core.Tests\CapturingResponder.cs" Link="Shared\CapturingResponder.cs" />
+  </ItemGroup>
+
+  <ItemGroup Condition="!$(TargetFramework.Contains('-windows'))">
+    <Compile Remove="Windows\**" />
+    <PackageReference Include="Tmds.DBus.Protocol" Version="0.92.0" />
+  </ItemGroup>
+  <ItemGroup Condition="$(TargetFramework.Contains('-windows'))">
+    <Compile Remove="Linux\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageReference Include="xunit.v3" Version="3.2.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5" />
+  </ItemGroup>
+
+</Project>

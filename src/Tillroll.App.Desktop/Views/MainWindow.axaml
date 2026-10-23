@@ -1,0 +1,9 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Tillroll.App.Desktop.Views.MainWindow"
+        Icon="/Assets/Icon/icon-256.png"
+        Title="Tillroll"
+        Width="1200" Height="780" MinWidth="980" MinHeight="600"
+        Background="#141416">
+    <!-- Content is the shared Tillroll.App MainView, set by DesktopPlatformServices.CreateMainWindow. -->
+</Window>

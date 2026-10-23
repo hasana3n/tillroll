@@ -1,0 +1,15 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- Default resources for ReceiptView and PrinterStatePanel, so the controls look complete on their own.
+         Merge this into your Application (or Window) resources. An app that defines the same keys after it
+         (Tillroll.App's Theme/Tokens.axaml does) restyles the controls. -->
+    <SolidColorBrush x:Key="PaperBrush" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="InkBrush" Color="#F4F4F5"/>
+    <SolidColorBrush x:Key="InkMutedBrush" Color="#A1A1AA"/>
+    <SolidColorBrush x:Key="AccentBrush" Color="#F2B33D"/>
+    <SolidColorBrush x:Key="HoverBrush" Color="#26262A"/>
+    <SolidColorBrush x:Key="PanelBrush" Color="#101012"/>
+    <SolidColorBrush x:Key="BorderBrush" Color="#232327"/>
+    <FontFamily x:Key="MonoFont">Cascadia Mono, Consolas, Menlo, DejaVu Sans Mono, monospace</FontFamily>
+    <StreamGeometry x:Key="Icon.Download">M21 15 V19 A2 2 0 0 1 19 21 H5 A2 2 0 0 1 3 19 V15 M7 10 L12 15 L17 10 M12 15 V3</StreamGeometry>
+</ResourceDictionary>

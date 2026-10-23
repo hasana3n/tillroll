@@ -1,15 +1,15 @@
 <h1 align="center">
   <img src="docs/logo.png" alt="" width="112"><br>
-  CrossEscPos
+  Tillroll
 </h1>
 
 <h4 align="center">A receipt printer emulator for testing ESC/POS, on Windows, macOS, Linux and in the browser. Built with <a href="https://avaloniaui.net/">Avalonia</a>.</h4>
 
 <p align="center">
-  <a href="https://github.com/danielmeza/CrossEscPosEmulator/actions/workflows/ci.yml"><img src="https://github.com/danielmeza/CrossEscPosEmulator/actions/workflows/ci.yml/badge.svg" alt="CI status"></a>
-  <a href="https://github.com/danielmeza/CrossEscPosEmulator/releases/latest"><img src="https://img.shields.io/github/v/release/danielmeza/CrossEscPosEmulator" alt="Latest release"></a>
-  <a href="https://www.nuget.org/packages/CrossEscPos.Core"><img src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fapi.nuget.org%2Fv3-flatcontainer%2Fcrossescpos.core%2Findex.json&query=%24.versions%5B-1%3A%5D&prefix=v&label=NuGet&color=blue&logo=nuget" alt="NuGet version"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/github/license/danielmeza/CrossEscPosEmulator" alt="MIT license"></a>
+  <a href="https://github.com/hasana3n/tillroll/actions/workflows/ci.yml"><img src="https://github.com/hasana3n/tillroll/actions/workflows/ci.yml/badge.svg" alt="CI status"></a>
+  <a href="https://github.com/hasana3n/tillroll/releases/latest"><img src="https://img.shields.io/github/v/release/hasana3n/tillroll" alt="Latest release"></a>
+  <a href="https://www.nuget.org/packages/Tillroll.Core"><img src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fapi.nuget.org%2Fv3-flatcontainer%2Ftillroll.core%2Findex.json&query=%24.versions%5B-1%3A%5D&prefix=v&label=NuGet&color=blue&logo=nuget" alt="NuGet version"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/hasana3n/tillroll" alt="MIT license"></a>
 </p>
 
 <p align="center">
@@ -18,7 +18,7 @@
   <a href="#quick-start">Quick start</a> •
   <a href="#from-wpf-to-avalonia-what-the-migration-cost">WPF to Avalonia</a> •
   <a href="docs/README.md">Docs</a> •
-  <a href="https://danielmeza.github.io/CrossEscPosEmulator/app/">Live demo</a>
+  <a href="https://hasana3n.github.io/tillroll/app/">Live demo</a>
 </p>
 
 <p align="center">
@@ -26,11 +26,11 @@
 </p>
 
 Testing receipt printing usually means a real printer, a roll of paper and a lot of walking back and
-forth. CrossEscPos stands in for the printer: point your point-of-sale software at it over TCP, serial, USB or
+forth. Tillroll stands in for the printer: point your point-of-sale software at it over TCP, serial, USB or
 Bluetooth, and each receipt prints on screen. Status queries get real answers, so you can also test how your
 software handles paper-out, an open cover or a cash drawer.
 
-> **Avalonia Port Challenge entry.** CrossEscPos is a cross-platform port of
+> **Avalonia Port Challenge entry.** Tillroll is a cross-platform port of
 > [roydejong/EscPosEmulator](https://github.com/roydejong/EscPosEmulator), a Windows-only WPF app. See
 > [From WPF to Avalonia](#from-wpf-to-avalonia-what-the-migration-cost) for before/after screenshots and
 > what the migration cost.
@@ -58,19 +58,19 @@ software handles paper-out, an open cover or a cash drawer.
 
 | Platform | Download |
 |----------|----------|
-| ![Windows](https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logoColor=white) | [x64 (.zip)](https://github.com/danielmeza/CrossEscPosEmulator/releases/latest/download/CrossEscPos-win-x64.zip) |
-| ![macOS](https://img.shields.io/badge/macOS-000000?style=for-the-badge&logo=apple&logoColor=white) | [Apple silicon (.zip)](https://github.com/danielmeza/CrossEscPosEmulator/releases/latest/download/CrossEscPos-osx-arm64.zip) · [Intel (.zip)](https://github.com/danielmeza/CrossEscPosEmulator/releases/latest/download/CrossEscPos-osx-x64.zip) |
-| ![Linux](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black) | [x64 (.tar.gz)](https://github.com/danielmeza/CrossEscPosEmulator/releases/latest/download/CrossEscPos-linux-x64.tar.gz) |
-| ![Browser](https://img.shields.io/badge/Browser-654FF0?style=for-the-badge&logo=webassembly&logoColor=white) | [Run it online](https://danielmeza.github.io/CrossEscPosEmulator/app/), no install |
+| ![Windows](https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logoColor=white) | [x64 (.zip)](https://github.com/hasana3n/tillroll/releases/latest/download/Tillroll-win-x64.zip) |
+| ![macOS](https://img.shields.io/badge/macOS-000000?style=for-the-badge&logo=apple&logoColor=white) | [Apple silicon (.zip)](https://github.com/hasana3n/tillroll/releases/latest/download/Tillroll-osx-arm64.zip) · [Intel (.zip)](https://github.com/hasana3n/tillroll/releases/latest/download/Tillroll-osx-x64.zip) |
+| ![Linux](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black) | [x64 (.tar.gz)](https://github.com/hasana3n/tillroll/releases/latest/download/Tillroll-linux-x64.tar.gz) |
+| ![Browser](https://img.shields.io/badge/Browser-654FF0?style=for-the-badge&logo=webassembly&logoColor=white) | [Run it online](https://hasana3n.github.io/tillroll/app/), no install |
 
-The links download the latest [release](https://github.com/danielmeza/CrossEscPosEmulator/releases). The
+The links download the latest [release](https://github.com/hasana3n/tillroll/releases). The
 builds are self-contained, so you don't need .NET installed. On Windows and Linux the download is a single
-portable executable (`CrossEscPos.exe` / `CrossEscPos`): unpack it anywhere and run it. To build one yourself,
+portable executable (`Tillroll.exe` / `Tillroll`): unpack it anywhere and run it. To build one yourself,
 see [Portable build](docs/Building-and-Testing.md#portable-build-one-executable). The libraries are on NuGet as
-`CrossEscPos.*`; see [Packages](docs/Packages.md).
+`Tillroll.*`; see [Packages](docs/Packages.md).
 
 > [!NOTE]
-> The macOS apps aren't notarized yet. If macOS says CrossEscPos "is damaged and can't be opened", see
+> The macOS apps aren't notarized yet. If macOS says Tillroll "is damaged and can't be opened", see
 > [Troubleshooting](#troubleshooting).
 
 ## Quick start
@@ -80,7 +80,7 @@ see [Portable build](docs/Building-and-Testing.md#portable-build-one-executable)
    printer:
 
    ```sh
-   printf 'Hello from CrossEscPos\n\n\n\035V\000' | nc -w 1 localhost 9100
+   printf 'Hello from Tillroll\n\n\n\035V\000' | nc -w 1 localhost 9100
    ```
 
 3. Click **Monitor** (the bottom icon on the left rail) to print sample receipts, barcodes and QR codes,
@@ -102,8 +102,8 @@ new SkiaImageEncoder().EncodePng(image, outputStream);
 ## From WPF to Avalonia: what the migration cost
 
 *Entered in the [Avalonia Port Challenge](https://avaloniaui.net/blog/avalonia-port-challenge). The same
-write-up is on the [project site](https://danielmeza.github.io/CrossEscPosEmulator/), next to a
-[live browser demo](https://danielmeza.github.io/CrossEscPosEmulator/app/).*
+write-up is on the [project site](https://hasana3n.github.io/tillroll/), next to a
+[live browser demo](https://hasana3n.github.io/tillroll/app/).*
 
 | Before: WPF, Windows only | After: Avalonia 12 on macOS |
 |:---:|:---:|
@@ -129,7 +129,7 @@ Windows was wired in at four levels:
 
 The ESC/POS interpreter (one command class per opcode, registered in `EscPosInterpreter`) had no UI
 or Windows dependency, so its design carried over unchanged. It is now the headless
-`CrossEscPos.Core` package.
+`Tillroll.Core` package.
 
 ### What changed, and what each part cost
 
@@ -171,7 +171,7 @@ or Windows dependency, so its design carried over unchanged. It is now the headl
 ## Documentation
 
 The long-form guides live in [`docs/`](docs/README.md) and are published as the
-[wiki](https://github.com/danielmeza/CrossEscPosEmulator/wiki).
+[wiki](https://github.com/hasana3n/tillroll/wiki).
 
 | Guide | What's in it |
 |-------|--------------|
@@ -193,8 +193,8 @@ The `.app` is ad-hoc signed but not notarized, so macOS quarantines it after dow
 quarantine flag once, then open it:
 
 ```sh
-xattr -dr com.apple.quarantine /path/to/CrossEscPos.app
-open /path/to/CrossEscPos.app
+xattr -dr com.apple.quarantine /path/to/Tillroll.app
+open /path/to/Tillroll.app
 ```
 
 </details>
@@ -242,23 +242,23 @@ user needs to be in the `bluetooth` group. See [Bluetooth](docs/Bluetooth.md#tro
 
 Both APIs are only available in Chromium-based browsers such as Chrome and Edge, and only on HTTPS or
 `localhost`. Receiving over TCP in the browser needs the relay host:
-`dotnet run --project samples/CrossEscPos.Host`. See [Browser app](docs/Browser-App.md).
+`dotnet run --project samples/Tillroll.Host`. See [Browser app](docs/Browser-App.md).
 
 </details>
 
 ## Limitations
 
-ESC/POS is a large command set, and CrossEscPos covers the common part of it. Not implemented yet:
+ESC/POS is a large command set, and Tillroll covers the common part of it. Not implemented yet:
 page-mode positioning, user-defined glyph substitution, MaxiCode and GS1 DataBar, the `GS ( L` graphics
 commands, and Katakana/CJK code pages. See [Not yet implemented](docs/Supported-Commands.md#not-yet-implemented)
 for the details, and expect gaps.
 
 ## Contributing and support
 
-- Found a bug, or a command that prints wrong? [Open an issue](https://github.com/danielmeza/CrossEscPosEmulator/issues).
+- Found a bug, or a command that prints wrong? [Open an issue](https://github.com/hasana3n/tillroll/issues).
   Attach the ESC/POS bytes if you can: run the app with `ESCPOS_DEBUG_DUMP=1` to save them.
 - Pull requests are welcome. New commands follow the `BaseCommand` pattern described in
-  [Adding a command](docs/Supported-Commands.md#adding-a-command). Run `dotnet test CrossEscPos.slnx`
+  [Adding a command](docs/Supported-Commands.md#adding-a-command). Run `dotnet test Tillroll.slnx`
   before you open one; warnings fail the build. See [Building and testing](docs/Building-and-Testing.md).
 
 ## Credits and license

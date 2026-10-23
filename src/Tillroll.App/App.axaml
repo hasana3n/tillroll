@@ -1,0 +1,22 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Tillroll.App.App"
+             RequestedThemeVariant="Dark">
+
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!-- The reusable controls' defaults first; the app's tokens override them. -->
+                <ResourceInclude Source="avares://Tillroll.Controls/Themes/Default.axaml"/>
+                <ResourceInclude Source="avares://Tillroll.App/Theme/Tokens.axaml"/>
+                <ResourceInclude Source="avares://Tillroll.App/Theme/Icons.axaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+
+    <Application.Styles>
+        <FluentTheme />
+        <StyleInclude Source="avares://Tillroll.App/Theme/Controls.axaml"/>
+    </Application.Styles>
+
+</Application>

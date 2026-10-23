@@ -1,0 +1,47 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <!-- The shared Avalonia application (App, MainView, MainViewModel) reused by the Desktop and
+         Browser heads. Platform-specific bits (transports, and the head lifetime) are injected via
+         IPlatformServices; everything else — rendering, receipts, printer state, export, notifications —
+         is shared. Not a shipped package. -->
+    <IsPackable>false</IsPackable>
+    <!-- Avalonia XAML previewer / compiled bindings. -->
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="12.0.4" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.0.4" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="12.0.4" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+    <!-- The Monitor's test-job generator uses the ESCPOS_NET EPSON emitter (pure managed byte
+         building; the native serial/USB printers live in the desktop head's transports). -->
+    <PackageReference Include="ESCPOS_NET" Version="3.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Tillroll.Abstractions\Tillroll.Abstractions.csproj" />
+    <ProjectReference Include="..\Tillroll.Core\Tillroll.Core.csproj" />
+    <ProjectReference Include="..\Tillroll.Controls\Tillroll.Controls.csproj" />
+    <ProjectReference Include="..\Tillroll.Rendering.Skia\Tillroll.Rendering.Skia.csproj" />
+    <ProjectReference Include="..\Tillroll.Rendering.ImageSharp\Tillroll.Rendering.ImageSharp.csproj" />
+    <!-- Transport abstractions (IReceiptTransport / ITransportProvider) live here; concrete transports
+         are provided by each head. -->
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Embedded UI fonts (Public Sans and JetBrains Mono, both OFL) and the brand mark, so every head renders
+         the same interface without relying on installed fonts. -->
+    <AvaloniaResource Include="Assets\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Sample ESC/POS ticket (text + barcodes + QR) for the "Load sample" button. -->
+    <EmbeddedResource Include="sample.escpos" LogicalName="sample.escpos" />
+    <!-- Full-feature test receipt sent by the Monitor's "full feature test" (works on both heads). -->
+    <EmbeddedResource Include="test_receipt.txt" LogicalName="test_receipt.txt" />
+  </ItemGroup>
+
+</Project>

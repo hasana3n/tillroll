@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- Directory.Build.props sets TargetFramework; clear it so TargetFrameworks drives the build. -->
+    <TargetFramework></TargetFramework>
+    <!-- net10.0: Linux (BlueZ over D-Bus) + the shared engine; other OSes report "unsupported".
+         net10.0-windows10.0.19041.0: adds the Windows (WinRT) servers. -->
+    <TargetFrameworks>net10.0;net10.0-windows10.0.19041.0</TargetFrameworks>
+    <!-- The release workflow builds the win-x64 app on Linux. -->
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <!-- LibraryImport (libc read/write/close for BlueZ socket descriptors) generates unsafe code. -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <IsPackable>true</IsPackable>
+    <Description>Bluetooth transports that make a computer appear as an ESC/POS receipt printer to phones:
+      Classic Bluetooth Serial Port Profile (SPP, for Android) and a BLE GATT peripheral exposing the common
+      thermal-printer services (for iOS and Android BLE apps). Windows 10 2004+ (WinRT, use the
+      net10.0-windows10.0.19041.0 target) and Linux (BlueZ 5.50+ over D-Bus).</Description>
+    <PackageTags>$(PackageTags);bluetooth;ble;spp;bluez</PackageTags>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="$(TargetFramework.Contains('-windows'))">
+    <DefineConstants>$(DefineConstants);WINDOWS_BT</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Tillroll.Core\Tillroll.Core.csproj" />
+  </ItemGroup>
+
+  <!-- The Windows build carries only the WinRT servers; the plain build carries only the BlueZ ones. -->
+  <ItemGroup Condition="$(TargetFramework.Contains('-windows'))">
+    <Compile Remove="Linux\**" />
+  </ItemGroup>
+  <ItemGroup Condition="!$(TargetFramework.Contains('-windows'))">
+    <Compile Remove="Windows\**" />
+    <!-- Pinned to the version Avalonia.FreeDesktop 12.0.4 uses, so the desktop app loads one copy. -->
+    <PackageReference Include="Tmds.DBus.Protocol" Version="0.92.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Tillroll.Transports.Bluetooth.Tests" />
+  </ItemGroup>
+
+</Project>

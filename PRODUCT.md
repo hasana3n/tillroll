@@ -22,7 +22,7 @@ Both, with equal weight (confirmed):
 
 ## Product Purpose
 
-CrossEscPos stands in for a physical ESC/POS receipt printer. It receives jobs the way a real printer does
+Tillroll stands in for a physical ESC/POS receipt printer. It receives jobs the way a real printer does
 (TCP port 9100, serial, USB, Bluetooth SPP for Android, BLE for iPhone, and in-browser transports), renders
 each receipt on screen, answers status queries, and simulates printer states so apps can be tested without
 paper, hardware or walking to a printer. Success: a developer connects in seconds, sees exactly what their
@@ -32,7 +32,7 @@ app printed, and can reproduce printer problems on demand.
 
 A cross-platform, open-source (MIT) printer emulator that talks back: real transports including Bluetooth
 for phones, real status replies, simulated printer state, and a headless core with NuGet packages. A fork of
-danielmeza/CrossEscPosEmulator, itself a port of roydejong/EscPosEmulator.
+hasana3n/tillroll, itself a port of roydejong/EscPosEmulator.
 
 ## Operating Context
 
@@ -57,14 +57,14 @@ danielmeza/CrossEscPosEmulator, itself a port of roydejong/EscPosEmulator.
 - Monitor: separate test-client window on desktop, in-page panel in the browser.
 - Environment variables set initial state (ESCPOS_TCP_PORT, ESCPOS_BT_*, ESCPOS_PAPER_WIDTH, …).
 - Technical: Avalonia 12 + FluentTheme, CommunityToolkit.Mvvm, compiled bindings; warnings are errors;
-  headless UI tests exist (tests/CrossEscPos.Controls.Tests). The UI lives in src/CrossEscPos.App (views,
-  view models) and src/CrossEscPos.Controls (ReceiptView, PrinterStatePanel, PixelPerfectImage).
+  headless UI tests exist (tests/Tillroll.Controls.Tests). The UI lives in src/Tillroll.App (views,
+  view models) and src/Tillroll.Controls (ReceiptView, PrinterStatePanel, PixelPerfectImage).
 - Undecided: paper width selection in the UI (today only via ESCPOS_PAPER_WIDTH); a raw byte/hex inspector
   (not requested as a primary job).
 
 ## Brand Commitments
 
-- Name: CrossEscPos. Logo: docs/logo.png (also the app icon under src/CrossEscPos.App.Desktop/Assets/Icon).
+- Name: Tillroll. Logo: docs/logo.png (also the app icon under src/Tillroll.App.Desktop/Assets/Icon).
 - Receipt text is rendered in JetBrains Mono (embedded, OFL) so output is identical everywhere.
 - Copy voice in docs and status lines: plain, direct, task-first; no jargon in user-facing status.
 

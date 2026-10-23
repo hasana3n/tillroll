@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <!-- xUnit analyzers emit warnings the repo-wide warnings-as-errors would otherwise fail on. -->
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Tillroll.Abstractions\Tillroll.Abstractions.csproj" />
+    <ProjectReference Include="..\..\src\Tillroll.Core\Tillroll.Core.csproj" />
+    <!-- Referenced for the end-to-end render tests; the fake-backend tests use neither. -->
+    <ProjectReference Include="..\..\src\Tillroll.Rendering.Skia\Tillroll.Rendering.Skia.csproj" />
+    <ProjectReference Include="..\..\src\Tillroll.Rendering.ImageSharp\Tillroll.Rendering.ImageSharp.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
+  </ItemGroup>
+
+</Project>

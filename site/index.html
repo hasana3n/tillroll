@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>CrossEscPos: from WPF to Avalonia</title>
+<title>Tillroll: from WPF to Avalonia</title>
 <meta name="description" content="A receipt printer emulator for testing ESC/POS code, ported from a Windows-only WPF app to one Avalonia 12 codebase for Windows, macOS, Linux and the browser.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -189,13 +189,13 @@
 
   <header class="hero">
     <div>
-      <h1>CrossEscPos</h1>
+      <h1>Tillroll</h1>
       <p class="lead">A receipt printer emulator for testing ESC/POS code. Point your point-of-sale software at it over TCP, serial or USB, and the receipt prints on screen.</p>
       <p>It started as a Windows-only WPF app. This is the Avalonia 12 port: one codebase that runs on Windows, macOS, Linux and in the browser.</p>
       <div class="actions">
         <a class="button primary" href="./app/">Run it in your browser</a>
         <a class="button" href="#downloads">Download for desktop</a>
-        <a class="button" href="https://github.com/danielmeza/CrossEscPosEmulator">View the source</a>
+        <a class="button" href="https://github.com/hasana3n/tillroll">View the source</a>
       </div>
     </div>
     <figure class="printer">
@@ -203,7 +203,7 @@
       <div class="feed">
         <div class="paper">
           <img src="receipt.png" width="640" height="704"
-               alt="A receipt hanging upside down from the printer, reading CrossEscPos, ported from WPF on .NET 9 to Avalonia 12 on .NET 10, running on Windows, macOS, Linux and the browser, with a QR code.">
+               alt="A receipt hanging upside down from the printer, reading Tillroll, ported from WPF on .NET 9 to Avalonia 12 on .NET 10, running on Windows, macOS, Linux and the browser, with a QR code.">
         </div>
       </div>
       <figcaption>Printed by the emulator from an ESC/POS job. Like a real receipt, it feeds out title first and hangs upside down. Scan the code to open the browser version.</figcaption>
@@ -244,7 +244,7 @@
         <li><strong>OS calls.</strong> A <code>user32!FlashWindow</code> P/Invoke and <code>SystemSounds</code> signalled new jobs.</li>
         <li><strong>Assumptions.</strong> TCP was the only transport, and the test receipt was read from the current working directory.</li>
       </ul>
-      <p>The ESC/POS interpreter (one command class per opcode) had no UI or Windows dependency, so its design carried over unchanged. It is now the headless <code>CrossEscPos.Core</code> package.</p>
+      <p>The ESC/POS interpreter (one command class per opcode) had no UI or Windows dependency, so its design carried over unchanged. It is now the headless <code>Tillroll.Core</code> package.</p>
 
       <h3>What changed, and what each part took</h3>
     </div>
@@ -288,21 +288,21 @@
   <section id="downloads" aria-labelledby="downloads-title">
     <h2 id="downloads-title">Downloads</h2>
     <ul class="downloads">
-      <li><a href="https://github.com/danielmeza/CrossEscPosEmulator/releases/latest/download/CrossEscPos-win-x64.zip">Windows (x64)</a><span>zip, self-contained</span></li>
-      <li><a href="https://github.com/danielmeza/CrossEscPosEmulator/releases/latest/download/CrossEscPos-osx-arm64.zip">macOS (Apple silicon)</a><span>.app bundle</span></li>
-      <li><a href="https://github.com/danielmeza/CrossEscPosEmulator/releases/latest/download/CrossEscPos-osx-x64.zip">macOS (Intel)</a><span>.app bundle</span></li>
-      <li><a href="https://github.com/danielmeza/CrossEscPosEmulator/releases/latest/download/CrossEscPos-linux-x64.tar.gz">Linux (x64)</a><span>tar.gz, self-contained</span></li>
+      <li><a href="https://github.com/hasana3n/tillroll/releases/latest/download/Tillroll-win-x64.zip">Windows (x64)</a><span>zip, self-contained</span></li>
+      <li><a href="https://github.com/hasana3n/tillroll/releases/latest/download/Tillroll-osx-arm64.zip">macOS (Apple silicon)</a><span>.app bundle</span></li>
+      <li><a href="https://github.com/hasana3n/tillroll/releases/latest/download/Tillroll-osx-x64.zip">macOS (Intel)</a><span>.app bundle</span></li>
+      <li><a href="https://github.com/hasana3n/tillroll/releases/latest/download/Tillroll-linux-x64.tar.gz">Linux (x64)</a><span>tar.gz, self-contained</span></li>
       <li><a href="./app/">Browser</a><span>no install; Web Serial and WebUSB need Chrome or Edge</span></li>
     </ul>
     <div class="prose">
-      <p>No .NET install is needed. On macOS, if the app is reported as damaged, run <code>xattr -dr com.apple.quarantine CrossEscPos.app</code> once. In the browser, TCP printing needs the small relay host: run <code>dotnet run --project samples/CrossEscPos.Host</code> and open the page it serves.</p>
+      <p>No .NET install is needed. On macOS, if the app is reported as damaged, run <code>xattr -dr com.apple.quarantine Tillroll.app</code> once. In the browser, TCP printing needs the small relay host: run <code>dotnet run --project samples/Tillroll.Host</code> and open the page it serves.</p>
     </div>
   </section>
 
 </main>
 <footer>
   <div class="wrap">
-    <p>Based on <a href="https://github.com/roydejong/EscPosEmulator">EscPosEmulator</a> by Roy de Jong. Ported and extended by <a href="https://github.com/danielmeza">Daniel Meza</a> for the <a href="https://avaloniaui.net/blog/avalonia-port-challenge">Avalonia Port Challenge</a>. <a href="https://github.com/danielmeza/CrossEscPosEmulator">Source, license and full README on GitHub</a>.</p>
+    <p>Based on <a href="https://github.com/roydejong/EscPosEmulator">EscPosEmulator</a> by Roy de Jong. Ported and extended by <a href="https://github.com/danielmeza">Daniel Meza</a> for the <a href="https://avaloniaui.net/blog/avalonia-port-challenge">Avalonia Port Challenge</a>. <a href="https://github.com/hasana3n/tillroll">Source, license and full README on GitHub</a>.</p>
   </div>
 </footer>
 </body>

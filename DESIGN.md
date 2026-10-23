@@ -1,5 +1,5 @@
 ---
-name: CrossEscPos
+name: Tillroll
 description: An arrivals hall for print jobs. Concourse black, signage amber, and paper as the only bright thing on screen.
 colors:
   ground: "#141416"
@@ -145,13 +145,13 @@ components:
     padding: "2px 12px"
 ---
 
-# Design System: CrossEscPos
+# Design System: Tillroll
 
 ## Overview
 
 **Creative North Star: "The Arrivals Hall"**
 
-CrossEscPos is an arrivals hall for print jobs. The interface is a dark concourse, and receipts are the arrivals. The white paper is the only bright thing on screen, and everything around it steps back so the print reads at full pixel truth. Signage amber is the one accent. It works like a station's departure board: it marks where you are and what has just landed, and does nothing else. Green, red and amber also appear, but only to report state.
+Tillroll is an arrivals hall for print jobs. The interface is a dark concourse, and receipts are the arrivals. The white paper is the only bright thing on screen, and everything around it steps back so the print reads at full pixel truth. Signage amber is the one accent. It works like a station's departure board: it marks where you are and what has just landed, and does nothing else. Green, red and amber also appear, but only to report state.
 
 The density is a data terminal's: 12–13px Public Sans for the interface and JetBrains Mono for every figure, time and size, so the numbers stack in columns like a board. Surfaces are flat, toned in near-black steps and divided by 1px hairlines rather than boxes or shadows. Controls are pills. The one primary action in any group is inverted (light on dark), never painted amber. One dark world runs unchanged on Windows, Linux, macOS and the browser. Both faces are embedded so every platform draws the same letters.
 

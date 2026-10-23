@@ -1,4 +1,4 @@
-# Controls (`CrossEscPos.Controls`)
+# Controls (`Tillroll.Controls`)
 
 Reusable Avalonia controls so a host app can show a live receipt stream and drive the simulated printer
 state. The controls are **backend-agnostic** — they depend on the abstraction, not on SkiaSharp. Your
@@ -20,14 +20,14 @@ flowchart TD
 ## Default theme
 
 The controls take their colours, figure font and icons from a small resource dictionary. Merge it into your
-application's resources; define the same keys after it to restyle them (CrossEscPos.App does this with its own
+application's resources; define the same keys after it to restyle them (Tillroll.App does this with its own
 tokens):
 
 ```xml
 <Application.Resources>
     <ResourceDictionary>
         <ResourceDictionary.MergedDictionaries>
-            <ResourceInclude Source="avares://CrossEscPos.Controls/Themes/Default.axaml"/>
+            <ResourceInclude Source="avares://Tillroll.Controls/Themes/Default.axaml"/>
         </ResourceDictionary.MergedDictionaries>
     </ResourceDictionary>
 </Application.Resources>
@@ -42,7 +42,7 @@ Renders the live stream of receipts (one image per cut) with a per-page PNG expo
 `Receipts` property to an `IEnumerable` of `ReceiptViewModel`.
 
 ```xml
-<UserControl xmlns:controls="using:CrossEscPos.Controls">
+<UserControl xmlns:controls="using:Tillroll.Controls">
     <controls:ReceiptView Receipts="{Binding Receipts}" />
 </UserControl>
 ```
@@ -66,10 +66,10 @@ it drives the status commands the emulator reports.
 render backend only through `IImageEncoder`, so the control never sees SkiaSharp.
 
 ```csharp
-using CrossEscPos.Controls;
-using CrossEscPos.Controls.Services;
-using CrossEscPos.Emulator;
-using CrossEscPos.Rendering.Skia;   // or CrossEscPos.Rendering.ImageSharp
+using Tillroll.Controls;
+using Tillroll.Controls.Services;
+using Tillroll.Emulator;
+using Tillroll.Rendering.Skia;   // or Tillroll.Rendering.ImageSharp
 
 public partial class MainViewModel : ObservableObject
 {
@@ -102,7 +102,7 @@ public partial class MainViewModel : ObservableObject
 
 ## Host services
 
-The controls depend on two small host-provided services (in `CrossEscPos.Controls.Services`):
+The controls depend on two small host-provided services (in `Tillroll.Controls.Services`):
 
 - `IFileDialogService` — `SavePngAsync(suggestedName)` / `PickFolderAsync()` for the export buttons.
 - `INotificationService` — surface buzzer / cash-drawer / activity events (sound, taskbar flash, …).
@@ -116,7 +116,7 @@ If you render outside the view models, `AvaloniaImageExtensions` bridges an `IRe
 Avalonia `Bitmap` via PNG (no SkiaSharp dependency in your UI code):
 
 ```csharp
-using CrossEscPos.Controls;
+using Tillroll.Controls;
 Bitmap bmp = receiptImage.ToAvaloniaBitmap(encoder);
 ```
 

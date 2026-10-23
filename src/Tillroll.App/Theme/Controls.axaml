@@ -1,0 +1,180 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="using:Tillroll.Controls">
+    <!-- Control language for Tillroll, layered on FluentTheme. Buttons are pills; the primary action is an
+         inverted pill (light on dark), never the accent. Press feedback is a 0.97 scale in 120 ms; colour
+         changes take 120 ms. Text roles are classes on TextBlock. -->
+
+    <!-- Text roles -->
+    <Style Selector="TextBlock.h1">
+        <Setter Property="FontSize" Value="{StaticResource FontTitle}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{StaticResource InkBrush}"/>
+    </Style>
+    <Style Selector="TextBlock.h2">
+        <Setter Property="FontSize" Value="{StaticResource FontSection}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{StaticResource InkBrush}"/>
+    </Style>
+    <Style Selector="TextBlock.title">
+        <Setter Property="FontSize" Value="{StaticResource FontBody}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{StaticResource InkBrush}"/>
+    </Style>
+    <Style Selector="TextBlock.body">
+        <Setter Property="FontSize" Value="{StaticResource FontBody}"/>
+        <Setter Property="Foreground" Value="{StaticResource InkBrush}"/>
+        <Setter Property="LineHeight" Value="19"/>
+    </Style>
+    <Style Selector="TextBlock.muted">
+        <Setter Property="FontSize" Value="{StaticResource FontBody}"/>
+        <Setter Property="Foreground" Value="{StaticResource InkMutedBrush}"/>
+        <Setter Property="LineHeight" Value="19"/>
+    </Style>
+    <Style Selector="TextBlock.small">
+        <Setter Property="FontSize" Value="{StaticResource FontSmall}"/>
+        <Setter Property="Foreground" Value="{StaticResource InkMutedBrush}"/>
+        <Setter Property="LineHeight" Value="17"/>
+    </Style>
+    <Style Selector="TextBlock.label">
+        <Setter Property="FontSize" Value="{StaticResource FontSmall}"/>
+        <Setter Property="FontWeight" Value="Medium"/>
+        <Setter Property="Foreground" Value="{StaticResource InkMutedBrush}"/>
+    </Style>
+    <Style Selector="TextBlock.mono">
+        <Setter Property="FontFamily" Value="{StaticResource MonoFont}"/>
+    </Style>
+
+    <!-- Icons inherit the colour of the text around them -->
+    <Style Selector="controls|IconView.lg">
+        <Setter Property="Width" Value="20"/>
+        <Setter Property="Height" Value="20"/>
+    </Style>
+
+    <!-- Buttons: secondary by default -->
+    <Style Selector="Button">
+        <Setter Property="FontSize" Value="{StaticResource FontBody}"/>
+        <Setter Property="FontWeight" Value="Medium"/>
+        <Setter Property="MinHeight" Value="32"/>
+        <Setter Property="Padding" Value="14 0"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="CornerRadius" Value="{StaticResource PillRadius}"/>
+        <Setter Property="Background" Value="{StaticResource RaisedBrush}"/>
+        <Setter Property="BorderBrush" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Foreground" Value="{StaticResource InkBrush}"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="RenderTransform" Value="none"/>
+        <Setter Property="Transitions">
+            <Transitions>
+                <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.12" Easing="0.23,1,0.32,1"/>
+            </Transitions>
+        </Setter>
+    </Style>
+    <Style Selector="Button /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Transitions">
+            <Transitions>
+                <BrushTransition Property="Background" Duration="0:0:0.12"/>
+            </Transitions>
+        </Setter>
+    </Style>
+    <Style Selector="Button:pressed">
+        <Setter Property="RenderTransform" Value="scale(0.97)"/>
+    </Style>
+    <Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{StaticResource HoverBrush}"/>
+        <Setter Property="BorderBrush" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{StaticResource InkBrush}"/>
+    </Style>
+    <Style Selector="Button:pressed /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{StaticResource PressedBrush}"/>
+    </Style>
+    <Style Selector="Button:disabled /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{StaticResource RaisedBrush}"/>
+        <Setter Property="Foreground" Value="{StaticResource InkFaintBrush}"/>
+    </Style>
+    <Style Selector="Button:disabled">
+        <Setter Property="Opacity" Value="0.55"/>
+    </Style>
+
+    <!-- Primary: the one action that moves the job forward. Inverted, not accented. -->
+    <Style Selector="Button.primary">
+        <Setter Property="Background" Value="{StaticResource InkBrush}"/>
+        <Setter Property="Foreground" Value="{StaticResource PanelBrush}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+    </Style>
+    <Style Selector="Button.primary:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="#FFFFFF"/>
+        <Setter Property="Foreground" Value="{StaticResource PanelBrush}"/>
+    </Style>
+    <Style Selector="Button.primary:pressed /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="#DADADE"/>
+        <Setter Property="Foreground" Value="{StaticResource PanelBrush}"/>
+    </Style>
+
+    <!-- Ghost: outlined, for secondary actions beside a primary -->
+    <Style Selector="Button.ghost">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderBrush" Value="{StaticResource ControlBorderBrush}"/>
+    </Style>
+    <Style Selector="Button.ghost:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="BorderBrush" Value="{StaticResource ControlBorderBrush}"/>
+    </Style>
+
+    <!-- Icon-only: square hit area, muted until hovered -->
+    <Style Selector="Button.icon">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{StaticResource InkMutedBrush}"/>
+        <Setter Property="Width" Value="32"/>
+        <Setter Property="Height" Value="32"/>
+        <Setter Property="MinHeight" Value="0"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="CornerRadius" Value="8"/>
+    </Style>
+
+    <!-- Rail destinations -->
+    <Style Selector="Button.rail">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{StaticResource InkMutedBrush}"/>
+        <Setter Property="Width" Value="40"/>
+        <Setter Property="Height" Value="40"/>
+        <Setter Property="MinHeight" Value="0"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="CornerRadius" Value="8"/>
+    </Style>
+    <Style Selector="Button.rail.active">
+        <Setter Property="Foreground" Value="{StaticResource InkBrush}"/>
+        <Setter Property="Background" Value="{StaticResource RaisedBrush}"/>
+    </Style>
+
+    <!-- Inputs -->
+    <Style Selector="TextBox">
+        <Setter Property="FontSize" Value="{StaticResource FontBody}"/>
+        <Setter Property="MinHeight" Value="32"/>
+        <Setter Property="Padding" Value="10 6"/>
+        <Setter Property="CornerRadius" Value="{StaticResource CardRadius}"/>
+        <Setter Property="SelectionBrush" Value="#66F2B33D"/>
+        <Setter Property="CaretBrush" Value="{StaticResource AccentBrush}"/>
+    </Style>
+    <Style Selector="TextBox.mono">
+        <Setter Property="FontFamily" Value="{StaticResource MonoFont}"/>
+        <Setter Property="FontSize" Value="12"/>
+    </Style>
+    <Style Selector="ComboBox">
+        <Setter Property="FontSize" Value="{StaticResource FontBody}"/>
+        <Setter Property="MinHeight" Value="32"/>
+        <Setter Property="Padding" Value="10 0 6 0"/>
+        <Setter Property="CornerRadius" Value="{StaticResource CardRadius}"/>
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+    </Style>
+    <!-- Popups (tooltips, menus, dropdowns) live outside the window's visual tree, so they need the face set here. -->
+    <Style Selector="ToolTip, MenuFlyoutPresenter, ComboBoxItem, FlyoutPresenter">
+        <Setter Property="FontFamily" Value="{StaticResource UiFont}"/>
+    </Style>
+    <Style Selector="ToolTip">
+        <Setter Property="FontSize" Value="{StaticResource FontSmall}"/>
+        <Setter Property="CornerRadius" Value="6"/>
+        <Setter Property="Padding" Value="8 5"/>
+    </Style>
+</Styles>

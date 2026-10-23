@@ -1,4 +1,4 @@
-**CrossEscPos**
+**Tillroll**
 
 - [Home](README.md)
 - [Getting started](Getting-Started.md)
@@ -19,12 +19,12 @@
 - [Transports](Transports.md)
 - [Controls](Controls.md)
 
-**Working on CrossEscPos**
+**Working on Tillroll**
 - [Architecture](Architecture.md)
 - [Building and testing](Building-and-Testing.md)
 
 **Links**
-- [Repository](https://github.com/danielmeza/CrossEscPosEmulator)
-- [Releases](https://github.com/danielmeza/CrossEscPosEmulator/releases)
-- [Live demo](https://danielmeza.github.io/CrossEscPosEmulator/app/)
+- [Repository](https://github.com/hasana3n/tillroll)
+- [Releases](https://github.com/hasana3n/tillroll/releases)
+- [Live demo](https://hasana3n.github.io/tillroll/app/)
 - [NuGet](https://www.nuget.org/profiles/GasoleoTechnology)

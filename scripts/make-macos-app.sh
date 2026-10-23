@@ -10,10 +10,10 @@ set -euo pipefail
 PUBLISH_DIR=${1:?publish dir required}
 OUTPUT_DIR=${2:?output dir required}
 VERSION=${3:-1.0.0}
-ICON_PNG=${4:-src/CrossEscPos.App.Desktop/Assets/Icon/icon.png}
+ICON_PNG=${4:-src/Tillroll.App.Desktop/Assets/Icon/icon.png}
 # The published executable (AssemblyName) vs the visible bundle name.
-EXE_NAME=CrossEscPos.App.Desktop
-APP_NAME=CrossEscPos
+EXE_NAME=Tillroll
+APP_NAME=Tillroll
 
 APP="$OUTPUT_DIR/$APP_NAME.app"
 rm -rf "$APP"
@@ -54,9 +54,9 @@ cat > "$APP/Contents/Info.plist" <<PLIST
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-  <key>CFBundleName</key><string>ESC/POS Emulator</string>
-  <key>CFBundleDisplayName</key><string>ESC/POS Receipt Printer Emulator</string>
-  <key>CFBundleIdentifier</key><string>com.github.crossescposemulator</string>
+  <key>CFBundleName</key><string>Tillroll</string>
+  <key>CFBundleDisplayName</key><string>Tillroll</string>
+  <key>CFBundleIdentifier</key><string>io.github.hasana3n.tillroll</string>
   <key>CFBundleVersion</key><string>$VERSION</string>
   <key>CFBundleShortVersionString</key><string>$VERSION</string>
   <key>CFBundleExecutable</key><string>$EXE_NAME</string>

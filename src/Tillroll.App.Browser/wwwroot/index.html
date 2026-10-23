@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Tillroll — virtual receipt printer</title>
+    <meta name="description" content="Tillroll is a virtual ESC/POS receipt printer: print from your app and see the receipt, dot for dot." />
+    <meta name="theme-color" content="#141416" />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+    <link rel="stylesheet" href="app.css" />
+</head>
+<body>
+    <div id="out"></div>
+    <!-- Startup splash. Avalonia adds .splash-close to #avalonia-splash on its first frame; main.js
+         drives the paper (download progress) and the status text until then. -->
+    <div id="avalonia-splash" role="status" aria-live="polite">
+        <div class="splash-printer">
+            <div class="splash-slot"></div>
+            <div class="splash-paper" id="splash-paper" role="progressbar" aria-label="Download progress"
+                 aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
+        </div>
+        <p class="splash-title">Tillroll</p>
+        <p class="splash-status" id="splash-status">Loading the emulator…</p>
+        <p class="splash-detail" id="splash-detail"></p>
+    </div>
+    <!-- Shared browser transports (Web Serial / WebUSB); classic script runs before the deferred module. -->
+    <script src="./transports.js"></script>
+    <script type="module" src="./main.js"></script>
+</body>
+</html>

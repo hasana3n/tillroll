@@ -20,13 +20,13 @@ jobs:
         run: dotnet workload install wasm-tools
 
       - name: Restore
-        run: dotnet restore CrossEscPos.slnx
+        run: dotnet restore Tillroll.slnx
 
       - name: Build
-        run: dotnet build CrossEscPos.slnx -c Release --no-restore
+        run: dotnet build Tillroll.slnx -c Release --no-restore
 
       - name: Test
-        run: dotnet test CrossEscPos.slnx -c Release --no-build
+        run: dotnet test Tillroll.slnx -c Release --no-build
 
       # The Linux Bluetooth servers talk to BlueZ over D-Bus. These tests run them against a fake bluetoothd
       # (tests/.../Linux/FakeBlueZ.cs) on a private session bus, including handing an RFCOMM-like socket over
@@ -35,10 +35,10 @@ jobs:
         run: |
           sudo apt-get update -q
           sudo apt-get install -y -q dbus
-          ESCPOS_BT_FAKE_BLUEZ=1 dbus-run-session -- dotnet test tests/CrossEscPos.Transports.Bluetooth.Tests -c Release --no-build
+          ESCPOS_BT_FAKE_BLUEZ=1 dbus-run-session -- dotnet test tests/Tillroll.Transports.Bluetooth.Tests -c Release --no-build
 
       - name: Pack libraries
-        run: dotnet pack CrossEscPos.slnx -c Release --no-build -o artifacts/packages
+        run: dotnet pack Tillroll.slnx -c Release --no-build -o artifacts/packages
 
       - uses: actions/upload-artifact@v4
         with:

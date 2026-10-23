@@ -43,7 +43,7 @@ jobs:
 
       - name: Publish (self-contained)
         run: >
-          dotnet publish src/CrossEscPos.App.Desktop/CrossEscPos.App.Desktop.csproj
+          dotnet publish src/Tillroll.App.Desktop/Tillroll.App.Desktop.csproj
           -c Release
           -r ${{ matrix.rid }}
           --self-contained true
@@ -55,29 +55,27 @@ jobs:
         if: matrix.kind == 'zip'
         run: |
           cd publish/${{ matrix.rid }}
-          mv CrossEscPos.App.Desktop.exe CrossEscPos.exe
-          zip -r ../../CrossEscPos-${{ matrix.rid }}.zip .
+          zip -r ../../Tillroll-${{ matrix.rid }}.zip .
 
       - name: Package — tar.gz (Linux)
         if: matrix.kind == 'targz'
         run: |
-          mv publish/${{ matrix.rid }}/CrossEscPos.App.Desktop publish/${{ matrix.rid }}/CrossEscPos
-          chmod +x publish/${{ matrix.rid }}/CrossEscPos
-          tar -czf CrossEscPos-${{ matrix.rid }}.tar.gz -C publish/${{ matrix.rid }} .
+          chmod +x publish/${{ matrix.rid }}/Tillroll
+          tar -czf Tillroll-${{ matrix.rid }}.tar.gz -C publish/${{ matrix.rid }} .
 
       - name: Package — .app bundle (macOS)
         if: matrix.kind == 'app'
         run: |
           chmod +x scripts/make-macos-app.sh
           scripts/make-macos-app.sh publish/${{ matrix.rid }} dist "${{ steps.ver.outputs.version }}"
-          ditto -c -k --keepParent dist/CrossEscPos.app CrossEscPos-${{ matrix.rid }}.zip
+          ditto -c -k --keepParent dist/Tillroll.app Tillroll-${{ matrix.rid }}.zip
 
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.rid }}
           path: |
-            CrossEscPos-${{ matrix.rid }}.zip
-            CrossEscPos-${{ matrix.rid }}.tar.gz
+            Tillroll-${{ matrix.rid }}.zip
+            Tillroll-${{ matrix.rid }}.tar.gz
           if-no-files-found: ignore
 
   pack:
@@ -102,7 +100,7 @@ jobs:
         shell: bash
         run: |
           for proj in Abstractions Core Rendering.Skia Rendering.ImageSharp Transports Transports.Bluetooth Controls; do
-            dotnet pack "src/CrossEscPos.$proj/CrossEscPos.$proj.csproj" \
+            dotnet pack "src/Tillroll.$proj/Tillroll.$proj.csproj" \
               -c Release -p:Version=${{ steps.ver.outputs.version }} -o packages
           done
 

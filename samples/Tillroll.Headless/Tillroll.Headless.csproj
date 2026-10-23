@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>tillroll-render</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Headless rendering: Core (no UI) + the Skia backend. No Avalonia reference. -->
+    <ProjectReference Include="..\..\src\Tillroll.Core\Tillroll.Core.csproj" />
+    <ProjectReference Include="..\..\src\Tillroll.Rendering.Skia\Tillroll.Rendering.Skia.csproj" />
+  </ItemGroup>
+
+</Project>

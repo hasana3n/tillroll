@@ -4,12 +4,12 @@
 The site's hero image is printed by the emulator itself:
 
     python3 scripts/gen-site-receipt.py > site-receipt.escpos
-    dotnet run --project samples/CrossEscPos.Headless -- site-receipt.escpos site/receipt.png
+    dotnet run --project samples/Tillroll.Headless -- site-receipt.escpos site/receipt.png
 """
 import sys
 
 ESC, GS = b"\x1b", b"\x1d"
-DEMO_URL = b"https://danielmeza.github.io/CrossEscPosEmulator/app/"
+DEMO_URL = b"https://hasana3n.github.io/tillroll/app/"
 
 
 def line(text=""):
@@ -34,7 +34,7 @@ def qr(data, module=6):
 job = b"".join([
     ESC + b"@",
     ESC + b"a\x01",
-    GS + b"!\x11", line("CrossEscPos"), GS + b"!\x00",
+    GS + b"!\x11", line("Tillroll"), GS + b"!\x00",
     line("ESC/POS receipt printer emulator"),
     line("-" * 42),
     row("Ported from", "WPF / .NET 9"),
