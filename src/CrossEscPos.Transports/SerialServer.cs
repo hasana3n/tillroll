@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO.Ports;
 using System.Text;
 using System.Threading;
@@ -106,29 +106,13 @@ public class SerialServer : IPrinterResponder
 
     private async Task ReceiveLoopAsync(CancellationToken cancellationToken)
     {
-        var stream = _port!.BaseStream;
-        var buffer = new byte[64 * 1024];
+        // A read that returns 0 bytes means the port went away (e.g. a USB-serial adapter was unplugged):
+        // the pump returns instead of spinning on it.
+        await PrinterStreamFeeder.PumpAsync(_printer, _port!.BaseStream, this, cancellationToken).ConfigureAwait(false);
 
-        try
+        if (!cancellationToken.IsCancellationRequested)
         {
-            while (IsRunning && !cancellationToken.IsCancellationRequested)
-            {
-                int read = await stream.ReadAsync(buffer.AsMemory(0, buffer.Length), cancellationToken);
-                if (read <= 0)
-                    continue;
-
-                Logger.Info($"Received serial data (byteCount={read}, port={PortName})");
-
-                _printer.FeedEscPos(buffer.AsSpan(0, read), this);
-            }
-        }
-        catch (OperationCanceledException)
-        {
-            // Expected on Stop().
-        }
-        catch (Exception ex)
-        {
-            Logger.Exception(ex, $"Serial read error on {PortName}");
+            Logger.Info($"Serial port {PortName} closed or disconnected");
             IsRunning = false;
         }
     }

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -33,17 +33,26 @@ public class NetClient : IPrinterResponder
         _printer.RegisterResponder(this); // allow status/transmit-back commands to reply to us
     }
 
+    /// <summary>Raised once, when the connection closes (by either side).</summary>
+    internal event Action<NetClient>? Closed;
+
+    private int _closed;
+
+    /// <summary>Closes the connection. Safe to call more than once and from any thread; never throws.</summary>
     public void Close()
     {
-        if (!_lifetimeCts.IsCancellationRequested)
-            _lifetimeCts.Cancel();
+        if (Interlocked.Exchange(ref _closed, 1) == 1)
+            return;
 
-        _printer.UnregisterResponder(this);
+        _lifetimeCts.Cancel();
+        _printer.UnregisterResponder(this); // also releases this client's hold on the printer
 
-        _socket.Shutdown(SocketShutdown.Both);
+        try { _socket.Shutdown(SocketShutdown.Both); }
+        catch (Exception ex) when (ex is SocketException or ObjectDisposedException) { /* already gone */ }
         _socket.Close();
 
         Logger.Info($"Closed client connection {RemoteEndPoint}");
+        Closed?.Invoke(this);
     }
 
     /// <summary>Writes a printer response (status bytes, printer ID, …) back to this client.</summary>
@@ -84,7 +93,8 @@ public class NetClient : IPrinterResponder
         }
         catch (Exception ex)
         {
-            Logger.Exception(ex, "Receive error");
+            if (Volatile.Read(ref _closed) == 0) // errors after Close() are just the socket going away
+                Logger.Exception(ex, "Receive error");
             Close();
         }
     }

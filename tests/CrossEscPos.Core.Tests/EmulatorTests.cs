@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -111,7 +111,7 @@ public class EmulatorTests
     }
 
     [Fact]
-    public void TwoSenders_CommandSplitAcrossChunks_IsNotCorruptedByOtherSender()
+    public async Task TwoSenders_CommandSplitAcrossChunks_IsNotCorruptedByOtherSender()
     {
         var a = new CapturingResponder(); var b = new CapturingResponder();
         var printer = NewPrinter(); printer.JobIdleTimeout = TimeSpan.FromMilliseconds(300);
@@ -119,7 +119,7 @@ public class EmulatorTests
         var bTask = Task.Run(() => printer.FeedEscPos(Bytes(DLE, EOT, 1) + "B" + Bytes(LF), b));
         Thread.Sleep(50);
         printer.FeedEscPos(Bytes(1), a);                               // A completes GS r 1
-        Assert.True(bTask.Wait(2000));
+        Assert.Same(bTask, await Task.WhenAny(bTask, Task.Delay(2000)));
         Assert.Single(a.Bytes);                                        // A got exactly its GS r reply
         Assert.Single(b.Bytes);                                        // B got exactly its DLE EOT reply
     }
@@ -137,7 +137,7 @@ public class EmulatorTests
     }
 
     [Fact]
-    public void OwnerDisconnect_ReleasesPrinterImmediately()
+    public async Task OwnerDisconnect_ReleasesPrinterImmediately()
     {
         var a = new CapturingResponder(); var b = new CapturingResponder();
         var printer = NewPrinter(); printer.JobIdleTimeout = TimeSpan.FromSeconds(30);
@@ -146,12 +146,12 @@ public class EmulatorTests
         printer.UnregisterResponder(a);                                 // phone went away
         var sw = Stopwatch.StartNew();
         var fed = Task.Run(() => printer.FeedEscPos("B" + Bytes(LF), b));
-        Assert.True(fed.Wait(5000));
+        Assert.Same(fed, await Task.WhenAny(fed, Task.Delay(5000)));
         Assert.True(sw.ElapsedMilliseconds < 500, $"took {sw.ElapsedMilliseconds} ms");
     }
 
     [Fact]
-    public void ReleaseOwnership_LetsNextSenderInImmediately()
+    public async Task ReleaseOwnership_LetsNextSenderInImmediately()
     {
         var a = new CapturingResponder(); var b = new CapturingResponder();
         var printer = NewPrinter(); printer.JobIdleTimeout = TimeSpan.FromSeconds(30);
@@ -159,7 +159,7 @@ public class EmulatorTests
         printer.ReleaseOwnership(a);
         var sw = Stopwatch.StartNew();
         var fed = Task.Run(() => printer.FeedEscPos("B" + Bytes(LF), b));
-        Assert.True(fed.Wait(5000));
+        Assert.Same(fed, await Task.WhenAny(fed, Task.Delay(5000)));
         Assert.True(sw.ElapsedMilliseconds < 500, $"took {sw.ElapsedMilliseconds} ms");
     }
 

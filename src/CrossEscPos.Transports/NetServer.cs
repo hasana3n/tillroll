@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
@@ -17,6 +17,11 @@ public class NetServer
 {
     public IPEndPoint? EndPoint { get; private set; }
     public bool IsRunning { get; private set; }
+
+    /// <summary>The endpoint actually bound (useful when started on port 0).</summary>
+    public IPEndPoint? BoundEndPoint => _tcpSocket?.LocalEndPoint as IPEndPoint;
+
+    public int ClientCount { get { lock (_clients) return _clients.Count; } }
 
     private readonly ReceiptPrinter _printer;
     private Socket? _tcpSocket;
@@ -76,6 +81,21 @@ public class NetServer
         }
 
         IsRunning = false;
+
+        // Disconnect the clients too: a stopped printer shouldn't keep accepting jobs.
+        NetClient[] clients;
+        lock (_clients)
+        {
+            clients = _clients.ToArray();
+            _clients.Clear();
+        }
+        foreach (var client in clients)
+            client.Close();
+    }
+
+    private void RemoveClient(NetClient client)
+    {
+        lock (_clients) _clients.Remove(client);
     }
 
     private async Task AcceptLoopAsync(CancellationToken cancellationToken)
@@ -90,7 +110,8 @@ public class NetServer
                     continue;
 
                 var client = new NetClient(this, _printer, clientSocket);
-                _clients.Add(client);
+                client.Closed += RemoveClient;
+                lock (_clients) _clients.Add(client);
 
                 Logger.Info($"Accepted new connection (RemoteEndPoint={client.RemoteEndPoint})");
 
