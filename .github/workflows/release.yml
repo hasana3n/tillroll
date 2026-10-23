@@ -137,7 +137,7 @@ jobs:
         with:
           global-json-file: global.json
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: nupkg
           path: packages
@@ -174,7 +174,7 @@ jobs:
         with:
           global-json-file: global.json
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: nupkg
           path: packages
@@ -194,7 +194,7 @@ jobs:
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/')
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           path: artifacts
 
