@@ -103,8 +103,11 @@ printer.UiDispatch = action => Dispatcher.UIThread.Post(action);  // Avalonia ex
 `FeedEscPos` itself is safe to call from several threads (several transports feeding one printer). Pass a
 responder per connection: that sender owns the printer for its job, and other senders wait until it has been
 quiet for `JobIdleTimeout` (default 1 second) or until `ReleaseOwnership(responder)` /
-`UnregisterResponder(responder)` is called when it disconnects. A waiting sender's real-time status queries
-(`DLE EOT`, `DLE ENQ`, `DLE DC4`) are answered immediately. Feeds without a responder never wait.
+`UnregisterResponder(responder)` is called when it disconnects. Real-time status queries (`DLE EOT`, `DLE ENQ`,
+`DLE DC4`) are answered immediately and never take or extend a sender's hold, so a host that polls status
+doesn't lock others out. Feeds without a responder never wait. On single-threaded runtimes (the browser)
+`WaitForOtherSenders` is off: a new sender takes over at once instead of waiting, since blocking isn't possible
+there.
 
 ```csharp
 printer.JobIdleTimeout = TimeSpan.FromMilliseconds(500);

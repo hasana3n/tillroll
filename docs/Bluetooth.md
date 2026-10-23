@@ -84,7 +84,8 @@ For your own app, use the `18F0` service: it's the one that's advertised and ver
 
 Several phones (or a phone and a TCP client) can be connected at once. A job from one of them owns the printer
 until that phone goes quiet for a second or disconnects; the others wait, so receipts never get mixed. Status
-queries (`DLE EOT`) are answered straight away even while waiting.
+queries (`DLE EOT`) are answered straight away, even while waiting, and they never hold the printer, so an app
+that polls status doesn't block anyone.
 
 ## Client code for your app
 
@@ -237,17 +238,32 @@ iPhone: **nRF Connect** or **LightBlue** (BLE). Send the bytes as **hex**.
 | 4 | BLE: scan, connect to the device advertising `18F0` (on Windows it has the PC's name), enable notifications on `2AF0` | | The BLE status says 1 connected |
 | 5 | BLE: write to `2AF1` (write without response) | `48 65 6C 6C 6F 0A 0A 0A 1D 56 00` | A "Hello" receipt appears |
 | 6 | BLE: write the status query to `2AF1` | `10 04 01` | A `12` notification on `2AF0` |
-| 7 | BLE: also check that the `E7810A71…` and `49535343…` services are listed (nRF Connect shows all services) | | Windows registers them without advertising them; if they're missing on your PC, apps built for those services won't find the printer there (use `18F0`) |
+| 7 | BLE: send a long job in one go: 200 numbered lines (`Line 001`…`Line 200`, each ending `0A`), written without response | | All 200 lines appear in order. If lines come out shuffled on Windows, switch your app to write *with* response for large jobs (each write waits for its acknowledgement) and tell us |
+| 8 | BLE: check whether the `E7810A71…` and `49535343…` services are listed (nRF Connect shows all services) | | On Linux they're always there. On Windows this is **unverified**: Windows reports them as not started, so they may be missing. If they are, apps built for those services won't find the printer on Windows; use `18F0` |
 
 ## Limitations
 
 - On Linux, BlueZ doesn't say which phone turned notifications on, so a reply goes to every phone subscribed to
   that characteristic. With one phone at a time (the usual case) this makes no difference.
 - On Windows, the BLE name is always the computer's name, and only `18F0` is advertised. The two compatibility
-  services can't be advertised alongside it (they don't fit in one advertisement); see step 7 above.
+  services can't be advertised alongside it (they don't fit in one advertisement), and Windows may not publish
+  them at all; see step 8 above.
 - A PC doesn't have the Bluetooth "printer" device class, so apps that filter paired devices by class won't
   list it (see the Android SPP note).
 - macOS and the browser version can't act as a Bluetooth printer yet.
+
+## Security
+
+While a Bluetooth row is running, the computer is visible to nearby devices and accepts printer connections:
+
+- **SPP:** on Linux the serial profile doesn't require authentication, and on Windows it allows connections
+  without a pairing PIN, so a nearby device can connect and print while SPP is running. Stop it when you
+  aren't testing.
+- **BLE:** the printer characteristics are open (no pairing or encryption), like the cheap printers they imitate.
+- **Linux auto-pairing** (`ESCPOS_BT_AUTO_PAIR=1`) accepts pairing from any nearby device while it runs. It only
+  authorizes connections to the printer's serial port, but the pairings stay after you stop. Remove any you
+  don't recognise (`bluetoothctl devices Paired`, then `bluetoothctl remove <address>`).
+- Run it on a test machine, not one holding sensitive data, and keep Bluetooth off when you're done.
 
 ## Troubleshooting
 
