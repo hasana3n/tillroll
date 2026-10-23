@@ -9,6 +9,15 @@ updates:
         patterns: ["Avalonia*"]
       dotnet:
         patterns: ["Microsoft.*", "System.*"]
+    ignore:
+      # ImageSharp 4 / ImageSharp.Drawing 3 need a Six Labors licence key to build; stay on the current majors.
+      - dependency-name: "SixLabors.*"
+        update-types: ["version-update:semver-major"]
+      # Avalonia pins SkiaSharp and HarfBuzzSharp; move to a new major only together with Avalonia.
+      - dependency-name: "SkiaSharp*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "HarfBuzzSharp*"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: github-actions
     directory: /
     schedule:
