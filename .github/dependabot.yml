@@ -10,9 +10,12 @@ updates:
       dotnet:
         patterns: ["Microsoft.*", "System.*"]
     ignore:
-      # ImageSharp 4 / ImageSharp.Drawing 3 need a Six Labors licence key to build; stay on the current majors.
-      - dependency-name: "SixLabors.*"
-        update-types: ["version-update:semver-major"]
+      # From ImageSharp 3.2 / ImageSharp.Drawing 2.2 the Six Labors packages need a licence key to build.
+      # Stay on the last versions that don't (ImageSharp 3.1.x and 2.1.x, ImageSharp.Drawing 2.1.x).
+      - dependency-name: "SixLabors.ImageSharp"
+        versions: [">= 3.2.0"]
+      - dependency-name: "SixLabors.ImageSharp.Drawing"
+        versions: [">= 2.2.0"]
       # Avalonia pins SkiaSharp and HarfBuzzSharp; move to a new major only together with Avalonia.
       - dependency-name: "SkiaSharp*"
         update-types: ["version-update:semver-major"]
