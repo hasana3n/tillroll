@@ -18,6 +18,19 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
+  <!-- SixLabors.ImageSharp advisories (published 2026) that are fixed only in ImageSharp 4.1.2+, which needs
+       a Six Labors license key to build in Release. None of them is reachable from CrossEscPos: they affect
+       image *decoding* (ICC CLUT parsing, BigTIFF), the TIFF CCITT T4/T6 *encoders* and HistogramEqualization.
+       CrossEscPos only creates images, draws on them and encodes PNG; ESCPOS_NET's ImageSharp-based image
+       printing is never called. Remove these once the project moves to ImageSharp 4 with a license key. -->
+  <ItemGroup>
+    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-gwg2-r3hj-4w44" />
+    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-wmxv-xphr-5c9g" />
+    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-j3p4-wp97-rph4" />
+    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-j9gm-c75j-xc9q" />
+    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-jjfr-hcj7-qf5w" />
+  </ItemGroup>
+
   <!-- NuGet package metadata, applied to the projects that set IsPackable=true. -->
   <PropertyGroup>
     <Version>1.3.2</Version>

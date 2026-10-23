@@ -10,7 +10,7 @@
   <ItemGroup>
     <!-- UseBlazorFrameworkFiles(): serves the WASM _framework assets (webcil, .br/.gz negotiation).
          Works for any Microsoft.NET.Sdk.WebAssembly app, not just Blazor. -->
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.0.8" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.0.13" />
   </ItemGroup>
 
   <ItemGroup>
