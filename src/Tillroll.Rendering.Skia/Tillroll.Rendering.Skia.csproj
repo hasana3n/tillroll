@@ -15,7 +15,7 @@
     <!-- Pinned to match Avalonia.Skia 12.0.4's SkiaSharp dependency (avoids native lib conflicts). -->
     <PackageReference Include="SkiaSharp" Version="3.119.4" />
     <!-- Base SkiaSharp ships Windows/macOS natives; Linux must be added so server/headless use works. -->
-    <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="3.119.4" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="4.153.1" />
   </ItemGroup>
 
   <ItemGroup>
