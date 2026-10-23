@@ -307,10 +307,21 @@ internal sealed class WinRtBleServer : IBluetoothPrinterServer, IBleNotifier
 
     // ---- GATT events ------------------------------------------------------------------------------
 
-    private async void OnWriteRequested(BlePrinterProfile profile, GattWriteRequestedEventArgs args)
+    private int _writesInFlight;
+
+    /// <summary>
+    /// Handles one write completely before returning from the event. Windows can hand consecutive
+    /// write-without-response packets to the app out of order if the handler returns early (it awaited
+    /// GetRequestAsync), which swapped 150-byte pieces of a phone's raster image. Finishing each write inside
+    /// the event, with the sequencer as a second guard, keeps them in arrival order.
+    /// </summary>
+    private void OnWriteRequested(BlePrinterProfile profile, GattWriteRequestedEventArgs args)
     {
-        using var deferral = args.GetDeferral();
-        // Take this write's place in line before awaiting anything: GetRequestAsync can complete out of order.
+        int inFlight = Interlocked.Increment(ref _writesInFlight);
+        if (inFlight > 1)
+            Logger.Info($"BLE write events overlapped ({inFlight} at once): Windows delivered them in parallel");
+
+        var deferral = args.GetDeferral();
         var session = args.Session;
         var clientId = session.DeviceId.Id;
         var sequencer = _sequencer;
@@ -318,7 +329,7 @@ internal sealed class WinRtBleServer : IBluetoothPrinterServer, IBleNotifier
         byte[]? data = null;
         try
         {
-            var request = await args.GetRequestAsync();
+            var request = args.GetRequestAsync().AsTask().GetAwaiter().GetResult();
             if (request is null)
                 return; // the app has no access, or the request was cancelled
 
@@ -338,6 +349,7 @@ internal sealed class WinRtBleServer : IBluetoothPrinterServer, IBleNotifier
         {
             sequencer.Complete(clientId, ticket, profile, data, session.MaxPduSize); // null data just frees the slot
             deferral.Complete();
+            Interlocked.Decrement(ref _writesInFlight);
         }
     }
 
