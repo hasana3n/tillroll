@@ -206,5 +206,6 @@ jobs:
           files: |
             artifacts/*/Tillroll-*.zip
             artifacts/*/Tillroll-*.tar.gz
-          generate_release_notes: true
+          # Notes come from CHANGELOG.md, written into the release by hand; don't overwrite them.
+          generate_release_notes: false
           fail_on_unmatched_files: false
