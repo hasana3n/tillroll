@@ -77,7 +77,7 @@ jobs:
           scripts/make-macos-app.sh publish/${{ matrix.rid }} dist "${{ steps.ver.outputs.version }}"
           ditto -c -k --keepParent dist/Tillroll.app Tillroll-${{ matrix.rid }}.zip
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.rid }}
           path: |
@@ -111,7 +111,7 @@ jobs:
               -c Release -p:Version=${{ steps.ver.outputs.version }} -o packages
           done
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: nupkg
           path: |
