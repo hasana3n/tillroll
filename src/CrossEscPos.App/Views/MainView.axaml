@@ -23,6 +23,12 @@
             <Setter Property="CornerRadius" Value="{DynamicResource CardRadius}"/>
             <Setter Property="Padding" Value="14"/>
         </Style>
+        <!-- Connection rows: a list divided by hairlines, not a stack of boxes. -->
+        <Style Selector="Border.conn">
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="0 0 0 1"/>
+            <Setter Property="Padding" Value="4 16"/>
+        </Style>
         <Style Selector="Ellipse.dot">
             <Setter Property="Width" Value="7"/>
             <Setter Property="Height" Value="7"/>
@@ -109,10 +115,11 @@
             <Setter Property="FontSize" Value="12"/>
         </Style>
 
-        <!-- Toast: rises 8 px and fades in; the same move in reverse when it leaves. -->
-        <Style Selector="Border.toast">
+        <!-- Announcement (buzzer, cash drawer, dropped print): appears in the status strip, never over the paper.
+             It rises 4 px and fades in, then fades out. -->
+        <Style Selector="Border.announce">
             <Setter Property="Opacity" Value="0"/>
-            <Setter Property="RenderTransform" Value="translateY(8px)"/>
+            <Setter Property="RenderTransform" Value="translateY(4px)"/>
             <Setter Property="Transitions">
                 <Transitions>
                     <DoubleTransition Property="Opacity" Duration="0:0:0.18" Easing="0.23,1,0.32,1"/>
@@ -120,13 +127,23 @@
                 </Transitions>
             </Setter>
         </Style>
-        <Style Selector="Border.toast.shown">
+        <Style Selector="Border.announce.shown">
             <Setter Property="Opacity" Value="1"/>
             <Setter Property="RenderTransform" Value="translateY(0px)"/>
         </Style>
+        <Style Selector="TextBlock.warn">
+            <Setter Property="Foreground" Value="{DynamicResource WarningBrush}"/>
+        </Style>
+        <Style Selector="TextBlock.lamp">
+            <Setter Property="FontFamily" Value="{DynamicResource MonoFont}"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
     </UserControl.Styles>
 
-    <Grid RowDefinitions="*,30">
+    <Grid RowDefinitions="*,28">
         <Grid ColumnDefinitions="56,Auto,*">
 
             <!-- Rail: the brand, the three panels, and the Monitor. -->
@@ -175,7 +192,7 @@
             </Border>
 
             <!-- Side panel: the view chosen on the rail. -->
-            <Border Grid.Column="1" Width="304" IsVisible="{Binding IsSidePanelOpen}"
+            <Border Grid.Column="1" Width="300" IsVisible="{Binding IsSidePanelOpen}"
                     BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0 0 1 0">
                 <Panel>
                     <!-- Connections -->
@@ -186,15 +203,11 @@
                                        Text="Start one, then print from your app or phone."/>
                         </StackPanel>
                         <ScrollViewer VerticalScrollBarVisibility="Auto">
-                            <ItemsControl ItemsSource="{Binding Transports}" Margin="16 0 16 16">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <StackPanel Spacing="10"/>
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
+                            <ItemsControl ItemsSource="{Binding Transports}" Margin="16 0 16 16"
+                                          BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0 1 0 0">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate x:DataType="tr:TransportEntry">
-                                        <Border Classes="card">
+                                        <Border Classes="conn">
                                             <StackPanel Spacing="10">
                                                 <Grid ColumnDefinitions="Auto,*,Auto">
                                                     <controls:IconView Margin="0 1 10 0" VerticalAlignment="Top"
@@ -206,7 +219,7 @@
                                                                    IsVisible="{Binding HasDescription}"/>
                                                     </StackPanel>
                                                     <Button Grid.Column="2" Margin="10 0 0 0" VerticalAlignment="Top" MinWidth="64"
-                                                            Classes.primary="{Binding !IsActive}" Classes.ghost="{Binding IsActive}"
+                                                            Classes.primary="{Binding ShowsPrimaryAction}" Classes.ghost="{Binding !ShowsPrimaryAction}"
                                                             Content="{Binding ButtonText}" Command="{Binding ToggleCommand}"/>
                                                 </Grid>
                                                 <Grid ColumnDefinitions="Auto,*">
@@ -344,7 +357,7 @@
                         <TextBlock Classes="muted" TextWrapping="Wrap"
                                    Text="Start a connection, then print from your app or phone. Each receipt appears here as it arrives, dot for dot."/>
                         <StackPanel Orientation="Horizontal" Spacing="8" Margin="0 12 0 0">
-                            <Button Classes="primary" Content="Show connections"
+                            <Button Classes="ghost" Content="Show connections" IsVisible="{Binding !IsConnectionsOpen}"
                                     Command="{Binding OpenPanelCommand}" CommandParameter="{x:Static vm:SidePanel.Connections}"/>
                             <Button Classes="ghost" Content="Print a sample" Command="{Binding LoadSampleCommand}"/>
                         </StackPanel>
@@ -353,11 +366,23 @@
                     <!-- Arrivals board: one row per cut; a lamp stays lit until the receipt has been seen. -->
                     <Border Grid.Column="1" Name="BoardPane" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1 0 0 0">
                         <DockPanel>
-                            <Grid DockPanel.Dock="Top" ColumnDefinitions="*,Auto" Margin="18 14 10 8" Height="24">
-                                <TextBlock Classes="label" Text="Arrivals" VerticalAlignment="Center"/>
-                                <Button Grid.Column="1" Classes="link" Content="Mark all seen"
-                                        Command="{Binding MarkAllSeenCommand}" IsVisible="{Binding HasNew}"/>
+                            <Grid DockPanel.Dock="Top" ColumnDefinitions="*,Auto" Margin="18 16 18 10">
+                                <TextBlock Classes="title" Text="Arrivals" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="1" Classes="board" Text="{Binding Clock}"
+                                           ToolTip.Tip="The time now"/>
                             </Grid>
+                            <Button DockPanel.Dock="Bottom" Classes="link" Content="Mark all seen" Margin="12 6 12 10"
+                                    HorizontalAlignment="Left"
+                                    Command="{Binding MarkAllSeenCommand}" IsVisible="{Binding HasNew}"/>
+                            <Border DockPanel.Dock="Top" Margin="18 0 18 4" Padding="0 0 0 6"
+                                    BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0 0 0 1"
+                                    IsVisible="{Binding HasReceipts}">
+                                <Grid ColumnDefinitions="40,*,64,44">
+                                    <TextBlock Classes="small" Text="Cut"/>
+                                    <TextBlock Grid.Column="1" Classes="small" Text="Arrived"/>
+                                    <TextBlock Grid.Column="2" Classes="small" Text="Length" HorizontalAlignment="Right"/>
+                                </Grid>
+                            </Border>
                             <TextBlock DockPanel.Dock="Top" Classes="small" Margin="18 4 18 0" TextWrapping="Wrap"
                                        Text="Nothing yet. Each cut is listed here as it lands."
                                        IsVisible="{Binding !HasReceipts}"/>
@@ -366,18 +391,18 @@
                                      AutomationProperties.Name="Arrivals">
                                 <ListBox.ItemTemplate>
                                     <DataTemplate x:DataType="controls:ReceiptViewModel">
-                                        <Grid ColumnDefinitions="14,Auto,*,Auto" Height="34">
-                                            <Ellipse Width="6" Height="6" HorizontalAlignment="Left" VerticalAlignment="Center"
-                                                     Fill="{DynamicResource AccentBrush}" IsVisible="{Binding IsNew}"/>
-                                            <Panel Grid.Column="1" Margin="0 0 12 0">
+                                        <Grid ColumnDefinitions="40,*,64,44" Height="34">
+                                            <Panel HorizontalAlignment="Left">
                                                 <TextBlock Classes="board" Text="{Binding Number, StringFormat='#{0}'}"
                                                            Foreground="{DynamicResource InkBrush}"/>
                                                 <Rectangle Classes="selection" Height="1" VerticalAlignment="Bottom" Margin="0 0 0 7"
                                                            Fill="{DynamicResource AccentBrush}"/>
                                             </Panel>
-                                            <TextBlock Grid.Column="2" Classes="board" Text="{Binding ArrivalTime}"/>
-                                            <TextBlock Grid.Column="3" Classes="board" Text="{Binding LengthText}"
+                                            <TextBlock Grid.Column="1" Classes="board" Text="{Binding ArrivalTime}"/>
+                                            <TextBlock Grid.Column="2" Classes="board" Text="{Binding LengthText}" HorizontalAlignment="Right"
                                                        ToolTip.Tip="{Binding SizeText}"/>
+                                            <TextBlock Grid.Column="3" Classes="lamp" Text="NEW" HorizontalAlignment="Right"
+                                                       IsVisible="{Binding IsNew}" ToolTip.Tip="Not looked at yet"/>
                                         </Grid>
                                     </DataTemplate>
                                 </ListBox.ItemTemplate>
@@ -400,20 +425,20 @@
                         <TextBlock Text="{Binding HealthText}" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
+                <Border Grid.Column="1" Classes="announce" Classes.shown="{Binding ToastVisible}"
+                        HorizontalAlignment="Center" VerticalAlignment="Center" Padding="12 2"
+                        Background="{DynamicResource RaisedBrush}" CornerRadius="999" IsHitTestVisible="False">
+                    <TextBlock Text="{Binding ToastMessage}" FontSize="12" FontWeight="Medium"/>
+                </Border>
                 <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="14" VerticalAlignment="Center">
                     <TextBlock Classes="small" Text="{Binding LiveText}" VerticalAlignment="Center"/>
                     <TextBlock Classes="small mono" Text="{Binding PaperText}" VerticalAlignment="Center"
                                ToolTip.Tip="{Binding BackendName, StringFormat='Paper this printer emulates. Rendered with {0}.'}"/>
+                    <TextBlock Classes="small mono" Text="{Binding ScaleText}" VerticalAlignment="Center"
+                               Classes.warn="{Binding !IsScaleExact}"
+                               ToolTip.Tip="How receipts are drawn: whole screen pixels per printer dot, with no smoothing."/>
                 </StackPanel>
             </Grid>
-        </Border>
-
-        <!-- Toast for buzzer, cash drawer and dropped prints. -->
-        <Border Grid.Row="0" Classes="toast" Classes.shown="{Binding ToastVisible}"
-                HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0 0 0 20" Padding="16 10"
-                Background="{DynamicResource RaisedBrush}" BorderBrush="{DynamicResource ControlBorderBrush}"
-                BorderThickness="1" CornerRadius="8" BoxShadow="0 8 24 0 #66000000" IsHitTestVisible="False">
-            <TextBlock Text="{Binding ToastMessage}" FontWeight="Medium"/>
         </Border>
 
         <!-- In-page Monitor (the browser hosts it here; desktop opens a window instead). -->

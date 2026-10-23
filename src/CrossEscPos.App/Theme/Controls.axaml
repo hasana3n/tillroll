@@ -168,6 +168,10 @@
         <Setter Property="CornerRadius" Value="{StaticResource CardRadius}"/>
         <Setter Property="HorizontalAlignment" Value="Stretch"/>
     </Style>
+    <!-- Popups (tooltips, menus, dropdowns) live outside the window's visual tree, so they need the face set here. -->
+    <Style Selector="ToolTip, MenuFlyoutPresenter, ComboBoxItem, FlyoutPresenter">
+        <Setter Property="FontFamily" Value="{StaticResource UiFont}"/>
+    </Style>
     <Style Selector="ToolTip">
         <Setter Property="FontSize" Value="{StaticResource FontSmall}"/>
         <Setter Property="CornerRadius" Value="6"/>

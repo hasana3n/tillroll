@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
+using Avalonia.Markup.Xaml.Styling;
 using Avalonia.Headless.XUnit;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
@@ -53,6 +54,48 @@ public class ControlsTests
         state.Paper = PaperLevel.NearEnd;
         Dispatcher.UIThread.RunJobs();
         Assert.True(segments[1].IsChecked);
+    }
+
+    [AvaloniaFact]
+    public void PrinterStatePanel_CheckedSegmentStandsOut_WithOnlyTheControlsDefaultTheme()
+    {
+        // A NuGet consumer has no CrossEscPos.App theme: the controls' own default resources must still show which
+        // paper segment is checked.
+        var panel = new PrinterStatePanel { State = new PrinterState() };
+        var window = new Window { Content = panel };
+        window.Resources.MergedDictionaries.Add(
+            new ResourceInclude(new System.Uri("avares://CrossEscPos.Controls/"))
+            {
+                Source = new System.Uri("avares://CrossEscPos.Controls/Themes/Default.axaml"),
+            });
+        window.Show();
+        Dispatcher.UIThread.RunJobs();
+
+        var faces = panel.GetVisualDescendants().OfType<RadioButton>()
+            .Select(r => r.GetVisualDescendants().OfType<Border>().First(b => b.Name == "face").Background)
+            .ToList();
+        Assert.NotNull(faces[0]);                 // "Plenty" is checked by default
+        Assert.NotEqual(faces[0], faces[1]);
+    }
+
+    [AvaloniaFact]
+    public void ReceiptView_VisibleItems_AreOnlyTheReceiptsInTheViewport()
+    {
+        var printer = new ReceiptPrinter(PaperConfiguration.Default, new SkiaImageFactory(), new SkiaTypefaceProvider());
+        for (int i = 0; i < 6; i++)
+            printer.FeedEscPos(string.Concat(Enumerable.Repeat("A line of a long receipt\n", 30)) + "\x1dV\0");
+        var receipts = new ObservableCollection<ReceiptViewModel>(
+            printer.ReceiptStack.Where(r => !r.IsEmpty)
+                .Select((r, i) => new ReceiptViewModel(r, new SkiaImageEncoder(), new StubFileDialogService(), i + 1)));
+
+        var view = new ReceiptView { Receipts = receipts };
+        var window = new Window { Content = view, Width = 900, Height = 500 };
+        window.Show();
+        Dispatcher.UIThread.RunJobs();
+
+        var visible = view.VisibleItems().ToList();
+        Assert.Contains(receipts[0], visible);
+        Assert.DoesNotContain(receipts[^1], visible);   // far below the fold: not seen yet
     }
 
     [AvaloniaFact]

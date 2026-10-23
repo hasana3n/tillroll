@@ -6,6 +6,8 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
+                <!-- The reusable controls' defaults first; the app's tokens override them. -->
+                <ResourceInclude Source="avares://CrossEscPos.Controls/Themes/Default.axaml"/>
                 <ResourceInclude Source="avares://CrossEscPos.App/Theme/Tokens.axaml"/>
                 <ResourceInclude Source="avares://CrossEscPos.App/Theme/Icons.axaml"/>
             </ResourceDictionary.MergedDictionaries>

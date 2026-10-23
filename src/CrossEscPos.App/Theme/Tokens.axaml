@@ -106,12 +106,19 @@
     <SolidColorBrush x:Key="TextControlPlaceholderForeground" Color="#8A8C92"/>
     <SolidColorBrush x:Key="TextControlSelectionHighlightColor" Color="#80F2B33D"/>
     <Thickness x:Key="TextControlBorderThemeThicknessFocused">1</Thickness>
+    <SolidColorBrush x:Key="TextControlBackgroundDisabled" Color="#101012"/>
+    <SolidColorBrush x:Key="TextControlBorderBrushDisabled" Color="#232327"/>
+    <SolidColorBrush x:Key="TextControlForegroundDisabled" Color="#A1A1AA"/>
 
     <SolidColorBrush x:Key="ComboBoxBackground" Color="#101012"/>
     <SolidColorBrush x:Key="ComboBoxBackgroundPointerOver" Color="#1E1E21"/>
     <SolidColorBrush x:Key="ComboBoxBackgroundPressed" Color="#26262A"/>
     <SolidColorBrush x:Key="ComboBoxBorderBrush" Color="#3A3A3E"/>
     <SolidColorBrush x:Key="ComboBoxBorderBrushPointerOver" Color="#55555B"/>
+    <SolidColorBrush x:Key="ComboBoxBackgroundDisabled" Color="#101012"/>
+    <SolidColorBrush x:Key="ComboBoxBorderBrushDisabled" Color="#232327"/>
+    <SolidColorBrush x:Key="ComboBoxForegroundDisabled" Color="#A1A1AA"/>
+    <SolidColorBrush x:Key="ComboBoxDropDownGlyphForegroundDisabled" Color="#6A6A70"/>
     <SolidColorBrush x:Key="ComboBoxDropDownBackground" Color="#1E1E21"/>
     <SolidColorBrush x:Key="ComboBoxDropDownBorderBrush" Color="#3A3A3E"/>
     <SolidColorBrush x:Key="ComboBoxItemBackgroundSelected" Color="#26262A"/>

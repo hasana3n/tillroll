@@ -22,7 +22,7 @@ public sealed class SerialTransportEntry : TransportEntry
         _port = new TransportField("Port", port ?? (ports.Length > 0 ? ports[0] : string.Empty), ports);
         _baud = new TransportField("Baud rate", baud.ToString());
         Fields = new[] { _port, _baud };
-        Set(false, "Serial: closed");
+        Set(false, "Closed");
         if (autoStart)
             StartCore();
     }
@@ -36,7 +36,7 @@ public sealed class SerialTransportEntry : TransportEntry
 
     protected override Task ToggleAsync()
     {
-        if (_serial.IsRunning) { _serial.Stop(); Set(false, "Serial: closed"); }
+        if (_serial.IsRunning) { _serial.Stop(); Set(false, "Closed"); }
         else StartCore();
         return Task.CompletedTask;
     }

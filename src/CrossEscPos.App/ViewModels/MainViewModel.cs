@@ -57,6 +57,7 @@ public partial class MainViewModel : ObservableObject
     private readonly IFileDialogService _dialogs;
     private readonly INotificationService _notifications;
     private readonly DispatcherTimer _toastTimer;
+    private readonly DispatcherTimer _clockTimer;
     private readonly Dictionary<string, ReceiptViewModel> _receiptsById = new();
 
     public ObservableCollection<ReceiptViewModel> Receipts { get; } = new();
@@ -107,6 +108,26 @@ public partial class MainViewModel : ObservableObject
     /// <summary>"80 mm · 576 dots": the paper this printer emulates.</summary>
     public string PaperText { get; }
 
+    /// <summary>Paper width in printer dots: the width every receipt is rendered at.</summary>
+    public int PaperDots { get; }
+
+    /// <summary>How the receipts are drawn right now: "2 px per dot", or a warning when they had to be shrunk.</summary>
+    [ObservableProperty] private string _scaleText = string.Empty;
+
+    /// <summary>False when the receipts are shrunk below one screen pixel per dot (no longer pixel-exact).</summary>
+    [ObservableProperty] private bool _isScaleExact = true;
+
+    /// <summary>The time now, for reading arrivals against (updated every second).</summary>
+    [ObservableProperty] private string _clock = DateTime.Now.ToString("HH:mm:ss", CultureInfo.InvariantCulture);
+
+    /// <summary>Called by the view whenever the receipts' fit changes.</summary>
+    public void ReportScale(PixelPerfectImage.DotFit fit, double renderScaling)
+    {
+        IsScaleExact = fit.Sharp;
+        int pixels = (int)Math.Round(fit.DipsPerDot * renderScaling);
+        ScaleText = fit.Sharp ? $"{pixels} px per dot" : "Shrunk to fit, not pixel-exact";
+    }
+
     /// <summary>The platform's transports, rendered uniformly by the shared connections view.</summary>
     public IReadOnlyList<Transports.TransportEntry> Transports { get; }
 
@@ -134,6 +155,10 @@ public partial class MainViewModel : ObservableObject
         _dialogs = platform.FileDialogs;
         _notifications = platform.Notifications;
 
+        _clockTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+        _clockTimer.Tick += (_, _) => Clock = DateTime.Now.ToString("HH:mm:ss", CultureInfo.InvariantCulture);
+        _clockTimer.Start();
+
         _toastTimer = new DispatcherTimer { Interval = ToastDuration };
         _toastTimer.Tick += (_, _) => { _toastTimer.Stop(); ToastVisible = false; };
 
@@ -156,6 +181,8 @@ public partial class MainViewModel : ObservableObject
         _printer.OnPrintBlocked += reason => Dispatcher.UIThread.Post(() => ShowToast($"Print dropped: {reason}"));
 
         Transports = platform.CreateTransports(printer);
+        if (Transports.Count > 0)
+            Transports[0].IsFeatured = true;
         foreach (var transport in Transports)
             transport.PropertyChanged += (_, e) =>
             {
@@ -166,8 +193,8 @@ public partial class MainViewModel : ObservableObject
             };
 
         var paper = printer.Paper;
-        PaperText = string.Create(CultureInfo.InvariantCulture,
-            $"{paper.PaperWidthMm:0} mm · {paper.GetPrintWidthInPixels()} dots");
+        PaperDots = paper.GetPaperWidthInPixels();
+        PaperText = string.Create(CultureInfo.InvariantCulture, $"{paper.PaperWidthMm:0} mm · {PaperDots} dots");
 
         State.PropertyChanged += (_, _) =>
         {
@@ -323,6 +350,7 @@ public partial class MainViewModel : ObservableObject
     /// <summary>Called on shutdown — stop every transport.</summary>
     public void Shutdown()
     {
+        _clockTimer.Stop();
         Monitor?.Shutdown();
         foreach (var transport in Transports)
             transport.Shutdown();

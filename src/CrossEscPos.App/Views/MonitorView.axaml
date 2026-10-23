@@ -23,9 +23,20 @@
             <Setter Property="Foreground" Value="{DynamicResource InkMutedBrush}"/>
             <Setter Property="Margin" Value="0 0 0 8"/>
         </Style>
-        <Style Selector="UniformGrid.jobs > Button">
+        <!-- Test jobs: a list of actions, each with what it sends. -->
+        <Style Selector="StackPanel.jobs > Button">
             <Setter Property="HorizontalAlignment" Value="Stretch"/>
-            <Setter Property="Margin" Value="0 0 8 8"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Padding" Value="12 8"/>
+        </Style>
+        <Style Selector="StackPanel.jobs TextBlock.hint">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="Normal"/>
+            <Setter Property="Foreground" Value="{DynamicResource InkMutedBrush}"/>
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
         <Style Selector="ListBox.log">
             <Setter Property="Background" Value="Transparent"/>
@@ -92,7 +103,10 @@
             <TextBlock Classes="group" Text="Printer reports"/>
             <Border Classes="card">
                 <StackPanel Spacing="10">
-                    <TextBlock Classes="title" Text="{Binding StatusText}" TextWrapping="Wrap"/>
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <Ellipse Width="8" Height="8" VerticalAlignment="Center" Fill="{Binding StatusBrush}"/>
+                        <TextBlock Classes="title" Text="{Binding StatusText}" TextWrapping="Wrap"/>
+                    </StackPanel>
                     <ItemsControl ItemsSource="{Binding Indicators}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate x:DataType="vm:StatusIndicator">
@@ -111,15 +125,31 @@
         <!-- Test jobs -->
         <StackPanel>
             <TextBlock Classes="group" Text="Send a test job"/>
-            <UniformGrid Classes="jobs" Columns="2" Margin="0 0 -8 -8">
-                <Button Classes="ghost" Content="Sample receipt" Command="{Binding SendSampleCommand}"/>
-                <Button Classes="ghost" Content="All barcodes" Command="{Binding SendBarcodesCommand}"/>
-                <Button Classes="ghost" Content="QR, PDF417, Aztec" Command="{Binding SendQrCommand}"/>
-                <Button Classes="ghost" Content="Full feature test" Command="{Binding SendFullTestCommand}"/>
-                <Button Classes="ghost" Content="Open cash drawer" Command="{Binding OpenDrawerCommand}"/>
-                <Button Classes="ghost" Content="Sound the buzzer" Command="{Binding BeepCommand}"/>
-                <Button Classes="ghost" Content="Cut" Command="{Binding CutCommand}"/>
-            </UniformGrid>
+            <Border Classes="card" Padding="4">
+                <StackPanel Classes="jobs">
+                    <Button Command="{Binding SendSampleCommand}" AutomationProperties.Name="Sample receipt">
+                        <Grid ColumnDefinitions="*,Auto"><TextBlock Text="Sample receipt"/><TextBlock Grid.Column="1" Classes="hint" Text="Text, totals, QR"/></Grid>
+                    </Button>
+                    <Button Command="{Binding SendBarcodesCommand}" AutomationProperties.Name="All barcodes">
+                        <Grid ColumnDefinitions="*,Auto"><TextBlock Text="All barcodes"/><TextBlock Grid.Column="1" Classes="hint" Text="UPC, EAN, Code 39, 128, ITF"/></Grid>
+                    </Button>
+                    <Button Command="{Binding SendQrCommand}" AutomationProperties.Name="2D codes">
+                        <Grid ColumnDefinitions="*,Auto"><TextBlock Text="2D codes"/><TextBlock Grid.Column="1" Classes="hint" Text="QR, PDF417, DataMatrix, Aztec"/></Grid>
+                    </Button>
+                    <Button Command="{Binding SendFullTestCommand}" AutomationProperties.Name="Full feature test">
+                        <Grid ColumnDefinitions="*,Auto"><TextBlock Text="Full feature test"/><TextBlock Grid.Column="1" Classes="hint" Text="Every supported command"/></Grid>
+                    </Button>
+                    <Button Command="{Binding OpenDrawerCommand}" AutomationProperties.Name="Open cash drawer">
+                        <Grid ColumnDefinitions="*,Auto"><TextBlock Text="Open cash drawer"/><TextBlock Grid.Column="1" Classes="hint" Text="Drawer kick, pin 2"/></Grid>
+                    </Button>
+                    <Button Command="{Binding BeepCommand}" AutomationProperties.Name="Sound the buzzer">
+                        <Grid ColumnDefinitions="*,Auto"><TextBlock Text="Sound the buzzer"/><TextBlock Grid.Column="1" Classes="hint" Text="BEL"/></Grid>
+                    </Button>
+                    <Button Command="{Binding CutCommand}" AutomationProperties.Name="Cut">
+                        <Grid ColumnDefinitions="*,Auto"><TextBlock Text="Cut"/><TextBlock Grid.Column="1" Classes="hint" Text="Partial cut"/></Grid>
+                    </Button>
+                </StackPanel>
+            </Border>
         </StackPanel>
 
         <!-- Log -->

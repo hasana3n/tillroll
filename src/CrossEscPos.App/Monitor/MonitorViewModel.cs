@@ -49,6 +49,9 @@ public partial class MonitorViewModel : ObservableObject
     [ObservableProperty] private string _statusText = "Not connected.";
     [ObservableProperty] private bool _canRefresh;
 
+    /// <summary>The lamp beside <see cref="StatusText"/>: green ready, red not ready, grey not connected.</summary>
+    [ObservableProperty] private IBrush _statusBrush = Gray;
+
     public IReadOnlyList<string> Modes => _client.Modes;
     public bool HasModes => _client.Modes.Count > 1;
 
@@ -70,11 +73,11 @@ public partial class MonitorViewModel : ObservableObject
     public ObservableCollection<StatusIndicator> Indicators { get; } = new();
 
     // The app palette's state colours. Fully qualified: ESCPOS_NET.Emitters also defines a Color type.
+    private static readonly IBrush Gray = new SolidColorBrush(Avalonia.Media.Color.Parse("#6A6A70"));
     private static readonly IBrush Green = new SolidColorBrush(Avalonia.Media.Color.Parse("#44A282"));
     private static readonly IBrush Red = new SolidColorBrush(Avalonia.Media.Color.Parse("#E5566F"));
     private static readonly IBrush Amber = new SolidColorBrush(Avalonia.Media.Color.Parse("#D9A441"));
     private static readonly IBrush Bright = new SolidColorBrush(Avalonia.Media.Color.Parse("#F4F4F5"));
-    private static readonly IBrush Gray = new SolidColorBrush(Avalonia.Media.Color.Parse("#6A6A70"));
 
     public MonitorViewModel(IMonitorClient client)
     {
@@ -134,6 +137,7 @@ public partial class MonitorViewModel : ObservableObject
         IsConnected = false;
         ConnectButtonText = "Connect";
         StatusText = "Not connected.";
+        StatusBrush = Gray;
         Indicators.Clear();
         Append("Disconnected");
     }
@@ -141,6 +145,7 @@ public partial class MonitorViewModel : ObservableObject
     private void OnStatusReceived(MonitorStatus s) => Dispatcher.UIThread.Post(() =>
     {
         StatusText = s.Ready ? "Ready" : "Not ready";
+        StatusBrush = s.Ready ? Green : Red;
         Indicators.Clear();
         Indicators.Add(new("Printer", s.Online ? "Online" : "Offline", s.Online ? Green : Red));
         Indicators.Add(new("Paper", s.PaperOut ? "Out" : s.PaperLow ? "Low" : "OK",

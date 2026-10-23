@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
@@ -37,6 +38,26 @@ public partial class ReceiptView : UserControl
     /// <summary>Scrolls the receipt list to the most recent page.</summary>
     public void ScrollToEnd()
         => this.FindControl<ScrollViewer>("ReceiptScrollView")?.ScrollToEnd();
+
+    /// <summary>The receipts at least partly inside the visible part of the feed.</summary>
+    public IEnumerable<object> VisibleItems()
+    {
+        var scroller = this.FindControl<ScrollViewer>("ReceiptScrollView");
+        var items = this.FindControl<ItemsControl>("ReceiptItems");
+        if (scroller is null || items?.ItemsSource is not { } source)
+            yield break;
+
+        var viewport = new Rect(scroller.Bounds.Size);
+        foreach (var item in source)
+        {
+            if (item is null || items.ContainerFromItem(item) is not { } container)
+                continue;
+            if (container.TranslatePoint(default, scroller) is not { } top)
+                continue;
+            if (new Rect(top, container.Bounds.Size).Intersects(viewport))
+                yield return item;
+        }
+    }
 
     /// <summary>Scrolls so the top of the given receipt sits at the top of the view.</summary>
     public void ScrollTo(object item)

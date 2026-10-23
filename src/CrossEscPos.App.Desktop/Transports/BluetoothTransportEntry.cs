@@ -26,7 +26,7 @@ public sealed class BluetoothTransportEntry : TransportEntry
         _name = new TransportField("Printer name", options.Name);
         Fields = new[] { _name };
         _server.StatusChanged += OnServerStatusChanged;
-        Set(false, "Off. Starting it makes this computer visible to phones as a printer.");
+        Set(false, "Off");
         if (autoStart)
             _ = ToggleAsync();
     }

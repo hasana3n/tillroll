@@ -81,8 +81,8 @@ builds are self-contained, so you don't need .NET installed. The libraries are o
    printf 'Hello from CrossEscPos\n\n\n\035V\000' | nc -w 1 localhost 9100
    ```
 
-3. Click **Open monitor…** to print sample receipts, barcodes and QR codes, and flip the switches in the
-   **Printer state** panel to see the status your software would receive.
+3. Click **Monitor** (the bottom icon on the left rail) to print sample receipts, barcodes and QR codes,
+   and flip the switches in the **Printer** panel to see the status your software would receive.
 
 To change the port, open a serial port, or test serial without hardware, see
 [Connecting](docs/Connecting.md).

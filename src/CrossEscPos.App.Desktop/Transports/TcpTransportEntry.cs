@@ -23,7 +23,7 @@ public sealed class TcpTransportEntry : TransportEntry
         _address = new TransportField("Listen address", address, Addresses(address));
         _port = new TransportField("Port", port.ToString());
         Fields = new[] { _address, _port };
-        Set(false, "TCP stopped");
+        Set(false, "Off");
         if (autoStart)
             StartCore();
     }
@@ -36,7 +36,7 @@ public sealed class TcpTransportEntry : TransportEntry
 
     protected override Task ToggleAsync()
     {
-        if (_tcp.IsRunning) { _tcp.Stop(); Set(false, "TCP stopped"); }
+        if (_tcp.IsRunning) { _tcp.Stop(); Set(false, "Off"); }
         else StartCore();
         return Task.CompletedTask;
     }

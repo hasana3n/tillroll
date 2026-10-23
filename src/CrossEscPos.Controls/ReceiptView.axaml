@@ -28,9 +28,9 @@
                         </Border>
                         <!-- Caption: the arrival lamp, the cut, when it came and how long it is. -->
                         <Grid ColumnDefinitions="Auto,*,Auto" Margin="2 6 0 0">
-                            <Ellipse Width="6" Height="6" Margin="0 0 8 0" VerticalAlignment="Center"
-                                     Fill="{DynamicResource AccentBrush}" IsVisible="{Binding IsNew}"
-                                     ToolTip.Tip="New: not looked at yet"/>
+                            <TextBlock Margin="0 0 10 0" Text="NEW" IsVisible="{Binding IsNew}" ToolTip.Tip="Not looked at yet"
+                                       FontFamily="{DynamicResource MonoFont}" FontSize="11" FontWeight="Bold"
+                                       Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center"/>
                             <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10">
                                 <TextBlock Classes="caption" Text="{Binding Title}"
                                            Foreground="{DynamicResource InkBrush}"/>

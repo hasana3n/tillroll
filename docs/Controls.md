@@ -17,6 +17,25 @@ flowchart TD
     state --> panel
 ```
 
+## Default theme
+
+The controls take their colours, figure font and icons from a small resource dictionary. Merge it into your
+application's resources; define the same keys after it to restyle them (CrossEscPos.App does this with its own
+tokens):
+
+```xml
+<Application.Resources>
+    <ResourceDictionary>
+        <ResourceDictionary.MergedDictionaries>
+            <ResourceInclude Source="avares://CrossEscPos.Controls/Themes/Default.axaml"/>
+        </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+</Application.Resources>
+```
+
+The keys are `PaperBrush`, `InkBrush`, `InkMutedBrush`, `AccentBrush`, `HoverBrush`, `PanelBrush`, `BorderBrush`,
+`MonoFont` and `Icon.Download`.
+
 ## `ReceiptView`
 
 Renders the live stream of receipts (one image per cut) with a per-page PNG export button. Bind its
@@ -28,7 +47,9 @@ Renders the live stream of receipts (one image per cut) with a per-page PNG expo
 </UserControl>
 ```
 
-It also exposes `ScrollToEnd()` so the host can keep the newest receipt in view.
+Each receipt shows a caption under the paper (cut number, arrival time, length) and a **NEW** lamp until
+`ReceiptViewModel.MarkSeen()` is called. The view also exposes `ScrollToEnd()` to keep the newest receipt in view,
+`ScrollTo(item)` to bring one receipt to the top, and `VisibleItems()` for the receipts currently on screen.
 
 ## `PrinterStatePanel`
 

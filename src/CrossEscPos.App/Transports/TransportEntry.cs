@@ -37,8 +37,16 @@ public abstract partial class TransportEntry : ObservableObject
     [ObservableProperty] private string _status = string.Empty;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(ButtonText))]
+    [NotifyPropertyChangedFor(nameof(ButtonText), nameof(ShowsPrimaryAction))]
     private bool _isActive;
+
+    /// <summary>Set on the transport the window leads with (the first one); its start button is the primary action.</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ShowsPrimaryAction))]
+    private bool _isFeatured;
+
+    /// <summary>True while this transport's button is the screen's one primary action: featured and not running.</summary>
+    public bool ShowsPrimaryAction => IsFeatured && !IsActive;
 
     /// <summary>Connect/Disconnect by default; Start/Stop or Open/Close for the desktop server transports.</summary>
     public virtual string ButtonText => IsActive ? "Disconnect" : "Connect";
