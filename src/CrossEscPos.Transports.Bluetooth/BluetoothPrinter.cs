@@ -29,7 +29,11 @@ public static class BluetoothPrinter
     {
         ArgumentNullException.ThrowIfNull(printer);
         ArgumentNullException.ThrowIfNull(options);
+#if WINDOWS_BT
+        return new Windows.WinRtBleServer(printer, options);
+#else
         return new UnsupportedBluetoothServer(BleDisplayName, UnsupportedReason());
+#endif
     }
 
     private static string UnsupportedReason()
