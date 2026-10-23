@@ -36,4 +36,21 @@
     <AvaloniaResource Include="Assets/Icon/icon-256.png" />
   </ItemGroup>
 
+  <!-- The target framework is chosen from the runtime while the project is read, before a publish profile's
+       RuntimeIdentifier is known. Without -r on the command line a Linux build would silently get the Windows
+       framework and lose Bluetooth (BlueZ), so stop it instead. -->
+  <Target Name="CheckTargetFrameworkMatchesRuntime" BeforeTargets="Build;Publish"
+          Condition="'$(RuntimeIdentifier)' != '' And !$(RuntimeIdentifier.StartsWith('win')) And $(TargetFramework.Contains('-windows'))">
+    <Error Text="Building for $(RuntimeIdentifier) picked $(TargetFramework). Pass the runtime on the command line too: dotnet publish src/CrossEscPos.App.Desktop -r $(RuntimeIdentifier) -p:PublishProfile=..." />
+  </Target>
+
+  <!-- A single-file build ships one executable: leave out the native libraries' debug symbols that SkiaSharp and
+       HarfBuzzSharp would otherwise copy next to it. -->
+  <Target Name="DropNativeSymbolsFromSingleFile" AfterTargets="ComputeResolvedFilesToPublishList"
+          Condition="'$(PublishSingleFile)' == 'true'">
+    <ItemGroup>
+      <ResolvedFileToPublish Remove="@(ResolvedFileToPublish)" Condition="'%(Extension)' == '.pdb'" />
+    </ItemGroup>
+  </Target>
+
 </Project>

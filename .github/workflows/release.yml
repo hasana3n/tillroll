@@ -20,10 +20,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { rid: win-x64,   os: ubuntu-latest, kind: zip }
-          - { rid: linux-x64, os: ubuntu-latest, kind: targz }
-          - { rid: osx-x64,   os: macos-latest,  kind: app }
-          - { rid: osx-arm64, os: macos-latest,  kind: app }
+          # Windows and Linux ship one portable executable (runtime and native libraries inside); macOS ships a
+          # .app bundle built from the usual folder output.
+          - { rid: win-x64,   os: ubuntu-latest, kind: zip,   publish: "-p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true -p:DebugType=embedded" }
+          - { rid: linux-x64, os: ubuntu-latest, kind: targz, publish: "-p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true -p:DebugType=embedded" }
+          - { rid: osx-x64,   os: macos-latest,  kind: app,   publish: "-p:PublishSingleFile=false" }
+          - { rid: osx-arm64, os: macos-latest,  kind: app,   publish: "-p:PublishSingleFile=false" }
     steps:
       - uses: actions/checkout@v4
 
@@ -45,7 +47,7 @@ jobs:
           -c Release
           -r ${{ matrix.rid }}
           --self-contained true
-          -p:PublishSingleFile=false
+          ${{ matrix.publish }}
           -p:Version=${{ steps.ver.outputs.version }}
           -o publish/${{ matrix.rid }}
 
@@ -53,11 +55,15 @@ jobs:
         if: matrix.kind == 'zip'
         run: |
           cd publish/${{ matrix.rid }}
+          mv CrossEscPos.App.Desktop.exe CrossEscPos.exe
           zip -r ../../CrossEscPos-${{ matrix.rid }}.zip .
 
       - name: Package — tar.gz (Linux)
         if: matrix.kind == 'targz'
-        run: tar -czf CrossEscPos-${{ matrix.rid }}.tar.gz -C publish/${{ matrix.rid }} .
+        run: |
+          mv publish/${{ matrix.rid }}/CrossEscPos.App.Desktop publish/${{ matrix.rid }}/CrossEscPos
+          chmod +x publish/${{ matrix.rid }}/CrossEscPos
+          tar -czf CrossEscPos-${{ matrix.rid }}.tar.gz -C publish/${{ matrix.rid }} .
 
       - name: Package — .app bundle (macOS)
         if: matrix.kind == 'app'

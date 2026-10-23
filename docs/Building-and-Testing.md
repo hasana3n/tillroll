@@ -30,6 +30,34 @@ dotnet test CrossEscPos.slnx
 - **Linux:** install the usual font/render native deps if they are missing, e.g.
   `sudo apt install libfontconfig1 libfreetype6` (Debian/Ubuntu).
 
+## Portable build (one executable)
+
+Publish the desktop app as one self-contained file: the .NET runtime and the native rendering libraries are
+inside, so it runs on a machine with nothing installed. Copy it anywhere (a USB stick, a shared folder) and run
+it.
+
+```sh
+# Windows -> publish/portable-win-x64/CrossEscPos.App.Desktop.exe (about 57 MB)
+dotnet publish src/CrossEscPos.App.Desktop -r win-x64 -p:PublishProfile=Portable-win-x64
+
+# Linux -> publish/portable-linux-x64/CrossEscPos.App.Desktop (about 50 MB)
+dotnet publish src/CrossEscPos.App.Desktop -r linux-x64 -p:PublishProfile=Portable-linux-x64
+```
+
+- Keep `-r` alongside the profile. The project picks its target framework (Windows with WinRT Bluetooth, or plain
+  .NET with BlueZ) from the runtime before the profile is read, and a Linux build without it stops with an error
+  rather than quietly losing Bluetooth.
+- Rename the file freely (the releases call it `CrossEscPos.exe` / `CrossEscPos`).
+- The first start unpacks the native libraries to a temp folder, so it takes a moment longer than later starts.
+- The app keeps no settings files; configuration comes only from the [environment variables](Connecting.md). It
+  does write a log, to `%LOCALAPPDATA%\CrossEscPosEmulator\logspp.log` on Windows (`~/.local/share/...` on
+  Linux).
+- The build isn't trimmed: Avalonia and the transports load types by reflection, and trimming breaks them.
+
+The profiles live in
+[`src/CrossEscPos.App.Desktop/Properties/PublishProfiles`](../src/CrossEscPos.App.Desktop/Properties/PublishProfiles).
+The release workflow publishes Windows and Linux the same way.
+
 ## Testing
 
 Four test projects under [`tests/`](../tests):
@@ -66,7 +94,8 @@ dotnet test CrossEscPos.slnx
 Three GitHub Actions workflows publish the project:
 
 - [`release.yml`](../.github/workflows/release.yml) runs on a `v*` tag. It builds self-contained desktop
-  apps for win-x64, linux-x64, osx-x64 and osx-arm64 (the macOS ones as an ad-hoc signed `.app`), packs
+  apps for win-x64 and linux-x64 (each a single portable executable) and osx-x64 and osx-arm64 (ad-hoc signed
+  `.app` bundles), packs
   the NuGet libraries, publishes them to nuget.org and to GitHub Packages (which lists them in the
   repository's sidebar), and attaches everything to a GitHub Release. Each package embeds the README,
   converted for nuget.org by [`build/PackageReadme.targets`](../build/PackageReadme.targets), and uses

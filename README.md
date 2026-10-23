@@ -64,7 +64,9 @@ software handles paper-out, an open cover or a cash drawer.
 | ![Browser](https://img.shields.io/badge/Browser-654FF0?style=for-the-badge&logo=webassembly&logoColor=white) | [Run it online](https://danielmeza.github.io/CrossEscPosEmulator/app/), no install |
 
 The links download the latest [release](https://github.com/danielmeza/CrossEscPosEmulator/releases). The
-builds are self-contained, so you don't need .NET installed. The libraries are on NuGet as
+builds are self-contained, so you don't need .NET installed. On Windows and Linux the download is a single
+portable executable (`CrossEscPos.exe` / `CrossEscPos`): unpack it anywhere and run it. To build one yourself,
+see [Portable build](docs/Building-and-Testing.md#portable-build-one-executable). The libraries are on NuGet as
 `CrossEscPos.*`; see [Packages](docs/Packages.md).
 
 > [!NOTE]
