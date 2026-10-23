@@ -6,7 +6,7 @@
     <!-- Renders the live stream of receipts (one image per cut) with a per-page export toolbar.
          Bind the Receipts property to an IEnumerable of ReceiptViewModel. -->
     <ScrollViewer Name="ReceiptScrollView"
-                  HorizontalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled"
                   VerticalScrollBarVisibility="Visible">
         <ItemsControl Margin="0 12 0 0"
                       ItemsSource="{Binding Receipts, RelativeSource={RelativeSource AncestorType=controls:ReceiptView}}">
@@ -16,7 +16,8 @@
                             Margin="0 0 0 16" HorizontalAlignment="Center"
                             BoxShadow="0 2 10 0 #50000000">
                         <StackPanel>
-                            <Image Source="{Binding Image}" Stretch="None"/>
+                            <!-- Pixel-exact: each printer dot is a whole number of screen pixels, unsmoothed, like thermal dots. -->
+                            <controls:PixelPerfectImage Source="{Binding Image}"/>
                             <!-- Page toolbar (below the receipt, after the cut) -->
                             <Border Background="#3b3b3b" CornerRadius="0 0 4 4">
                                 <Grid ColumnDefinitions="*,Auto" Margin="10 4">

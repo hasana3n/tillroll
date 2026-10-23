@@ -49,7 +49,7 @@ public class ControlsTests
         window.Show();
         Dispatcher.UIThread.RunJobs();
 
-        Assert.NotEmpty(view.GetVisualDescendants().OfType<Image>());
+        Assert.Contains(view.GetVisualDescendants().OfType<PixelPerfectImage>(), image => image.Source is not null);
     }
 
     [AvaloniaFact]
