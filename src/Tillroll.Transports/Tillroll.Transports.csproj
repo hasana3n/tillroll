@@ -13,7 +13,7 @@
 
   <ItemGroup>
     <!-- Serial-port transport (RS-232 / virtual PTY simulation). -->
-    <PackageReference Include="System.IO.Ports" Version="10.0.8" />
+    <PackageReference Include="System.IO.Ports" Version="10.0.13" />
     <!-- ESC/POS client library used by the Monitor to exercise the emulator. -->
     <PackageReference Include="ESCPOS_NET" Version="3.0.0" />
     <!-- Direct USB printing (libusb). Needs native libusb-1.0 at runtime. -->
