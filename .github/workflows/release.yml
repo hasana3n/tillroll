@@ -30,7 +30,7 @@ jobs:
           - { rid: osx-x64,   os: macos-latest,  kind: app,   publish: "-p:PublishSingleFile=false" }
           - { rid: osx-arm64, os: macos-latest,  kind: app,   publish: "-p:PublishSingleFile=false" }
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-dotnet@v4
         with:
@@ -89,7 +89,7 @@ jobs:
     name: Pack NuGet libraries
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-dotnet@v4
         with:
           global-json-file: global.json
@@ -132,7 +132,7 @@ jobs:
       id-token: write   # required: mints the GitHub OIDC token for NuGet Trusted Publishing
       contents: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-dotnet@v4
         with:
           global-json-file: global.json
@@ -169,7 +169,7 @@ jobs:
       packages: write
       contents: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-dotnet@v4
         with:
           global-json-file: global.json
