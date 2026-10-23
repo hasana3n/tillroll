@@ -332,7 +332,7 @@
                     </Grid>
                 </Border>
 
-                <Grid Grid.Row="1" ColumnDefinitions="*,248">
+                <Grid Grid.Row="1" Name="Body" ColumnDefinitions="*,248">
                     <controls:ReceiptView Name="Receipts" Receipts="{Binding Receipts}"/>
 
                     <!-- First run: how to get the first receipt. -->
@@ -351,7 +351,7 @@
                     </StackPanel>
 
                     <!-- Arrivals board: one row per cut; a lamp stays lit until the receipt has been seen. -->
-                    <Border Grid.Column="1" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1 0 0 0">
+                    <Border Grid.Column="1" Name="BoardPane" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1 0 0 0">
                         <DockPanel>
                             <Grid DockPanel.Dock="Top" ColumnDefinitions="*,Auto" Margin="18 14 10 8" Height="24">
                                 <TextBlock Classes="label" Text="Arrivals" VerticalAlignment="Center"/>

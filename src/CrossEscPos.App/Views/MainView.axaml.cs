@@ -10,6 +10,14 @@ namespace CrossEscPos.App.Views;
 /// <summary>The shared main view (used inside a desktop window and as the browser single view).</summary>
 public partial class MainView : UserControl
 {
+    /// <summary>
+    /// Below this canvas width the arrivals board steps aside, so an 80 mm receipt (608 dots, about 405 units at
+    /// 150 % scaling) keeps one whole screen pixel per dot instead of being shrunk and smoothed.
+    /// </summary>
+    private const double BoardMinCanvasWidth = 760;
+
+    private const double BoardWidth = 248;
+
     private readonly ReceiptView? _receipts;
     private readonly ListBox? _board;
     private MainViewModel? _viewModel;
@@ -22,7 +30,10 @@ public partial class MainView : UserControl
 
         // Moving the pointer over the receipts counts as looking at them: the New lamps go out.
         if (this.FindControl<Grid>("Canvas") is { } canvas)
+        {
             canvas.PointerMoved += OnCanvasPointerMoved;
+            canvas.SizeChanged += OnCanvasSizeChanged;
+        }
 
         DataContextChanged += OnDataContextChanged;
     }
@@ -57,6 +68,15 @@ public partial class MainView : UserControl
     {
         if (e.PropertyName == nameof(MainViewModel.SelectedReceipt) && _viewModel?.SelectedReceipt is { } receipt)
             _receipts?.ScrollTo(receipt);
+    }
+
+    private void OnCanvasSizeChanged(object? sender, SizeChangedEventArgs e)
+    {
+        if (this.FindControl<Grid>("Body") is not { } body || this.FindControl<Border>("BoardPane") is not { } board)
+            return;
+        bool show = e.NewSize.Width >= BoardMinCanvasWidth;
+        board.IsVisible = show;
+        body.ColumnDefinitions[1].Width = new GridLength(show ? BoardWidth : 0);
     }
 
     private void OnCanvasPointerMoved(object? sender, PointerEventArgs e)
