@@ -5,7 +5,7 @@ backend.
 
 ## The window
 
-![Tillroll with two receipts on the arrivals board, Windows at 150% scaling](Screenshot.png)
+![Tillroll with two receipts on the arrivals board, Windows at 150% scaling](images/tillroll-window.png)
 
 The same layout runs on Windows, Linux, macOS and in the browser:
 
@@ -53,12 +53,12 @@ It then lets you exercise the target without writing any code:
   Back), confirming the emulator's status responses are wire-correct. When the printer isn't ready,
   the emulator drops the job and shows a notification, just like real hardware.
 
-![Monitor](Monitor.png)
+![The Monitor connected over TCP while the cover is open](images/tillroll-monitor.png)
 
-Toggling the emulator's **Printer** panel pushes status to the monitor in real time — here the
-printer reports *paper low* and a *recoverable error*, so the monitor shows **Not ready**:
+Toggling the emulator's **Printer** panel pushes status to the monitor in real time. In the picture above the
+cover is open, so the monitor reports **Not ready**:
 
-![Monitor reflecting printer state](Monitor%20Invalid%20State.png)
+![The Printer panel with the cover open; the status strip names the cause](images/tillroll-printer-state.png)
 
 ## Exporting tickets
 

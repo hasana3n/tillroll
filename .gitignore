@@ -5,6 +5,7 @@ riderModule.iml
 /_ReSharper.Caches/
 /.vs
 /.idea/
+/.vscode/
 
 # Runtime debug dumps written by ReceiptPrinter.FeedEscPos
 last_escpos_receive.txt
@@ -20,3 +21,10 @@ samples/Tillroll.Host/wwwroot/
 
 # Local publish output (dotnet publish ... -o publish/..., portable profiles)
 /publish/
+
+# Local AI-assistant and design-tool state
+.claude/
+.remember/
+.superpowers/
+.impeccable/questions/
+.impeccable/surfaces/

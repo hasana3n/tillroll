@@ -73,7 +73,7 @@ ready (out of paper, cover open, offline, or in an error state) and shows a noti
 
 Barcodes and QR codes render inline on the receipt, with optional HRI text:
 
-![Barcode and QR example](Example%20QR.png)
+![The sample receipt: text styles, 1D barcodes and 2D codes, rendered by Tillroll](images/sample-receipt.png)
 
 ## Not yet implemented
 

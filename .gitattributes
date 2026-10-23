@@ -1,0 +1,12 @@
+# Text files are stored with LF in the repository and checked out with the platform's line endings.
+* text=auto
+
+# Shell scripts must keep LF so they run on Linux and macOS straight from a Windows checkout.
+*.sh text eol=lf
+
+# Binary assets.
+*.png binary
+*.ico binary
+*.gif binary
+*.ttf binary
+*.bin binary

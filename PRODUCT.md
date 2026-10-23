@@ -31,8 +31,8 @@ app printed, and can reproduce printer problems on demand.
 ## Positioning
 
 A cross-platform, open-source (MIT) printer emulator that talks back: real transports including Bluetooth
-for phones, real status replies, simulated printer state, and a headless core with NuGet packages. A fork of
-hasana3n/tillroll, itself a port of roydejong/EscPosEmulator.
+for phones, real status replies, simulated printer state, and a headless core with NuGet packages. Built on
+danielmeza/CrossEscPosEmulator by Daniel Meza, itself a port of roydejong/EscPosEmulator by Roy de Jong.
 
 ## Operating Context
 
@@ -64,13 +64,15 @@ hasana3n/tillroll, itself a port of roydejong/EscPosEmulator.
 
 ## Brand Commitments
 
-- Name: Tillroll. Logo: docs/logo.png (also the app icon under src/Tillroll.App.Desktop/Assets/Icon).
+- Name: Tillroll. Logo: the "printing T" (an amber print head over a receipt with a torn edge, on a concourse-black
+  tile). Masters and sizes in branding/ (see branding/README.md); the app icon lives in
+  src/Tillroll.App.Desktop/Assets/Icon.
 - Receipt text is rendered in JetBrains Mono (embedded, OFL) so output is identical everywhere.
 - Copy voice in docs and status lines: plain, direct, task-first; no jargon in user-facing status.
 
 ## Evidence on Hand
 
-- Screenshots: docs/Example.png, docs/Monitor.png, docs/demo.gif, docs/After Linux.png, docs/After Browser.png.
+- Screenshots: docs/images/ (main window, printer state, Monitor, a rendered sample receipt).
 - No testimonials, user counts or benchmarks exist; do not invent any.
 
 ## Product Principles
