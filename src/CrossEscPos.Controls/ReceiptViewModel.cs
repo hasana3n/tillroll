@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -18,17 +19,36 @@ public partial class ReceiptViewModel : ObservableObject
     private readonly IImageEncoder _encoder;
     private readonly IFileDialogService _dialogs;
     private readonly int _index;
+    private readonly Action<Action> _guard;
 
     [ObservableProperty]
     private Bitmap? _image;
 
     public ReceiptViewModel(Receipt receipt, IImageEncoder encoder, IFileDialogService dialogs, int index)
+        : this(receipt, encoder, dialogs, index, static render => render())
+    {
+    }
+
+    /// <param name="renderGuard">
+    /// Runs each render of the receipt. Pass <c>printer.RunExclusive</c> when the printer is fed from other
+    /// threads (transports), so the receipt is never rendered while a job is still adding to it.
+    /// </param>
+    public ReceiptViewModel(Receipt receipt, IImageEncoder encoder, IFileDialogService dialogs, int index,
+        Action<Action> renderGuard)
     {
         _receipt = receipt;
         _encoder = encoder;
         _dialogs = dialogs;
         _index = index;
+        _guard = renderGuard;
         Refresh();
+    }
+
+    private IReceiptImage RenderGuarded()
+    {
+        IReceiptImage? image = null;
+        _guard(() => image = _receipt.Render());
+        return image!;
     }
 
     public string Id => _receipt.Guid;
@@ -44,7 +64,7 @@ public partial class ReceiptViewModel : ObservableObject
             return;
 
         var old = Image;
-        using var image = _receipt.Render();
+        using var image = RenderGuarded();
         Image = image.ToAvaloniaBitmap(_encoder);
         old?.Dispose();
     }
@@ -52,7 +72,7 @@ public partial class ReceiptViewModel : ObservableObject
     [RelayCommand]
     private async Task Export()
     {
-        using var image = _receipt.Render();
+        using var image = RenderGuarded();
         var stream = await _dialogs.SavePngAsync($"receipt_{_index:D3}");
         if (stream is null)
             return;

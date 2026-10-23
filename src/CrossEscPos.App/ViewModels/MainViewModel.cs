@@ -135,16 +135,21 @@ public partial class MainViewModel : ObservableObject
 
     private void ResetPrinter()
     {
-        _printer.ReceiptStack.Clear();
-        _printer.Initialize();
-        _printer.StartNewReceipt();
+        // Transports may be feeding on other threads: change the printer only while no feed is in progress.
+        _printer.RunExclusive(() =>
+        {
+            _printer.ReceiptStack.Clear();
+            _printer.Initialize();
+            _printer.StartNewReceipt();
+        });
         _receiptsById.Clear();
         Receipts.Clear();
     }
 
     #region Export
 
-    private List<Receipt> NonEmptyReceipts() => _printer.ReceiptStack.Where(r => !r.IsEmpty).ToList();
+    private List<Receipt> NonEmptyReceipts()
+        => _printer.RunExclusive(() => _printer.ReceiptStack.Where(r => !r.IsEmpty).ToList());
 
     [RelayCommand(CanExecute = nameof(HasReceipts))]
     private async Task ExportAll()
@@ -153,7 +158,7 @@ public partial class MainViewModel : ObservableObject
         if (receipts.Count == 0)
             return;
 
-        var bitmaps = receipts.Select(r => r.Render()).ToList();
+        var bitmaps = _printer.RunExclusive(() => receipts.Select(r => r.Render()).ToList());
         try
         {
             using var combined = ReceiptExporter.StackVertical(bitmaps, _printer.ImageFactory);
@@ -183,7 +188,8 @@ public partial class MainViewModel : ObservableObject
 
         for (int i = 0; i < receipts.Count; i++)
         {
-            using var bmp = receipts[i].Render();
+            var receipt = receipts[i];
+            using var bmp = _printer.RunExclusive(() => receipt.Render());
             var path = Path.Combine(folder, $"receipt_{i + 1:D3}.png");
             await using var fs = File.Create(path);
             _encoder.EncodePng(bmp, fs);
@@ -210,6 +216,18 @@ public partial class MainViewModel : ObservableObject
 
     private void RefreshReceipts()
     {
+        // A transport thread may be feeding right now (a BLE phone sends a job as many small writes): list and
+        // render the receipts only while no feed is in progress, or the collections change under us.
+        _printer.RunExclusive(RefreshReceiptsCore);
+
+        OnPropertyChanged(nameof(HasReceipts));
+        ExportAllCommand.NotifyCanExecuteChanged();
+        ExportEachCommand.NotifyCanExecuteChanged();
+        ReceiptsUpdated?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void RefreshReceiptsCore()
+    {
         foreach (var receipt in _printer.ReceiptStack)
         {
             if (receipt.IsEmpty)
@@ -221,15 +239,10 @@ public partial class MainViewModel : ObservableObject
             }
             else
             {
-                vm = new ReceiptViewModel(receipt, _encoder, _dialogs, Receipts.Count + 1);
+                vm = new ReceiptViewModel(receipt, _encoder, _dialogs, Receipts.Count + 1, _printer.RunExclusive);
                 _receiptsById[receipt.Guid] = vm;
                 Receipts.Add(vm);
             }
         }
-
-        OnPropertyChanged(nameof(HasReceipts));
-        ExportAllCommand.NotifyCanExecuteChanged();
-        ExportEachCommand.NotifyCanExecuteChanged();
-        ReceiptsUpdated?.Invoke(this, EventArgs.Empty);
     }
 }

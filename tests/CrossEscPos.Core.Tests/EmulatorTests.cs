@@ -256,6 +256,52 @@ public class EmulatorTests
     }
 
     [Fact]
+    public async Task ReadingReceiptsWhileAnotherThreadFeeds_IsSafeInsideRunExclusive()
+    {
+        // The app's UI thread lists and renders receipts while a transport thread is still feeding a job
+        // (a BLE phone sends a raster in ~150 small writes); a cut adds a receipt and every line adds to the
+        // current receipt. Unsynchronized, that throws "Collection was modified" and crashed the app.
+        var printer = NewPrinter();
+        var feeder = new CapturingResponder();
+        using var stop = new CancellationTokenSource();
+        var feeding = Task.Run(() =>
+        {
+            for (int i = 0; i < 4000 && !stop.IsCancellationRequested; i++)
+            {
+                printer.FeedEscPos($"Line {i}" + Bytes(LF), feeder);
+                if (i % 3 == 0)
+                    printer.FeedEscPos(Bytes(GS, 'V', 0), feeder);
+            }
+        });
+
+        Exception? failure = null;
+        var sw = Stopwatch.StartNew();
+        while (!feeding.IsCompleted && sw.ElapsedMilliseconds < 5000 && failure is null)
+        {
+            try
+            {
+                printer.RunExclusive(() =>
+                {
+                    foreach (var receipt in printer.ReceiptStack)
+                    {
+                        if (receipt.IsEmpty)
+                            continue;
+                        using var _ = receipt.Render();
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                failure = ex;
+            }
+        }
+        stop.Cancel();
+        await feeding;
+
+        Assert.Null(failure);
+    }
+
+    [Fact]
     public void JobIdleTimeout_DefaultsToOneSecond()
         => Assert.Equal(TimeSpan.FromSeconds(1), NewPrinter().JobIdleTimeout);
 }

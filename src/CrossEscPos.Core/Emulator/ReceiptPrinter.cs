@@ -210,6 +210,25 @@ public class ReceiptPrinter
     /// </summary>
     public bool WaitForOtherSenders { get; set; } = !(OperatingSystem.IsBrowser() || OperatingSystem.IsWasi());
 
+    /// <summary>
+    /// Runs <paramref name="action"/> while no feed is in progress. Transports feed from their own threads, and a
+    /// feed adds lines to the current receipt and receipts to <see cref="ReceiptStack"/>; anything that reads or
+    /// renders receipts from another thread (a UI, an exporter) must do it in here, or it can see the collections
+    /// change under it. Keep the work short: feeds wait while it runs.
+    /// </summary>
+    public void RunExclusive(Action action)
+    {
+        lock (_feedLock)
+            action();
+    }
+
+    /// <inheritdoc cref="RunExclusive(Action)"/>
+    public T RunExclusive<T>(Func<T> read)
+    {
+        lock (_feedLock)
+            return read();
+    }
+
     private readonly object _feedLock = new();
     private IPrinterResponder? _owner;
     private long _ownerLastFeed; // Stopwatch timestamp of the owner's last feed

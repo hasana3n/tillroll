@@ -52,6 +52,22 @@ public class ControlsTests
         Assert.NotEmpty(view.GetVisualDescendants().OfType<Image>());
     }
 
+    [AvaloniaFact]
+    public void ReceiptViewModel_RendersInsideTheGivenGuard()
+    {
+        // The app passes printer.RunExclusive so a receipt is never rendered while a transport is adding to it.
+        var printer = new ReceiptPrinter(PaperConfiguration.Default, new SkiaImageFactory(), new SkiaTypefaceProvider());
+        printer.FeedEscPos("Hello guard\n");
+        int guarded = 0;
+
+        var vm = new ReceiptViewModel(printer.CurrentReceipt, new SkiaImageEncoder(), new StubFileDialogService(), 1,
+            render => { guarded++; render(); });
+        vm.Refresh();
+
+        Assert.Equal(2, guarded);           // the first render in the constructor, then Refresh
+        Assert.NotNull(vm.Image);
+    }
+
     private sealed class StubFileDialogService : IFileDialogService
     {
         public Task<Stream?> SavePngAsync(string suggestedName) => Task.FromResult<Stream?>(null);
