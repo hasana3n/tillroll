@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using CrossEscPos;
 using CrossEscPos.Emulator;
@@ -28,12 +28,6 @@ public class EscPosInterpretationTests
     {
         using var _ = _printer.CurrentReceipt.Render();
         return _factory.Canvases[^1];
-    }
-
-    private sealed class CapturingResponder : IPrinterResponder
-    {
-        public List<byte> Bytes { get; } = new();
-        public void Send(byte[] data) => Bytes.AddRange(data);
     }
 
     // ---- text & control characters -------------------------------------------------------------

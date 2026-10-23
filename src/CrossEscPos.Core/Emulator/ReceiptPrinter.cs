@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
+using System.Threading;
 using CrossEscPos;
 using CrossEscPos.Graphics;
 using CrossEscPos.Emulator.Enums;
@@ -141,6 +143,7 @@ public class ReceiptPrinter
     public void UnregisterResponder(IPrinterResponder responder)
     {
         lock (_responders) _responders.Remove(responder);
+        ReleaseOwnership(responder); // a host that went away can't still be holding the printer
     }
 
     /// <summary>Sends bytes back to the host that issued the request currently being processed.</summary>
@@ -192,8 +195,43 @@ public class ReceiptPrinter
         => FeedEscPos(Encoding.Latin1.GetString(data), responder);
 
     /// <summary>
+    /// How long a sender keeps the printer after its last data. Several transports can feed one printer
+    /// (TCP clients, serial, Bluetooth). A job usually arrives in many chunks, and the parser keeps state
+    /// between them, so while one sender is mid-job the others wait instead of mixing their bytes into its
+    /// commands. The printer is free again when the owner goes quiet for this long or disconnects
+    /// (<see cref="ReleaseOwnership"/>). Defaults to 1 second.
+    /// </summary>
+    public TimeSpan JobIdleTimeout { get; set; } = TimeSpan.FromSeconds(1);
+
+    private readonly object _feedLock = new();
+    private IPrinterResponder? _owner;
+    private long _ownerLastFeed; // Stopwatch timestamp of the owner's last feed
+
+    /// <summary>
+    /// Ends <paramref name="owner"/>'s job immediately (e.g. its connection closed) so a waiting sender
+    /// can start without waiting for <see cref="JobIdleTimeout"/>. No-op if it isn't the owner.
+    /// </summary>
+    public void ReleaseOwnership(IPrinterResponder owner)
+    {
+        lock (_feedLock)
+        {
+            if (!ReferenceEquals(_owner, owner))
+                return;
+            _owner = null;
+            Monitor.PulseAll(_feedLock);
+        }
+    }
+
+    /// <summary>
     /// Feeds ESC/POS where each char is one byte (Latin1). Prefer the <c>byte[]</c> overload for raw
     /// device input; this overload is convenient when the payload is already a string.
+    /// <para>
+    /// Safe to call from several threads. A non-null <paramref name="responder"/> identifies the sender:
+    /// it owns the printer for its job, and other senders block until it is done (see
+    /// <see cref="JobIdleTimeout"/>). A waiting sender's real-time status queries (<c>DLE EOT</c>,
+    /// <c>DLE ENQ</c>, <c>DLE DC4</c>) are still answered at once, like on a real printer. Feeds without a
+    /// responder (direct API use) never wait.
+    /// </para>
     /// </summary>
     public void FeedEscPos(string ascii, IPrinterResponder? responder = null)
     {
@@ -204,25 +242,75 @@ public class ReceiptPrinter
             File.WriteAllText("last_escpos_receive.txt", ascii, Encoding.ASCII);
         }
 
-        _currentResponder = responder;
-        _blockedNotified = false; // re-arm per received job so every blocked job notifies once
-        try
+        lock (_feedLock)
         {
-            Logger.Info($"Received: {ascii}");
-            _escPosInterpreter.Interpret(ascii);
-        }
-        catch (Exception ex)
-        {
-            Logger.Exception(ex, "ESC/POS Interpreter Error");
-            // A command that threw mid-way must not leave the parser stuck inside it.
-            _escPosInterpreter.ResetParserState();
-        }
-        finally
-        {
-            _currentResponder = null;
+            if (responder is not null && !IsFreeFor(responder) && RealtimeQuery.IsRealtimeOnly(ascii))
+            {
+                RunWithResponder(responder, () => RealtimeQuery.Dispatch(this, ascii));
+            }
+            else
+            {
+                if (responder is not null)
+                    TakeOwnership(responder);
+
+                RunWithResponder(responder, () =>
+                {
+                    _blockedNotified = false; // re-arm per received job so every blocked job notifies once
+                    try
+                    {
+                        Logger.Info($"Received: {ascii}");
+                        _escPosInterpreter.Interpret(ascii);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Exception(ex, "ESC/POS Interpreter Error");
+                        // A command that threw mid-way must not leave the parser stuck inside it.
+                        _escPosInterpreter.ResetParserState();
+                    }
+                });
+
+                if (responder is not null)
+                    _ownerLastFeed = Stopwatch.GetTimestamp();
+            }
         }
 
         OnActivityEvent?.Invoke(this, EventArgs.Empty);
+    }
+
+    private bool IsFreeFor(IPrinterResponder responder)
+        => _owner is null
+           || ReferenceEquals(_owner, responder)
+           || Stopwatch.GetElapsedTime(_ownerLastFeed) >= JobIdleTimeout;
+
+    /// <summary>Waits (lock held, released while waiting) until the printer is free for this sender.</summary>
+    private void TakeOwnership(IPrinterResponder responder)
+    {
+        while (!IsFreeFor(responder))
+        {
+            var remaining = JobIdleTimeout - Stopwatch.GetElapsedTime(_ownerLastFeed);
+            if (remaining > TimeSpan.Zero)
+                Monitor.Wait(_feedLock, remaining);
+        }
+
+        if (ReferenceEquals(_owner, responder))
+            return;
+
+        if (_owner is not null)
+        {
+            // The previous sender went quiet, possibly mid-command: don't let its half-read command
+            // swallow the new sender's bytes.
+            Logger.Info("Previous job went idle; starting the next sender's job");
+            _escPosInterpreter.ResetParserState();
+        }
+
+        _owner = responder;
+    }
+
+    private void RunWithResponder(IPrinterResponder? responder, Action action)
+    {
+        _currentResponder = responder;
+        try { action(); }
+        finally { _currentResponder = null; }
     }
 
     #endregion

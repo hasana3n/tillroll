@@ -1,8 +1,13 @@
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using CrossEscPos;
 using CrossEscPos.Emulator;
 using Xunit;
+using static CrossEscPos.Core.Tests.EscPosSequence;
 
 namespace CrossEscPos.Core.Tests;
 
@@ -86,12 +91,122 @@ public class EmulatorTests
 
         printer.SetAutoStatusBack(0x01); // enable -> sends current status immediately
 
-        Assert.NotEmpty(responder.Received);
+        Assert.NotEmpty(responder.Bytes);
     }
 
-    private sealed class CapturingResponder : IPrinterResponder
+
+    // ---- concurrency ----------------------------------------------------------------------------
+
+    private static ReceiptPrinter NewPrinter() => NewPrinter(out _);
+
+    private static IReadOnlyList<string> RenderedText(ReceiptPrinter printer, FakeImageFactory factory)
     {
-        public List<byte[]> Received { get; } = new();
-        public void Send(byte[] data) => Received.Add(data);
+        var text = new List<string>();
+        foreach (var receipt in printer.ReceiptStack.Where(r => !r.IsEmpty))
+        {
+            using var _ = receipt.Render();
+            text.AddRange(factory.Canvases[^1].DrawnText);
+        }
+        return text;
     }
+
+    [Fact]
+    public void TwoSenders_CommandSplitAcrossChunks_IsNotCorruptedByOtherSender()
+    {
+        var a = new CapturingResponder(); var b = new CapturingResponder();
+        var printer = NewPrinter(); printer.JobIdleTimeout = TimeSpan.FromMilliseconds(300);
+        printer.FeedEscPos(Bytes(GS, 'r'), a);                         // A: half of "GS r 1"
+        var bTask = Task.Run(() => printer.FeedEscPos(Bytes(DLE, EOT, 1) + "B" + Bytes(LF), b));
+        Thread.Sleep(50);
+        printer.FeedEscPos(Bytes(1), a);                               // A completes GS r 1
+        Assert.True(bTask.Wait(2000));
+        Assert.Single(a.Bytes);                                        // A got exactly its GS r reply
+        Assert.Single(b.Bytes);                                        // B got exactly its DLE EOT reply
+    }
+
+    [Fact]
+    public void RealtimeStatusFromWaitingSender_IsAnsweredWithoutWaiting()
+    {
+        var a = new CapturingResponder(); var b = new CapturingResponder();
+        var printer = NewPrinter(); printer.JobIdleTimeout = TimeSpan.FromSeconds(5);
+        printer.FeedEscPos("A owns the printer", a);
+        var sw = Stopwatch.StartNew();
+        printer.FeedEscPos(Bytes(DLE, EOT, 1), b);
+        Assert.True(sw.ElapsedMilliseconds < 500, $"took {sw.ElapsedMilliseconds} ms");
+        Assert.Single(b.Bytes);
+    }
+
+    [Fact]
+    public void OwnerDisconnect_ReleasesPrinterImmediately()
+    {
+        var a = new CapturingResponder(); var b = new CapturingResponder();
+        var printer = NewPrinter(); printer.JobIdleTimeout = TimeSpan.FromSeconds(30);
+        printer.RegisterResponder(a);
+        printer.FeedEscPos("A", a);
+        printer.UnregisterResponder(a);                                 // phone went away
+        var sw = Stopwatch.StartNew();
+        var fed = Task.Run(() => printer.FeedEscPos("B" + Bytes(LF), b));
+        Assert.True(fed.Wait(5000));
+        Assert.True(sw.ElapsedMilliseconds < 500, $"took {sw.ElapsedMilliseconds} ms");
+    }
+
+    [Fact]
+    public void ReleaseOwnership_LetsNextSenderInImmediately()
+    {
+        var a = new CapturingResponder(); var b = new CapturingResponder();
+        var printer = NewPrinter(); printer.JobIdleTimeout = TimeSpan.FromSeconds(30);
+        printer.FeedEscPos("A", a);
+        printer.ReleaseOwnership(a);
+        var sw = Stopwatch.StartNew();
+        var fed = Task.Run(() => printer.FeedEscPos("B" + Bytes(LF), b));
+        Assert.True(fed.Wait(5000));
+        Assert.True(sw.ElapsedMilliseconds < 500, $"took {sw.ElapsedMilliseconds} ms");
+    }
+
+    [Fact]
+    public void IdleOwner_IsReplacedAfterTimeout()
+    {
+        var a = new CapturingResponder(); var b = new CapturingResponder();
+        var printer = NewPrinter(); printer.JobIdleTimeout = TimeSpan.FromMilliseconds(200);
+        printer.FeedEscPos("A", a);
+        var sw = Stopwatch.StartNew();
+        printer.FeedEscPos("B" + Bytes(LF), b);
+        Assert.InRange(sw.ElapsedMilliseconds, 100, 1500);
+    }
+
+    [Fact]
+    public void NullResponderFeeds_NeverWait()
+    {
+        var a = new CapturingResponder();
+        var printer = NewPrinter(); printer.JobIdleTimeout = TimeSpan.FromSeconds(30);
+        printer.FeedEscPos("A", a);
+        var sw = Stopwatch.StartNew();
+        printer.FeedEscPos("direct API" + Bytes(LF));
+        Assert.True(sw.ElapsedMilliseconds < 500, $"took {sw.ElapsedMilliseconds} ms");
+    }
+
+    [Fact]
+    public void ConcurrentFeeds_FromManyThreads_DoNotThrowOrLoseJobs()
+    {
+        var printer = NewPrinter(out var factory); printer.JobIdleTimeout = TimeSpan.FromMilliseconds(20);
+        Parallel.For(0, 8, i => printer.FeedEscPos($"job{i}" + Bytes(LF), new CapturingResponder()));
+        var text = string.Join("|", RenderedText(printer, factory));
+        for (int i = 0; i < 8; i++) Assert.Contains($"job{i}", text);
+    }
+
+    [Fact]
+    public void IdleOwnersHalfCommand_DoesNotSwallowNextSendersBytes()
+    {
+        var a = new CapturingResponder(); var b = new CapturingResponder();
+        var printer = NewPrinter(out var factory); printer.JobIdleTimeout = TimeSpan.FromMilliseconds(100);
+        printer.FeedEscPos(Bytes(GS, 'r'), a);                         // A stops mid-command
+        Thread.Sleep(200);
+        printer.FeedEscPos("Hello" + Bytes(LF), b);
+        Assert.Empty(b.Bytes);                                          // 'H' was not read as GS r's argument
+        Assert.Contains("Hello", string.Join("|", RenderedText(printer, factory)));
+    }
+
+    [Fact]
+    public void JobIdleTimeout_DefaultsToOneSecond()
+        => Assert.Equal(TimeSpan.FromSeconds(1), NewPrinter().JobIdleTimeout);
 }
