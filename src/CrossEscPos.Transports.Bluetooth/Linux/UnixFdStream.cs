@@ -15,12 +15,28 @@ namespace CrossEscPos.Transports.Bluetooth.Linux;
 internal sealed partial class UnixFdStream : Stream
 {
     private const int EINTR = 4;
+    private const int EAGAIN = 11;
+    private const short POLLIN = 0x001;
+    private const short POLLOUT = 0x004;
     private const int SHUT_RDWR = 2;
+    private const int F_GETFL = 3;
+    private const int F_SETFL = 4;
+    private const int O_NONBLOCK = 0x800; // Linux (x86-64, arm64)
 
     private readonly SafeFileHandle _handle;
     private int _disposed;
 
-    public UnixFdStream(SafeFileHandle handle) => _handle = handle;
+    public UnixFdStream(SafeFileHandle handle)
+    {
+        _handle = handle;
+        // bluetoothd hands the RFCOMM socket over in non-blocking mode (btio sets O_NONBLOCK on accepted
+        // sockets). Our reads block on a pool thread, so switch it back; otherwise the first read with nothing
+        // waiting fails with EAGAIN and the connection is dropped.
+        int fd = (int)handle.DangerousGetHandle();
+        int flags = fcntl(fd, F_GETFL, 0);
+        if (flags >= 0 && (flags & O_NONBLOCK) != 0)
+            _ = fcntl(fd, F_SETFL, flags & ~O_NONBLOCK);
+    }
 
     public override bool CanRead => true;
     public override bool CanSeek => false;
@@ -107,6 +123,8 @@ internal sealed partial class UnixFdStream : Stream
                 int errno = Marshal.GetLastPInvokeError();
                 if (errno == EINTR)
                     continue;
+                if (errno == EAGAIN && WaitUntilReady(fd, POLLIN))
+                    continue; // still non-blocking after all: wait for data instead of failing
                 if (Volatile.Read(ref _disposed) == 1)
                     return 0;
                 throw new IOException($"read failed (errno {errno})");
@@ -128,11 +146,37 @@ internal sealed partial class UnixFdStream : Stream
                     continue;
                 }
                 int errno = Marshal.GetLastPInvokeError();
-                if (errno != EINTR)
-                    throw new IOException($"write failed (errno {errno})");
+                if (errno == EINTR || (errno == EAGAIN && WaitUntilReady(fd, POLLOUT)))
+                    continue;
+                throw new IOException($"write failed (errno {errno})");
             }
         }
     }
+
+    /// <summary>Blocks until the descriptor is readable/writable (or hung up). False if poll itself failed.</summary>
+    private static unsafe bool WaitUntilReady(int fd, short events)
+    {
+        var request = new PollFd { Fd = fd, Events = events };
+        while (true)
+        {
+            int result = poll(&request, 1, -1);
+            if (result >= 0)
+                return true;
+            if (Marshal.GetLastPInvokeError() != EINTR)
+                return false;
+        }
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct PollFd
+    {
+        public int Fd;
+        public short Events;
+        public short Revents;
+    }
+
+    [LibraryImport("libc", SetLastError = true)]
+    private static unsafe partial int poll(PollFd* fds, nuint count, int timeout);
 
     [LibraryImport("libc", SetLastError = true)]
     private static unsafe partial nint read(int fd, byte* buffer, nint count);
@@ -142,4 +186,7 @@ internal sealed partial class UnixFdStream : Stream
 
     [LibraryImport("libc", SetLastError = true)]
     private static partial int shutdown(int fd, int how);
+
+    [LibraryImport("libc", SetLastError = true)]
+    private static partial int fcntl(int fd, int command, int argument);
 }

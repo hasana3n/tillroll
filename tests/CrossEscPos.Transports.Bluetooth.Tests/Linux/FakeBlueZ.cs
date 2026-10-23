@@ -310,8 +310,20 @@ internal sealed class FakeBlueZ : IAsyncDisposable
         var fds = new int[2];
         if (socketpair(1 /* AF_UNIX */, 1 /* SOCK_STREAM */, 0, fds) != 0)
             throw new InvalidOperationException($"socketpair failed: errno {Marshal.GetLastPInvokeError()}");
+        // Like bluetoothd (btio.c sets G_IO_FLAG_NONBLOCK on every accepted RFCOMM socket), hand the profile a
+        // NON-blocking descriptor: the server has to cope with that.
+        int flags = fcntl(fds[1], F_GETFL, 0);
+        if (flags < 0 || fcntl(fds[1], F_SETFL, flags | O_NONBLOCK) < 0)
+            throw new InvalidOperationException($"fcntl failed: errno {Marshal.GetLastPInvokeError()}");
         return (new Socket(new SafeSocketHandle(fds[0], ownsHandle: true)), new SafeSocketHandle(fds[1], ownsHandle: true));
     }
+
+    private const int F_GETFL = 3;
+    private const int F_SETFL = 4;
+    private const int O_NONBLOCK = 0x800;
+
+    [DllImport("libc", SetLastError = true)]
+    private static extern int fcntl(int fd, int command, int argument);
 
     [DllImport("libc", SetLastError = true)]
     private static extern int socketpair(int domain, int type, int protocol, int[] sv);
