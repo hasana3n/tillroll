@@ -6,6 +6,12 @@
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <ApplicationIcon>Assets/Icon/icon.ico</ApplicationIcon>
     <AssemblyName>CrossEscPos.App.Desktop</AssemblyName>
+    <!-- Windows builds use the Windows target framework so the Bluetooth servers can use the WinRT APIs.
+         Building for a win-* runtime (also from Linux, as the release workflow does) or building on Windows
+         without a runtime selects it; everything else stays on plain net10.0 (BlueZ on Linux). -->
+    <TargetFramework Condition="'$(RuntimeIdentifier)' != '' And $(RuntimeIdentifier.StartsWith('win'))">net10.0-windows10.0.19041.0</TargetFramework>
+    <TargetFramework Condition="'$(RuntimeIdentifier)' == '' And $([MSBuild]::IsOSPlatform('Windows'))">net10.0-windows10.0.19041.0</TargetFramework>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,6 +20,8 @@
     <ProjectReference Include="..\CrossEscPos.App\CrossEscPos.App.csproj" />
     <!-- Desktop-only transports (TCP listener + serial reader) used by the desktop connections panel. -->
     <ProjectReference Include="..\CrossEscPos.Transports\CrossEscPos.Transports.csproj" />
+    <!-- Bluetooth printer emulation: Classic SPP (Android) and BLE (iPhone); WinRT on Windows, BlueZ on Linux. -->
+    <ProjectReference Include="..\CrossEscPos.Transports.Bluetooth\CrossEscPos.Transports.Bluetooth.csproj" />
   </ItemGroup>
 
   <ItemGroup>

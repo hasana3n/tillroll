@@ -10,11 +10,12 @@ using CrossEscPos.App.Transports;
 using CrossEscPos.Controls.Services;
 using CrossEscPos.Emulator;
 using CrossEscPos.Graphics;
+using CrossEscPos.Transports.Bluetooth;
 
 namespace CrossEscPos.App.Desktop;
 
 /// <summary>
-/// The desktop platform: native file dialogs + sound/flash notifications, TCP + serial transports, and
+/// The desktop platform: native file dialogs + sound/flash notifications, TCP, serial and Bluetooth transports, and
 /// the Monitor test-client window. Injected into the shared <see cref="CrossEscPos.App.App"/>.
 /// </summary>
 public sealed class DesktopPlatformServices : IPlatformServices
@@ -45,7 +46,16 @@ public sealed class DesktopPlatformServices : IPlatformServices
         _tcp = new TcpTransportEntry(printer, listenAddress, tcpPort, tcpEnabled);
         var serial = new SerialTransportEntry(printer,
             string.IsNullOrWhiteSpace(serialPort) ? null : serialPort, serialBaud, autoStart: serialPort is not null);
-        return new TransportEntry[] { _tcp, serial };
+
+        // Bluetooth stays off unless the user starts it (or opts in with ESCPOS_BT_SPP / ESCPOS_BT_BLE).
+        var sppOptions = BluetoothOptions();
+        var bleOptions = BluetoothOptions();
+        var spp = new BluetoothTransportEntry(BluetoothPrinter.CreateSpp(printer, sppOptions), sppOptions,
+            autoStart: IsOn("ESCPOS_BT_SPP"));
+        var ble = new BluetoothTransportEntry(BluetoothPrinter.CreateBle(printer, bleOptions), bleOptions,
+            autoStart: IsOn("ESCPOS_BT_BLE"));
+
+        return new TransportEntry[] { _tcp, serial, spp, ble };
     }
 
     public IMonitorClient CreateMonitorClient() => new DesktopMonitorClient(_tcp?.CurrentPort ?? 9100);
@@ -79,6 +89,15 @@ public sealed class DesktopPlatformServices : IPlatformServices
     }
 
     public void Shutdown() { /* transports are stopped by MainViewModel.Shutdown */ }
+
+    private static BluetoothPrinterOptions BluetoothOptions() => new()
+    {
+        Name = Environment.GetEnvironmentVariable("ESCPOS_BT_NAME") is { Length: > 0 } name ? name : "CrossEscPos",
+        AutoAcceptPairing = IsOn("ESCPOS_BT_AUTO_PAIR"),
+    };
+
+    private static bool IsOn(string variable)
+        => Environment.GetEnvironmentVariable(variable) is "1" or "true" or "on" or "yes";
 
     private static (bool enabled, int port) ReadTcpSettings()
     {
