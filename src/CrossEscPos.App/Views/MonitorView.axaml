@@ -2,109 +2,144 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:CrossEscPos.App.Monitor"
              xmlns:tr="using:CrossEscPos.App.Transports"
+             xmlns:controls="using:CrossEscPos.Controls"
              x:Class="CrossEscPos.App.Views.MonitorView"
              x:DataType="vm:MonitorViewModel"
-             Background="#262626">
+             Foreground="{DynamicResource InkBrush}"
+             FontFamily="{DynamicResource UiFont}"
+             FontSize="13">
 
     <UserControl.Styles>
-        <Style Selector="Button.action">
-            <Setter Property="HorizontalAlignment" Value="Stretch"/>
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="Margin" Value="0 0 0 6"/>
+        <Style Selector="Border.card">
+            <Setter Property="Background" Value="{DynamicResource PanelBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="{DynamicResource CardRadius}"/>
+            <Setter Property="Padding" Value="14"/>
         </Style>
-        <Style Selector="TextBlock.label">
-            <Setter Property="Foreground" Value="#AAAAAA"/>
-            <Setter Property="FontSize" Value="11"/>
+        <Style Selector="TextBlock.group">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Foreground" Value="{DynamicResource InkMutedBrush}"/>
+            <Setter Property="Margin" Value="0 0 0 8"/>
+        </Style>
+        <Style Selector="UniformGrid.jobs > Button">
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="Margin" Value="0 0 8 8"/>
+        </Style>
+        <Style Selector="ListBox.log">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="FontFamily" Value="{DynamicResource MonoFont}"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+        <Style Selector="ListBox.log ListBoxItem">
+            <Setter Property="Padding" Value="4 3"/>
+            <Setter Property="MinHeight" Value="0"/>
         </Style>
     </UserControl.Styles>
 
-    <DockPanel Margin="14">
+    <StackPanel Margin="20 20 20 24" Spacing="22">
+        <StackPanel Spacing="4">
+            <TextBlock Classes="h2" Text="Monitor"/>
+            <TextBlock Classes="muted" TextWrapping="Wrap"
+                       Text="A test client. It prints to the emulator the way your app would, and shows the status the emulator reports back."/>
+        </StackPanel>
+
         <!-- Connection -->
-        <Border DockPanel.Dock="Top" Background="#3b3b3b" CornerRadius="6" Padding="12" Margin="0 0 0 10">
-            <StackPanel>
-                <TextBlock Text="Connect to emulator / printer" Foreground="White" FontWeight="Bold" Margin="0 0 0 8"/>
-
-                <!-- Transport mode (hidden when there's only one, e.g. the browser proxy). Locked while connected. -->
-                <ComboBox HorizontalAlignment="Stretch" Margin="0 0 0 6"
-                          IsVisible="{Binding HasModes}" IsEnabled="{Binding !IsConnected}"
-                          ItemsSource="{Binding Modes}" SelectedItem="{Binding Mode}"/>
-
-                <!-- Config fields for the current mode. -->
-                <ItemsControl ItemsSource="{Binding Fields}" IsEnabled="{Binding !IsConnected}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate x:DataType="tr:TransportField">
-                            <StackPanel Margin="0 0 0 6">
-                                <TextBlock Text="{Binding Label}" Classes="label" Margin="0 0 0 2"/>
-                                <ComboBox HorizontalAlignment="Stretch" IsVisible="{Binding IsDropdown}"
-                                          ItemsSource="{Binding Options}" SelectedItem="{Binding Value}"/>
-                                <TextBox IsVisible="{Binding !IsDropdown}" Text="{Binding Value}"/>
+        <StackPanel>
+            <TextBlock Classes="group" Text="Connect"/>
+            <Border Classes="card">
+                <StackPanel Spacing="10">
+                    <!-- Transport mode (hidden when there's only one, e.g. the browser proxy). Locked while connected. -->
+                    <StackPanel Spacing="6" IsVisible="{Binding HasModes}">
+                        <TextBlock Classes="label" Text="Connect over"/>
+                        <ComboBox IsEnabled="{Binding !IsConnected}" ItemsSource="{Binding Modes}" SelectedItem="{Binding Mode}"
+                                  AutomationProperties.Name="Connect over"/>
+                    </StackPanel>
+                    <ItemsControl ItemsSource="{Binding Fields}" IsEnabled="{Binding !IsConnected}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Spacing="10"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="tr:TransportField">
+                                <StackPanel Spacing="6">
+                                    <TextBlock Classes="label" Text="{Binding Label}"/>
+                                    <ComboBox IsVisible="{Binding IsDropdown}" ItemsSource="{Binding Options}" SelectedItem="{Binding Value}"/>
+                                    <TextBox IsVisible="{Binding !IsDropdown}" Text="{Binding Value}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <StackPanel Orientation="Horizontal" Spacing="8" Margin="0 4 0 0">
+                        <Button Content="{Binding ConnectButtonText}" Command="{Binding ToggleConnectCommand}"
+                                Classes.primary="{Binding !IsConnected}" Classes.ghost="{Binding IsConnected}"/>
+                        <Button Classes="ghost" Command="{Binding RefreshCommand}" AutomationProperties.Name="Find devices again"
+                                IsVisible="{Binding CanRefresh}" IsEnabled="{Binding !IsConnected}">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <controls:IconView Width="14" Height="14" Data="{DynamicResource Icon.Refresh}"/>
+                                <TextBlock Text="Find devices again"/>
                             </StackPanel>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-
-                <Button Content="⟳ Refresh devices" Command="{Binding RefreshCommand}"
-                        IsVisible="{Binding CanRefresh}" IsEnabled="{Binding !IsConnected}"
-                        HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="0 0 0 6"/>
-
-                <Button Content="{Binding ConnectButtonText}" Command="{Binding ToggleConnectCommand}"
-                        HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="0 2 0 0"/>
-            </StackPanel>
-        </Border>
-
-        <!-- Reported status -->
-        <Border DockPanel.Dock="Top" Background="#1f1f1f" CornerRadius="6" Padding="12" Margin="0 0 0 10">
-            <StackPanel>
-                <TextBlock Text="Printer status (from emulator)" Classes="label" Margin="0 0 0 6"/>
-                <TextBlock Text="{Binding StatusText}" Foreground="White" FontWeight="Bold" Margin="0 0 0 8"/>
-                <ItemsControl ItemsSource="{Binding Indicators}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate x:DataType="vm:StatusIndicator">
-                            <Grid ColumnDefinitions="Auto,110,*" Margin="0 3">
-                                <Ellipse Grid.Column="0" Width="12" Height="12" Fill="{Binding Color}"
-                                         VerticalAlignment="Center" Margin="0 0 8 0"/>
-                                <TextBlock Grid.Column="1" Text="{Binding Label}" Foreground="#BBBBBB" VerticalAlignment="Center"/>
-                                <TextBlock Grid.Column="2" Text="{Binding Value}" Foreground="White" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                            </Grid>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </StackPanel>
-        </Border>
-
-        <!-- Send actions -->
-        <Border DockPanel.Dock="Top" Margin="0 0 0 10">
-            <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
-                <StackPanel Grid.Column="0">
-                    <Button Classes="action" Content="Print sample receipt" Command="{Binding SendSampleCommand}"/>
-                    <Button Classes="action" Content="Print all barcodes" Command="{Binding SendBarcodesCommand}"/>
-                    <Button Classes="action" Content="Print QR / PDF417 / Aztec" Command="{Binding SendQrCommand}"/>
-                    <Button Classes="action" Content="Send full feature test" Command="{Binding SendFullTestCommand}"/>
+                        </Button>
+                    </StackPanel>
                 </StackPanel>
-                <StackPanel Grid.Column="1">
-                    <Button Classes="action" Content="Open cash drawer" Command="{Binding OpenDrawerCommand}"/>
-                    <Button Classes="action" Content="Buzzer" Command="{Binding BeepCommand}"/>
-                    <Button Classes="action" Content="Cut" Command="{Binding CutCommand}"/>
+            </Border>
+        </StackPanel>
+
+        <!-- What the emulator reports back -->
+        <StackPanel>
+            <TextBlock Classes="group" Text="Printer reports"/>
+            <Border Classes="card">
+                <StackPanel Spacing="10">
+                    <TextBlock Classes="title" Text="{Binding StatusText}" TextWrapping="Wrap"/>
+                    <ItemsControl ItemsSource="{Binding Indicators}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:StatusIndicator">
+                                <Grid ColumnDefinitions="Auto,110,*" Height="26">
+                                    <Ellipse Width="7" Height="7" Fill="{Binding Color}" VerticalAlignment="Center" Margin="0 0 10 0"/>
+                                    <TextBlock Grid.Column="1" Classes="muted" Text="{Binding Label}" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="2" Text="{Binding Value}" FontWeight="Medium" VerticalAlignment="Center"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
                 </StackPanel>
-            </Grid>
-        </Border>
+            </Border>
+        </StackPanel>
+
+        <!-- Test jobs -->
+        <StackPanel>
+            <TextBlock Classes="group" Text="Send a test job"/>
+            <UniformGrid Classes="jobs" Columns="2" Margin="0 0 -8 -8">
+                <Button Classes="ghost" Content="Sample receipt" Command="{Binding SendSampleCommand}"/>
+                <Button Classes="ghost" Content="All barcodes" Command="{Binding SendBarcodesCommand}"/>
+                <Button Classes="ghost" Content="QR, PDF417, Aztec" Command="{Binding SendQrCommand}"/>
+                <Button Classes="ghost" Content="Full feature test" Command="{Binding SendFullTestCommand}"/>
+                <Button Classes="ghost" Content="Open cash drawer" Command="{Binding OpenDrawerCommand}"/>
+                <Button Classes="ghost" Content="Sound the buzzer" Command="{Binding BeepCommand}"/>
+                <Button Classes="ghost" Content="Cut" Command="{Binding CutCommand}"/>
+            </UniformGrid>
+        </StackPanel>
 
         <!-- Log -->
-        <Border Background="#1f1f1f" CornerRadius="6" Padding="8">
-            <DockPanel>
-                <Grid DockPanel.Dock="Top" ColumnDefinitions="*,Auto" Margin="2 0 0 6">
-                    <TextBlock Grid.Column="0" Text="Activity" Classes="label" VerticalAlignment="Center"/>
-                    <Button Grid.Column="1" Content="Copy" Padding="10 2" FontSize="11"
-                            Click="OnCopyLog" ToolTip.Tip="Copy the activity log to the clipboard"/>
-                </Grid>
-                <ListBox ItemsSource="{Binding Log}" Background="Transparent" FontFamily="monospace" FontSize="12">
+        <StackPanel>
+            <Grid ColumnDefinitions="*,Auto" Margin="0 0 0 4">
+                <TextBlock Classes="group" Text="Activity" Margin="0" VerticalAlignment="Center"/>
+                <Button Grid.Column="1" Classes="icon" Click="OnCopyLog"
+                        ToolTip.Tip="Copy the activity log" AutomationProperties.Name="Copy the activity log">
+                    <controls:IconView Width="15" Height="15" Data="{DynamicResource Icon.Copy}"/>
+                </Button>
+            </Grid>
+            <Border Classes="card" Padding="6">
+                <ListBox Classes="log" ItemsSource="{Binding Log}" Height="220">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <SelectableTextBlock Text="{Binding}" TextWrapping="Wrap"/>
+                            <SelectableTextBlock Text="{Binding}" TextWrapping="Wrap" Foreground="{DynamicResource InkMutedBrush}"/>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>
-            </DockPanel>
-        </Border>
-    </DockPanel>
+            </Border>
+        </StackPanel>
+    </StackPanel>
 </UserControl>
