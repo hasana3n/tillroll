@@ -54,8 +54,9 @@ public sealed class BrowserPlatformServices : IPlatformServices
 
         return new TransportEntry[]
         {
-            new ReceiptTransportEntry(serial, "Web Serial", new[] { baud }, () => serial.Options = baud.Value),
-            new ReceiptTransportEntry(usb, "WebUSB"),
+            new ReceiptTransportEntry(serial, "Web Serial", new[] { baud }, () => serial.Options = baud.Value,
+                description: "A serial or USB-serial device, from this browser"),
+            new ReceiptTransportEntry(usb, "WebUSB", description: "A USB printer interface, from this browser"),
             new ReceiptTransportEntry(signalr, "TCP proxy (SignalR)",
                 new[] { proxyUrl, listenAddress, listenPort },
                 () =>
@@ -64,7 +65,8 @@ public sealed class BrowserPlatformServices : IPlatformServices
                     signalr.ListenAddress = listenAddress.Value;
                     signalr.ListenPort = int.TryParse(listenPort.Value, out var p) ? p : 9100;
                 },
-                autoConnect: true), // comes up on load, like the desktop TCP listener
+                autoConnect: true, // comes up on load, like the desktop TCP listener
+                description: "Apps on your network, through the CrossEscPos host"),
         };
     }
 

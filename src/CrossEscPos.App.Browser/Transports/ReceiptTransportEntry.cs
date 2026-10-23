@@ -16,15 +16,22 @@ public sealed class ReceiptTransportEntry : TransportEntry
     private readonly IReceiptTransport _transport;
     private readonly Action? _applyBeforeConnect;
     private readonly bool _autoConnect;
+    private readonly string _description;
     private bool _supported = true;
+
+    public override string Description => _description;
+
+    public override TransportKind Kind => TransportKind.Browser;
 
     /// <param name="autoConnect">
     /// Connect on startup without a user gesture. Only valid for gesture-free transports (the SignalR
     /// proxy) — so the browser's TCP bridge comes up automatically, matching the desktop TCP listener.
     /// </param>
     public ReceiptTransportEntry(IReceiptTransport transport, string name,
-        IReadOnlyList<TransportField>? fields = null, Action? applyBeforeConnect = null, bool autoConnect = false) : base(name)
+        IReadOnlyList<TransportField>? fields = null, Action? applyBeforeConnect = null, bool autoConnect = false,
+        string description = "") : base(name)
     {
+        _description = description;
         _transport = transport;
         _applyBeforeConnect = applyBeforeConnect;
         _autoConnect = autoConnect;

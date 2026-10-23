@@ -30,6 +30,8 @@ public sealed class TcpTransportEntry : TransportEntry
 
     public override string ButtonText => IsActive ? "Stop" : "Start";
 
+    public override string Description => "Apps on this computer or your network";
+
     public int CurrentPort => int.TryParse(_port.Value, out var p) ? p : 9100;
 
     protected override Task ToggleAsync()

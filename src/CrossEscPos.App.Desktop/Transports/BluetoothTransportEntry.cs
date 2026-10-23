@@ -33,6 +33,12 @@ public sealed class BluetoothTransportEntry : TransportEntry
 
     public override string ButtonText => IsActive ? "Stop" : "Start";
 
+    public override TransportKind Kind => TransportKind.Bluetooth;
+
+    public override string Description => _server.DisplayName == BluetoothPrinter.BleDisplayName
+        ? "iPhone and iPad, no pairing needed"
+        : "Android phones, pair once in Settings";
+
     protected override async Task ToggleAsync()
     {
         if (_busy)

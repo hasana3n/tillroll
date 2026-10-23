@@ -69,12 +69,12 @@ public partial class MonitorViewModel : ObservableObject
     public ObservableCollection<string> Log { get; } = new();
     public ObservableCollection<StatusIndicator> Indicators { get; } = new();
 
-    // Fully qualified: ESCPOS_NET.Emitters also defines a Color type.
-    private static readonly IBrush Green = new SolidColorBrush(Avalonia.Media.Color.Parse("#3CE07A"));
-    private static readonly IBrush Red = new SolidColorBrush(Avalonia.Media.Color.Parse("#E0533C"));
-    private static readonly IBrush Amber = new SolidColorBrush(Avalonia.Media.Color.Parse("#E0A93C"));
-    private static readonly IBrush Blue = new SolidColorBrush(Avalonia.Media.Color.Parse("#3C9AE0"));
-    private static readonly IBrush Gray = new SolidColorBrush(Avalonia.Media.Color.Parse("#777777"));
+    // The app palette's state colours. Fully qualified: ESCPOS_NET.Emitters also defines a Color type.
+    private static readonly IBrush Green = new SolidColorBrush(Avalonia.Media.Color.Parse("#44A282"));
+    private static readonly IBrush Red = new SolidColorBrush(Avalonia.Media.Color.Parse("#E5566F"));
+    private static readonly IBrush Amber = new SolidColorBrush(Avalonia.Media.Color.Parse("#D9A441"));
+    private static readonly IBrush Bright = new SolidColorBrush(Avalonia.Media.Color.Parse("#F4F4F5"));
+    private static readonly IBrush Gray = new SolidColorBrush(Avalonia.Media.Color.Parse("#6A6A70"));
 
     public MonitorViewModel(IMonitorClient client)
     {
@@ -117,7 +117,7 @@ public partial class MonitorViewModel : ObservableObject
             var target = await _client.ConnectAsync();
             IsConnected = true;
             ConnectButtonText = "Disconnect";
-            StatusText = "Monitoring… toggle the Printer state panel to see updates.";
+            StatusText = "Connected. Change the printer state to see it reported here.";
             Append($"Connected ({target})");
         }
         catch (Exception ex)
@@ -140,13 +140,13 @@ public partial class MonitorViewModel : ObservableObject
 
     private void OnStatusReceived(MonitorStatus s) => Dispatcher.UIThread.Post(() =>
     {
-        StatusText = s.Ready ? "● Ready" : "● Not ready";
+        StatusText = s.Ready ? "Ready" : "Not ready";
         Indicators.Clear();
         Indicators.Add(new("Printer", s.Online ? "Online" : "Offline", s.Online ? Green : Red));
         Indicators.Add(new("Paper", s.PaperOut ? "Out" : s.PaperLow ? "Low" : "OK",
             s.PaperOut ? Red : s.PaperLow ? Amber : Green));
         Indicators.Add(new("Cover", s.CoverOpen ? "Open" : "Closed", s.CoverOpen ? Red : Green));
-        Indicators.Add(new("Cash drawer", s.DrawerOpen ? "Open" : "Closed", s.DrawerOpen ? Blue : Gray));
+        Indicators.Add(new("Cash drawer", s.DrawerOpen ? "Open" : "Closed", s.DrawerOpen ? Bright : Gray));
         Indicators.Add(new("Error", s.Error ? "Yes" : "None", s.Error ? Red : Green));
         Append("← status update");
     });

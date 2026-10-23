@@ -30,6 +30,10 @@ public sealed class SerialTransportEntry : TransportEntry
     public override bool CanRefresh => true;
     public override string ButtonText => IsActive ? "Close" : "Open";
 
+    public override TransportKind Kind => TransportKind.Cable;
+
+    public override string Description => "USB or serial cable";
+
     protected override Task ToggleAsync()
     {
         if (_serial.IsRunning) { _serial.Stop(); Set(false, "Serial: closed"); }

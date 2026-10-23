@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -19,6 +21,15 @@ using CrossEscPos.App.Monitor;
 
 namespace CrossEscPos.App.ViewModels;
 
+/// <summary>The view shown in the side panel beside the rail (or none, to give the receipts the width).</summary>
+public enum SidePanel
+{
+    None,
+    Connections,
+    Printer,
+    TestPrint,
+}
+
 /// <summary>
 /// The shared main view model, reused by both heads. It owns the platform-agnostic features — the
 /// paste/upload ESC/POS input, the rendered receipts, printer-state simulation, export, and the
@@ -29,8 +40,8 @@ public partial class MainViewModel : ObservableObject
     private const string DefaultInput =
         "*** CrossEscPos ***\n" +
         "Type or paste ESC/POS here\n" +
-        "and press Render, or connect\n" +
-        "a device on the left.\n" +
+        "and press Render, or start\n" +
+        "a connection.\n" +
         "\n" +
         "Item            $ 4.50\n" +
         "Tax             $ 0.36\n" +
@@ -51,6 +62,48 @@ public partial class MainViewModel : ObservableObject
     public ObservableCollection<ReceiptViewModel> Receipts { get; } = new();
     public bool HasReceipts => Receipts.Count > 0;
     public PrinterState State => _printer.State;
+
+    /// <summary>Receipts not looked at yet.</summary>
+    public int NewCount => Receipts.Count(r => r.IsNew);
+
+    /// <summary>"3 receipts · 1 new" for the canvas title row.</summary>
+    public string ReceiptCountText
+    {
+        get
+        {
+            int count = Receipts.Count, fresh = NewCount;
+            var text = count == 1 ? "1 receipt" : $"{count} receipts";
+            return fresh > 0 ? $"{text} · {fresh} new" : text;
+        }
+    }
+
+    /// <summary>The selected arrival on the board; selecting one marks it seen and brings it into view.</summary>
+    [ObservableProperty] private ReceiptViewModel? _selectedReceipt;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsConnectionsOpen), nameof(IsPrinterOpen), nameof(IsTestPrintOpen), nameof(IsSidePanelOpen))]
+    private SidePanel _panel = SidePanel.Connections;
+
+    public bool IsConnectionsOpen => Panel == SidePanel.Connections;
+    public bool IsPrinterOpen => Panel == SidePanel.Printer;
+    public bool IsTestPrintOpen => Panel == SidePanel.TestPrint;
+    public bool IsSidePanelOpen => Panel != SidePanel.None;
+
+    [ObservableProperty] private PrinterHealth _health;
+    [ObservableProperty] private string _healthText = string.Empty;
+
+    /// <summary>How many connections are running (listening, open or connected).</summary>
+    public int LiveCount => Transports.Count(t => t.IsActive);
+
+    public string LiveText => LiveCount switch
+    {
+        0 => "No connections running",
+        1 => "1 connection running",
+        var n => $"{n} connections running",
+    };
+
+    /// <summary>"80 mm · 576 dots": the paper this printer emulates.</summary>
+    public string PaperText { get; }
 
     /// <summary>The platform's transports, rendered uniformly by the shared connections view.</summary>
     public IReadOnlyList<Transports.TransportEntry> Transports { get; }
@@ -96,16 +149,64 @@ public partial class MainViewModel : ObservableObject
                 _notifications.NotifyActivity();
             });
         };
-        _printer.OnBuzzer += () => Dispatcher.UIThread.Post(() => { _notifications.Beep(); ShowToast("🔔  Buzzer"); });
-        _printer.OnCashDrawer += () => Dispatcher.UIThread.Post(() => { _notifications.OpenCashDrawer(); ShowToast("💵  Cash drawer opened"); });
-        _printer.OnPrintBlocked += reason => Dispatcher.UIThread.Post(() => ShowToast($"🚫  {reason} — print dropped"));
+        _printer.OnBuzzer += () => Dispatcher.UIThread.Post(() => { _notifications.Beep(); ShowToast("Buzzer sounded"); });
+        _printer.OnCashDrawer += () => Dispatcher.UIThread.Post(() => { _notifications.OpenCashDrawer(); ShowToast("Cash drawer opened"); });
+        _printer.OnPrintBlocked += reason => Dispatcher.UIThread.Post(() => ShowToast($"Print dropped: {reason}"));
 
         Transports = platform.CreateTransports(printer);
+        foreach (var transport in Transports)
+            transport.PropertyChanged += (_, e) =>
+            {
+                if (e.PropertyName != nameof(CrossEscPos.App.Transports.TransportEntry.IsActive))
+                    return;
+                OnPropertyChanged(nameof(LiveCount));
+                OnPropertyChanged(nameof(LiveText));
+            };
+
+        var paper = printer.Paper;
+        PaperText = string.Create(CultureInfo.InvariantCulture,
+            $"{paper.PaperWidthMm:0} mm · {paper.GetPrintWidthInPixels()} dots");
+
+        State.PropertyChanged += (_, _) =>
+        {
+            if (Dispatcher.UIThread.CheckAccess())
+                UpdateHealth();
+            else
+                Dispatcher.UIThread.Post(UpdateHealth);
+        };
+        UpdateHealth();
 
         if (platform.CreateMonitorClient() is { } monitorClient)
             Monitor = new MonitorViewModel(monitorClient);
 
-        Render(); // render the default input so the app shows something on launch
+        // Nothing is rendered on launch: the canvas shows how to get the first receipt instead.
+    }
+
+    /// <summary>Rail behaviour: opens a panel, or closes it when it is already open.</summary>
+    [RelayCommand]
+    private void ShowPanel(SidePanel panel) => Panel = Panel == panel ? SidePanel.None : panel;
+
+    /// <summary>Opens a panel without toggling (for links such as the empty state's "Show connections").</summary>
+    [RelayCommand]
+    private void OpenPanel(SidePanel panel) => Panel = panel;
+
+    [RelayCommand]
+    private void MarkAllSeen()
+    {
+        foreach (var receipt in Receipts)
+            receipt.MarkSeen();
+    }
+
+    partial void OnSelectedReceiptChanged(ReceiptViewModel? value) => value?.MarkSeen();
+
+    private void UpdateHealth() => (Health, HealthText) = PrinterReadiness.Describe(State);
+
+    private void OnReceiptPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName != nameof(ReceiptViewModel.IsNew))
+            return;
+        OnPropertyChanged(nameof(NewCount));
+        OnPropertyChanged(nameof(ReceiptCountText));
     }
 
     [RelayCommand]
@@ -158,6 +259,9 @@ public partial class MainViewModel : ObservableObject
             _printer.StartNewReceipt();
         });
         _receiptsById.Clear();
+        SelectedReceipt = null;
+        foreach (var receipt in Receipts)
+            receipt.PropertyChanged -= OnReceiptPropertyChanged;
         Receipts.Clear();
     }
 
@@ -236,6 +340,8 @@ public partial class MainViewModel : ObservableObject
         _printer.RunExclusive(RefreshReceiptsCore);
 
         OnPropertyChanged(nameof(HasReceipts));
+        OnPropertyChanged(nameof(NewCount));
+        OnPropertyChanged(nameof(ReceiptCountText));
         ExportAllCommand.NotifyCanExecuteChanged();
         ExportEachCommand.NotifyCanExecuteChanged();
         ReceiptsUpdated?.Invoke(this, EventArgs.Empty);
@@ -256,6 +362,7 @@ public partial class MainViewModel : ObservableObject
             {
                 vm = new ReceiptViewModel(receipt, _encoder, _dialogs, Receipts.Count + 1, _printer.RunExclusive);
                 _receiptsById[receipt.Guid] = vm;
+                vm.PropertyChanged += OnReceiptPropertyChanged;
                 Receipts.Add(vm);
             }
         }

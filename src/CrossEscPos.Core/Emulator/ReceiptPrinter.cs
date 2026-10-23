@@ -22,6 +22,9 @@ public class ReceiptPrinter
     private readonly ITypefaceProvider _typefaces;
     private readonly BarcodeRenderer _barcodeRenderer;
 
+    /// <summary>The paper this printer was set up with (width, print width, resolution).</summary>
+    public PaperConfiguration Paper => _paperConfiguration;
+
     /// <summary>The image backend used to rasterize receipts, barcodes and bit images.</summary>
     public IReceiptImageFactory ImageFactory { get; }
 

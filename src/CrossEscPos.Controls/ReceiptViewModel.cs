@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -22,8 +23,21 @@ public partial class ReceiptViewModel : ObservableObject
     private readonly Action<Action> _guard;
     private int _renderedVersion = -1;
 
+    /// <summary>Printer dots per millimetre at 203 dpi, the resolution of 58 mm and 80 mm thermal printers.</summary>
+    private const double DotsPerMm = 8;
+
     [ObservableProperty]
     private Bitmap? _image;
+
+    /// <summary>True from the moment the receipt arrives until the person has looked at it.</summary>
+    [ObservableProperty]
+    private bool _isNew = true;
+
+    [ObservableProperty]
+    private string _lengthText = string.Empty;
+
+    [ObservableProperty]
+    private string _sizeText = string.Empty;
 
     public ReceiptViewModel(Receipt receipt, IImageEncoder encoder, IFileDialogService dialogs, int index)
         : this(receipt, encoder, dialogs, index, static render => render())
@@ -42,6 +56,7 @@ public partial class ReceiptViewModel : ObservableObject
         _dialogs = dialogs;
         _index = index;
         _guard = renderGuard;
+        ArrivedAt = DateTime.Now;
         Refresh();
     }
 
@@ -55,6 +70,17 @@ public partial class ReceiptViewModel : ObservableObject
     public string Id => _receipt.Guid;
 
     public string Title => $"Cut #{_index}";
+
+    /// <summary>The receipt's position in the session, counting from 1.</summary>
+    public int Number => _index;
+
+    /// <summary>When the receipt started arriving.</summary>
+    public DateTime ArrivedAt { get; }
+
+    public string ArrivalTime => ArrivedAt.ToString("HH:mm:ss", CultureInfo.InvariantCulture);
+
+    /// <summary>Clears <see cref="IsNew"/>: the person has seen this receipt.</summary>
+    public void MarkSeen() => IsNew = false;
 
     public bool IsEmpty => _receipt.IsEmpty;
 
@@ -81,6 +107,10 @@ public partial class ReceiptViewModel : ObservableObject
         using (image)
             Image = image.ToAvaloniaBitmap(_encoder);
         old?.Dispose();
+
+        var size = Image.PixelSize;
+        SizeText = string.Create(CultureInfo.InvariantCulture, $"{size.Width} × {size.Height} dots");
+        LengthText = string.Create(CultureInfo.InvariantCulture, $"{size.Height / DotsPerMm:0} mm");
     }
 
     [RelayCommand]

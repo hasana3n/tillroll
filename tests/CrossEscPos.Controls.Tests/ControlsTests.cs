@@ -8,6 +8,7 @@ using Avalonia.Threading;
 using Avalonia.VisualTree;
 using CrossEscPos.Controls.Services;
 using CrossEscPos.Emulator;
+using CrossEscPos.Emulator.Enums;
 using CrossEscPos.Rendering.Skia;
 using Xunit;
 
@@ -86,6 +87,49 @@ public class ControlsTests
         printer.FeedEscPos("More\n");
         vm.Refresh();
         Assert.NotSame(first, vm.Image);
+    }
+
+    [Fact]
+    public void PrinterReadiness_NamesTheFirstBlockingCause()
+    {
+        Assert.Equal((PrinterHealth.Ready, "Ready"), PrinterReadiness.Describe(new PrinterState()));
+        Assert.Equal((PrinterHealth.Blocked, "Offline"),
+            PrinterReadiness.Describe(new PrinterState { Online = false, CoverOpen = true }));
+        Assert.Equal((PrinterHealth.Blocked, "Cover open"), PrinterReadiness.Describe(new PrinterState { CoverOpen = true }));
+        Assert.Equal((PrinterHealth.Blocked, "Out of paper"),
+            PrinterReadiness.Describe(new PrinterState { Paper = PaperLevel.Out }));
+        Assert.Equal((PrinterHealth.Blocked, "Unrecoverable error"),
+            PrinterReadiness.Describe(new PrinterState { Error = PrinterErrorState.Unrecoverable }));
+        Assert.Equal((PrinterHealth.Blocked, "Recoverable error"),
+            PrinterReadiness.Describe(new PrinterState { Error = PrinterErrorState.Recoverable }));
+        Assert.Equal((PrinterHealth.Warning, "Ready · paper near end"),
+            PrinterReadiness.Describe(new PrinterState { Paper = PaperLevel.NearEnd }));
+    }
+
+    [AvaloniaFact]
+    public void ReceiptViewModel_IsNewUntilSeen()
+    {
+        var printer = new ReceiptPrinter(PaperConfiguration.Default, new SkiaImageFactory(), new SkiaTypefaceProvider());
+        printer.FeedEscPos("Hello\n");
+        var vm = new ReceiptViewModel(printer.CurrentReceipt, new SkiaImageEncoder(), new StubFileDialogService(), 3);
+
+        Assert.True(vm.IsNew);
+        Assert.Equal(3, vm.Number);
+        vm.MarkSeen();
+        Assert.False(vm.IsNew);
+    }
+
+    [AvaloniaFact]
+    public void ReceiptViewModel_ReportsItsSizeInDotsAndMillimetres()
+    {
+        var printer = new ReceiptPrinter(PaperConfiguration.Default, new SkiaImageFactory(), new SkiaTypefaceProvider());
+        printer.FeedEscPos("Hello\nWorld\n");
+        var vm = new ReceiptViewModel(printer.CurrentReceipt, new SkiaImageEncoder(), new StubFileDialogService(), 1);
+
+        var size = vm.Image!.PixelSize;
+        Assert.Equal($"{size.Height / 8.0:0} mm", vm.LengthText);         // 203 dpi is 8 dots per millimetre
+        Assert.Equal($"{size.Width} × {size.Height} dots", vm.SizeText);
+        Assert.Matches(@"^\d\d:\d\d:\d\d$", vm.ArrivalTime);
     }
 
     private sealed class StubFileDialogService : IFileDialogService

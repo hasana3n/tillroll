@@ -55,7 +55,8 @@ public sealed class DesktopPlatformServices : IPlatformServices
         var ble = new BluetoothTransportEntry(BluetoothPrinter.CreateBle(printer, bleOptions), bleOptions,
             autoStart: IsOn("ESCPOS_BT_BLE"));
 
-        return new TransportEntry[] { _tcp, serial, spp, ble };
+        // Phones first: connecting one is the most common job.
+        return new TransportEntry[] { spp, ble, _tcp, serial };
     }
 
     public IMonitorClient CreateMonitorClient() => new DesktopMonitorClient(_tcp?.CurrentPort ?? 9100);
