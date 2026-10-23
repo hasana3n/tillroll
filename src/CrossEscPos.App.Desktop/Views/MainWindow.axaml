@@ -2,8 +2,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="CrossEscPos.App.Desktop.Views.MainWindow"
         Icon="/Assets/Icon/icon-256.png"
-        Title="ESC/POS Receipt Printer Emulator"
-        Width="1120" Height="820" MinWidth="1040"
-        Background="#262626">
+        Title="CrossEscPos"
+        Width="1200" Height="780" MinWidth="980" MinHeight="600"
+        Background="#141416">
     <!-- Content is the shared CrossEscPos.App MainView, set by DesktopPlatformServices.CreateMainWindow. -->
 </Window>

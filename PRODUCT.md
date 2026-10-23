@@ -45,8 +45,8 @@ danielmeza/CrossEscPosEmulator, itself a port of roydejong/EscPosEmulator.
 
 ## Capabilities and Constraints
 
-- Connections: TCP/IP listener (address, port), Serial (port, baud), Bluetooth (Android / SPP) and
-  Bluetooth LE (iPhone / BLE) on Windows and Linux; browser head: Web Serial, WebUSB, SignalR TCP proxy.
+- Connections: TCP/IP listener (address, port), Serial (port, baud), Bluetooth (Android, SPP) and
+  Bluetooth LE (iPhone, BLE) on Windows and Linux; browser head: Web Serial, WebUSB, SignalR TCP proxy.
   Each connection has a start/stop toggle, a few fields, and a plain-language status line with a connected
   count.
 - Receipts: one image per cut, shown pixel-exact; export one (PNG) or all (single image or one file per cut).

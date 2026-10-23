@@ -26,7 +26,7 @@ public sealed class BluetoothTransportEntry : TransportEntry
         _name = new TransportField("Printer name", options.Name);
         Fields = new[] { _name };
         _server.StatusChanged += OnServerStatusChanged;
-        Set(false, "Off. Start it to make this computer visible to phones as a Bluetooth printer.");
+        Set(false, "Off. Starting it makes this computer visible to phones as a printer.");
         if (autoStart)
             _ = ToggleAsync();
     }
@@ -36,8 +36,8 @@ public sealed class BluetoothTransportEntry : TransportEntry
     public override TransportKind Kind => TransportKind.Bluetooth;
 
     public override string Description => _server.DisplayName == BluetoothPrinter.BleDisplayName
-        ? "iPhone and iPad, no pairing needed"
-        : "Android phones, pair once in Settings";
+        ? "Bluetooth Low Energy. No pairing needed."
+        : "Classic Bluetooth (SPP). Pair once in the phone's settings.";
 
     protected override async Task ToggleAsync()
     {

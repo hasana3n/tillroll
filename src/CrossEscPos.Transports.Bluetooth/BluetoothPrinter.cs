@@ -9,8 +9,8 @@ namespace CrossEscPos.Transports.Bluetooth;
 /// </summary>
 public static class BluetoothPrinter
 {
-    public const string SppDisplayName = "Bluetooth (Android / SPP)";
-    public const string BleDisplayName = "Bluetooth LE (iPhone / BLE)";
+    public const string SppDisplayName = "Bluetooth (Android)";
+    public const string BleDisplayName = "Bluetooth LE (iPhone)";
 
     /// <summary>A Classic Bluetooth Serial Port Profile server (what Android printing apps use).</summary>
     public static IBluetoothPrinterServer CreateSpp(ReceiptPrinter printer, BluetoothPrinterOptions options)

@@ -66,6 +66,8 @@ public partial class MainViewModel : ObservableObject
     /// <summary>Receipts not looked at yet.</summary>
     public int NewCount => Receipts.Count(r => r.IsNew);
 
+    public bool HasNew => NewCount > 0;
+
     /// <summary>"3 receipts · 1 new" for the canvas title row.</summary>
     public string ReceiptCountText
     {
@@ -206,6 +208,7 @@ public partial class MainViewModel : ObservableObject
         if (e.PropertyName != nameof(ReceiptViewModel.IsNew))
             return;
         OnPropertyChanged(nameof(NewCount));
+        OnPropertyChanged(nameof(HasNew));
         OnPropertyChanged(nameof(ReceiptCountText));
     }
 
@@ -341,6 +344,7 @@ public partial class MainViewModel : ObservableObject
 
         OnPropertyChanged(nameof(HasReceipts));
         OnPropertyChanged(nameof(NewCount));
+        OnPropertyChanged(nameof(HasNew));
         OnPropertyChanged(nameof(ReceiptCountText));
         ExportAllCommand.NotifyCanExecuteChanged();
         ExportEachCommand.NotifyCanExecuteChanged();

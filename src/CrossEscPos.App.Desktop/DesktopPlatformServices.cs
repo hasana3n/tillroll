@@ -82,7 +82,7 @@ public sealed class DesktopPlatformServices : IPlatformServices
         var window = new MainWindow
         {
             Content = content,
-            Title = $"ESC/POS Receipt Printer Emulator  •  Render: {_backend.Name}"
+            Title = "CrossEscPos"
         };
         _notifications.AttachWindow(window);
         _dialogs.AttachTopLevel(window);

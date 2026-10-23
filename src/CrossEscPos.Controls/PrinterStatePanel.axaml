@@ -31,7 +31,7 @@
             <Setter Property="OnContent" Value="{x:Null}"/>
             <Setter Property="OffContent" Value="{x:Null}"/>
             <Setter Property="VerticalAlignment" Value="Top"/>
-            <Setter Property="Margin" Value="12 -6 -10 0"/>
+            <Setter Property="Margin" Value="12 -6 0 0"/>
         </Style>
 
         <!-- Segmented control: plain radio buttons in a track; the checked one is lifted and underlined by the
@@ -76,7 +76,7 @@
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <!-- DataContext is the bound PrinterState, so every control two-way binds to it directly. The error
              choices come from the panel itself (RelativeSource). -->
-        <StackPanel x:DataType="emu:PrinterState"
+        <StackPanel x:DataType="emu:PrinterState" Margin="0 0 14 0"
                     DataContext="{Binding State, RelativeSource={RelativeSource AncestorType=controls:PrinterStatePanel}}">
 
             <TextBlock Classes="group" Text="Power and cover" Margin="0 0 0 10"/>

@@ -46,14 +46,14 @@ public class OptionsTests
     public void Servers_HavePlainLanguageNames()
     {
         var printer = new ReceiptPrinter(PaperConfiguration.Default, new FakeImageFactory(), new FakeTypefaceProvider());
-        Assert.Equal("Bluetooth (Android / SPP)", BluetoothPrinter.CreateSpp(printer, new BluetoothPrinterOptions()).DisplayName);
-        Assert.Equal("Bluetooth LE (iPhone / BLE)", BluetoothPrinter.CreateBle(printer, new BluetoothPrinterOptions()).DisplayName);
+        Assert.Equal("Bluetooth (Android)", BluetoothPrinter.CreateSpp(printer, new BluetoothPrinterOptions()).DisplayName);
+        Assert.Equal("Bluetooth LE (iPhone)", BluetoothPrinter.CreateBle(printer, new BluetoothPrinterOptions()).DisplayName);
     }
 
     [Fact]
     public async Task UnsupportedServer_ReportsWhyAndNeverRuns()
     {
-        await using var server = new UnsupportedBluetoothServer("Bluetooth (Android / SPP)", "Bluetooth printer emulation isn't supported on macOS yet.");
+        await using var server = new UnsupportedBluetoothServer("Bluetooth (Android)", "Bluetooth printer emulation isn't supported on macOS yet.");
         var support = await server.StartAsync(TestContext.Current.CancellationToken);
         Assert.Equal(BluetoothSupportState.UnsupportedPlatform, support.State);
         Assert.False(support.IsSupported);

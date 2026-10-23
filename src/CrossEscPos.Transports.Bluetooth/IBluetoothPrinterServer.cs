@@ -10,7 +10,7 @@ namespace CrossEscPos.Transports.Bluetooth;
 /// </summary>
 public interface IBluetoothPrinterServer : IAsyncDisposable
 {
-    /// <summary>"Bluetooth (Android / SPP)" or "Bluetooth LE (iPhone / BLE)".</summary>
+    /// <summary>"Bluetooth (Android)" or "Bluetooth LE (iPhone)".</summary>
     string DisplayName { get; }
 
     /// <summary>True only once the operating system confirmed the service is published.</summary>

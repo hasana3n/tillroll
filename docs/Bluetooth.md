@@ -8,7 +8,7 @@ There are two kinds, because phones use two kinds of Bluetooth printer:
 | | Classic **SPP** (serial port) | **BLE** (Bluetooth Low Energy) |
 |---|---|---|
 | Who uses it | Android printing apps and SDKs | iPhone apps (iOS can't use SPP without Apple MFi), and Android apps written for BLE printers |
-| Connections panel row | **Bluetooth (Android / SPP)** | **Bluetooth LE (iPhone / BLE)** |
+| Connections panel row | **Bluetooth (Android)** | **Bluetooth LE (iPhone)** |
 | Windows 10 2004+ / 11 | Yes | Yes, if the adapter supports the peripheral role (most built-in adapters do) |
 | Linux (BlueZ 5.50+) | Yes | Yes |
 | macOS, browser | Not yet | Not yet |
