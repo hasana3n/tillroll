@@ -4,6 +4,15 @@ All notable changes to Tillroll are listed here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions follow
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1] - 2026-10-23
+
+Maintenance release: the downloads now match the latest code.
+
+### Changed
+
+- Avalonia, the UI framework, updated from 12.0.4 to 12.1.4.
+- System.IO.Ports (serial connections) updated from 10.0.8 to 10.0.13.
+
 ## [1.0.0] - 2026-10-23
 
 The first release under the Tillroll name. Tillroll builds on
@@ -42,4 +51,5 @@ The first release under the Tillroll name. Tillroll builds on
 - Disconnected TCP clients are cleaned up, and the serial reader no longer spins the CPU.
 - Several senders printing at once no longer interleave their jobs: each sender owns the printer for its job.
 
+[1.0.1]: https://github.com/hasana3n/tillroll/releases/tag/v1.0.1
 [1.0.0]: https://github.com/hasana3n/tillroll/releases/tag/v1.0.0
