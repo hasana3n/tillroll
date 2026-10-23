@@ -118,8 +118,11 @@ public class BleGattPrinterTests
         var writer = Assert.Single(printer.Fed.Keys);
 
         engine.OnDisconnected("phone");
-
         Assert.Equal(0, engine.ConnectedClients);
+
+        // Ownership is released once the client's retirement finishes feeding what it already received, which runs
+        // asynchronously (immediately on some machines, a moment later on others). Wait for it before checking.
+        await engine.DisposeAsync();
         Assert.Contains(writer, printer.Released);
     }
 
