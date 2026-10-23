@@ -222,7 +222,8 @@
                                                             Classes.primary="{Binding ShowsPrimaryAction}" Classes.ghost="{Binding !ShowsPrimaryAction}"
                                                             Content="{Binding ButtonText}" Command="{Binding ToggleCommand}"/>
                                                 </Grid>
-                                                <Grid ColumnDefinitions="Auto,*">
+                                                <Grid ColumnDefinitions="Auto,*"
+                                                      IsVisible="{Binding Status, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
                                                     <Ellipse Classes="dot" Classes.live="{Binding IsActive}"
                                                              Margin="4 6 10 0" VerticalAlignment="Top"/>
                                                     <TextBlock Grid.Column="1" Classes="small" Text="{Binding Status}" TextWrapping="Wrap"/>

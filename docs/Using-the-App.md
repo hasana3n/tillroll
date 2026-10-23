@@ -5,7 +5,7 @@ backend.
 
 ## The window
 
-![CrossEscPos with two receipts on the arrivals board](Screenshot.png)
+![CrossEscPos with two receipts on the arrivals board, Windows at 150% scaling](Screenshot.png)
 
 The same layout runs on Windows, Linux, macOS and in the browser:
 
