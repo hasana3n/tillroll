@@ -22,9 +22,9 @@
 **Working on Tillroll**
 - [Architecture](Architecture.md)
 - [Building and testing](Building-and-Testing.md)
+- [History](History.md)
 
 **Links**
 - [Repository](https://github.com/hasana3n/tillroll)
 - [Releases](https://github.com/hasana3n/tillroll/releases)
 - [Live demo](https://hasana3n.github.io/tillroll/app/)
-- [NuGet](https://www.nuget.org/profiles/GasoleoTechnology)

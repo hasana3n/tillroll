@@ -1,7 +1,7 @@
 name: Pages
 
-# Publishes the project site (site/: the migration write-up, with the README screenshots) and the browser
-# build of the app (served under /app/) to GitHub Pages on every push to main.
+# Publishes the project site (site/, with the screenshots from docs/images) and the browser build of the app
+# (served under /app/) to GitHub Pages on every push to main.
 
 on:
   push:
@@ -43,11 +43,10 @@ jobs:
       - name: Assemble the site
         run: |
           mkdir -p _site/img _site/app
-          cp site/index.html site/receipt.png _site/
-          cp "docs/Before WPF.png"    _site/img/before-wpf.png
-          cp "docs/Example.png"       _site/img/after-macos.png
-          cp "docs/After Linux.png"   _site/img/after-linux.png
-          cp "docs/After Browser.png" _site/img/after-browser.png
+          cp site/index.html _site/
+          cp docs/images/*.png _site/img/
+          cp branding/tillroll-app-icon.svg branding/tillroll-lockup-dark.svg _site/img/
+          cp branding/png/tillroll-app-icon-32.png branding/png/tillroll-app-icon-512.png _site/img/
           cp -r publish/browser/wwwroot/. _site/app/
           touch _site/.nojekyll
 

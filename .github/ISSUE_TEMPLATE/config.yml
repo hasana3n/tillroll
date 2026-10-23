@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://github.com/hasana3n/tillroll/tree/main/docs
+    about: Connecting, Bluetooth, supported commands and troubleshooting.
+  - name: Report a security problem
+    url: https://github.com/hasana3n/tillroll/security/advisories/new
+    about: Please report security problems privately.

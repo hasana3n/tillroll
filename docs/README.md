@@ -7,7 +7,7 @@ cover, drawer and error states. It ships as:
 - a desktop app for Windows, macOS and Linux (Avalonia 12, .NET 10),
 - the same app in the browser (Avalonia WebAssembly),
 - a headless core you can embed (ESC/POS bytes to PNG, no UI), and
-- NuGet packages for each layer, so you take only what you need.
+- a library for each layer, so you take only what you need.
 
 These pages are the project's long-form documentation. They are also published as the
 [wiki](https://github.com/hasana3n/tillroll/wiki); edit them in `docs/`, because the wiki is
@@ -42,8 +42,8 @@ regenerated from here.
 - [Architecture](Architecture.md): the packages, one app with two heads, and the bundled font.
 - [Building and testing](Building-and-Testing.md): build every head, run the tests, and how releases,
   the site and this wiki are published.
-- [From WPF to Avalonia](../README.md#from-wpf-to-avalonia-what-the-migration-cost): what porting the
-  original WPF app took.
+- [History](History.md): where Tillroll comes from, and what porting the original WPF app took.
+- [Design system](../DESIGN.md): the interface's colours, type, components and rules.
 
 ## The mental model
 

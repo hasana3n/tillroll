@@ -52,6 +52,9 @@
         md = Regex.Replace(md, @"<summary>(.*?)</summary>", "### $1", S);
         md = Regex.Replace(md, @"</?details>\n?", "");
         md = Regex.Replace(md, @"<br\s*/?>", "");
+        // <picture> keeps only its fallback <img> (already Markdown above); <b> becomes bold.
+        md = Regex.Replace(md, @"</?picture>|<source\b[^>]*>", "");
+        md = Regex.Replace(md, @"<b>(.*?)</b>", "**$1**", S);
 
         // 2. Relative images -> raw files; every other relative link -> the file on GitHub.
         md = Regex.Replace(md, @"(!\[[^\]]*\])\((?![a-zA-Z][a-zA-Z0-9+.-]*:|#)([^)\s]+)\)",

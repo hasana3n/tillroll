@@ -53,4 +53,14 @@
     </ItemGroup>
   </Target>
 
+  <!-- LibUsbDotNet (the Monitor's direct USB printing) is LGPL-3.0: ship it beside the executable rather than inside
+       it, so anyone can replace it with their own build as the licence requires. See THIRD-PARTY-NOTICES.md. -->
+  <Target Name="KeepLgplLibraryBesideSingleFile" AfterTargets="ComputeResolvedFilesToPublishList"
+          Condition="'$(PublishSingleFile)' == 'true'">
+    <ItemGroup>
+      <ResolvedFileToPublish Update="@(ResolvedFileToPublish)" Condition="'%(Filename)' == 'LibUsbDotNet'"
+                             ExcludeFromSingleFile="true" />
+    </ItemGroup>
+  </Target>
+
 </Project>

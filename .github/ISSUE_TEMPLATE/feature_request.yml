@@ -1,0 +1,16 @@
+name: Feature or missing command
+description: An ESC/POS command Tillroll doesn't handle, or something that would make testing easier.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: need
+    attributes:
+      label: What do you need?
+      description: The command (e.g. GS ( L) or the workflow, and why it matters for your testing.
+    validations:
+      required: true
+  - type: textarea
+    id: example
+    attributes:
+      label: Example
+      description: The bytes your app sends, a printer manual page, or what a real printer prints.

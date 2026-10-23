@@ -94,9 +94,9 @@ Three GitHub Actions workflows publish the project:
 
 - [`release.yml`](../.github/workflows/release.yml) runs on a `v*` tag. It builds self-contained desktop
   apps for win-x64 and linux-x64 (each a single portable executable) and osx-x64 and osx-arm64 (ad-hoc signed
-  `.app` bundles), packs
-  the NuGet libraries, publishes them to nuget.org and to GitHub Packages (which lists them in the
-  repository's sidebar), and attaches everything to a GitHub Release. Each package embeds the README,
+  `.app` bundles), packs the NuGet libraries and attaches the apps to a GitHub Release. Publishing the
+  libraries to nuget.org and GitHub Packages is opt-in: set the repository variable `PUBLISH_NUGET` to `true`
+  and the `NUGET_USER` secret. Each package embeds the README,
   converted for nuget.org by [`build/PackageReadme.targets`](../build/PackageReadme.targets), and uses
   the Tillroll app icon ([`branding/`](../branding)) as its icon.
 - [`pages.yml`](../.github/workflows/pages.yml) runs on every push to `main`. It publishes the project

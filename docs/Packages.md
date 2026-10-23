@@ -52,15 +52,17 @@ Both embed JetBrains Mono and produce the same receipts. See **[Rendering & Back
 
 ## Install
 
-The packages are on NuGet, published by the `Release` workflow on each `v*` tag:
+The packages aren't on nuget.org yet. Build them with `dotnet pack -c Release`, which writes the `.nupkg` files to
+each project's `bin/Release`, and add that folder as a local package source:
 
 ```sh
+dotnet pack -c Release -o ./packages
+dotnet nuget add source ./packages --name tillroll-local
 dotnet add package Tillroll.Core
 dotnet add package Tillroll.Rendering.Skia
 # or the managed backend:
 dotnet add package Tillroll.Rendering.ImageSharp
-# …and Controls / Transports as needed
 ```
 
-Prefer local builds? `dotnet pack -c Release` emits the `.nupkg` files under each project's
-`bin/Release`, or reference the projects directly with `dotnet add reference`.
+Or reference the projects directly with `dotnet add reference`. The release workflow publishes the packages to
+nuget.org once the repository variable `PUBLISH_NUGET` is `true` and the `NUGET_USER` secret is set.

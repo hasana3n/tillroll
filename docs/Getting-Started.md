@@ -2,12 +2,17 @@
 
 The smallest useful setup: turn a stream of ESC/POS bytes into a PNG, with no UI.
 
-## 1. Reference the packages
+## 1. Reference the libraries
+
+The libraries aren't published to NuGet yet. Reference the projects from a clone:
 
 ```sh
-dotnet add package Tillroll.Core
-dotnet add package Tillroll.Rendering.Skia
+dotnet add reference path/to/tillroll/src/Tillroll.Core/Tillroll.Core.csproj
+dotnet add reference path/to/tillroll/src/Tillroll.Rendering.Skia/Tillroll.Rendering.Skia.csproj
 ```
+
+or build the packages yourself with `dotnet pack -c Release` and add the `bin/Release` folders as a local package
+source.
 
 Prefer a **fully managed** backend (no native dependency — needed for the browser (WASM) without a native
 relink)? Swap the render package for `Tillroll.Rendering.ImageSharp`; everything below is identical

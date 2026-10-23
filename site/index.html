@@ -1,309 +1,211 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Tillroll: from WPF to Avalonia</title>
-<meta name="description" content="A receipt printer emulator for testing ESC/POS code, ported from a Windows-only WPF app to one Avalonia 12 codebase for Windows, macOS, Linux and the browser.">
+<title>Tillroll — a virtual receipt printer</title>
+<meta name="description" content="Tillroll is a free, open-source virtual ESC/POS receipt printer. Print from your app or phone over Bluetooth, TCP, serial or USB and see every receipt dot for dot.">
+<meta name="theme-color" content="#141416">
+<meta property="og:title" content="Tillroll — a virtual receipt printer">
+<meta property="og:description" content="Print from your app or phone and see every receipt dot for dot. Windows, Linux, macOS and the browser.">
+<meta property="og:image" content="img/tillroll-window.png">
+<link rel="icon" href="img/tillroll-app-icon.svg" type="image/svg+xml">
+<link rel="icon" href="img/tillroll-app-icon-32.png" sizes="32x32" type="image/png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --housing: #e3e5e1;
-    --paper: #ffffff;
-    --slot: #2c3034;
-    --ink: #1c1e20;
-    --muted: #585e63;
-    --rule: #c3c7c2;
-    --thermal: #c8102e;
-    --mono: "JetBrains Mono", ui-monospace, monospace;
-    --serif: "Source Serif 4", Georgia, serif;
+    --ground: #141416; --panel: #101012; --raised: #1e1e21; --border: #232327;
+    --ink: #f4f4f5; --muted: #a1a1aa; --amber: #f2b33d; --paper: #ffffff;
+    --font: "Public Sans", system-ui, sans-serif; --mono: "JetBrains Mono", ui-monospace, monospace;
+    --max: 1160px;
   }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --housing: #202326;
-      --paper: #2a2e32;
-      --slot: #0d0f10;
-      --ink: #e6e7e4;
-      --muted: #a4aaae;
-      --rule: #41464b;
-      --thermal: #ff6b7d;
-    }
-  }
-
   * { box-sizing: border-box; }
-  html { -webkit-text-size-adjust: 100%; }
-  body {
-    margin: 0;
-    background: var(--housing);
-    color: var(--ink);
-    font: 400 1.125rem/1.6 var(--serif);
-  }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--ground); color: var(--ink); font: 17px/1.6 var(--font); }
+  ::selection { background: rgba(242, 179, 61, .4); }
+  a { color: inherit; text-underline-offset: 3px; }
+  a:focus-visible, .button:focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; }
+  .wrap { width: min(var(--max), 100% - 40px); margin-inline: auto; }
+
+  header { display: flex; align-items: center; justify-content: space-between; padding: 22px 0; }
+  header img { height: 34px; display: block; }
+  header nav { display: flex; gap: 26px; font-size: 15px; font-weight: 500; }
+  header nav a { text-decoration: none; color: var(--muted); }
+  header nav a:hover { color: var(--ink); }
+
+  .hero { padding: 72px 0 40px; display: grid; grid-template-columns: 1.05fr .95fr; gap: 56px; align-items: center; }
+  h1 { font-size: clamp(40px, 5.4vw, 68px); line-height: 1.02; letter-spacing: -.035em; margin: 0 0 22px; font-weight: 700; }
+  .lead { font-size: 20px; color: var(--muted); margin: 0 0 34px; max-width: 34ch; }
+  .actions { display: flex; flex-wrap: wrap; gap: 12px; }
+  .button { display: inline-flex; align-items: center; gap: 8px; padding: 13px 22px; border-radius: 999px; text-decoration: none;
+            font-weight: 600; font-size: 16px; border: 1px solid #3a3a3e; transition: transform .12s cubic-bezier(.23,1,.32,1), background .12s; }
+  .button:active { transform: scale(.97); }
+  .button.primary { background: var(--ink); color: var(--panel); border-color: var(--ink); }
+  .button.primary:hover { background: #fff; }
+  .button:not(.primary):hover { background: var(--raised); }
+  .meta { margin-top: 18px; font-size: 14px; color: var(--muted); }
+
+  .slip { justify-self: center; position: relative; width: min(420px, 100%); }
+  .slip .head { height: 38px; border-radius: 19px; background: var(--amber); }
+  .slip .paper { margin: 12px 15% 0; background: var(--paper); color: #111; font: 13px/1.55 var(--mono);
+                 padding: 22px 20px 30px; clip-path: polygon(0 0,100% 0,100% calc(100% - 14px),87.5% 100%,75% calc(100% - 14px),62.5% 100%,50% calc(100% - 14px),37.5% 100%,25% calc(100% - 14px),12.5% 100%,0 calc(100% - 14px)); }
+  .paper b { display: block; text-align: center; font-size: 19px; letter-spacing: .04em; margin-bottom: 4px; }
+  .paper .c { text-align: center; }
+  .paper .row { display: flex; justify-content: space-between; }
+  .paper hr { border: 0; border-top: 1px dashed #999; margin: 10px 0; }
+
+  .shot { padding: 24px 0 96px; }
   img { max-width: 100%; height: auto; }
-  a { color: var(--thermal); text-underline-offset: 0.18em; }
-  a:focus-visible, .button:focus-visible {
-    outline: 3px solid var(--thermal);
-    outline-offset: 3px;
-  }
-  code { font: 500 0.84em var(--mono); }
+  .hero > *, .split > * { min-width: 0; }
+  .shot img { width: 100%; display: block; border-radius: 10px; border: 1px solid var(--border); }
 
-  .wrap { max-width: 68rem; margin: 0 auto; padding: 0 1rem; }
-  .prose { max-width: 42rem; }
+  section.band { padding: 96px 0; border-top: 1px solid var(--border); }
+  h2 { font-size: clamp(30px, 3.4vw, 44px); line-height: 1.08; letter-spacing: -.025em; margin: 0 0 18px; }
+  .intro { color: var(--muted); max-width: 60ch; margin: 0 0 48px; font-size: 18px; }
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; }
+  .steps h3 { font-size: 20px; margin: 0 0 8px; }
+  .steps p { margin: 0; color: var(--muted); }
+  .steps code, .phones code { font-family: var(--mono); font-size: 14px; color: var(--ink); }
 
-  /* Hero: the title beside a receipt the emulator printed. */
-  .hero {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 26rem);
-    gap: 3rem;
-    align-items: start;
-    padding: 4.5rem 0 4rem;
-  }
-  .hero h1 {
-    margin: 0 0 1.25rem;
-    font: 800 clamp(2.6rem, 7vw, 4.6rem)/1 var(--mono);
-    letter-spacing: -0.03em;
-  }
-  .lead { font-size: 1.3rem; line-height: 1.5; margin: 0 0 1rem; }
-  .hero p { max-width: 34rem; }
-  .actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 2rem; }
-  .button {
-    display: inline-block;
-    padding: 0.6rem 1rem;
-    border: 2px solid var(--ink);
-    border-radius: 4px;
-    color: var(--ink);
-    font-size: 1rem;
-    font-weight: 600;
-    text-decoration: none;
-  }
-  .button.primary { background: var(--ink); color: var(--housing); }
-  .button:hover { border-color: var(--thermal); }
-  .button.primary:hover { background: var(--thermal); }
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
+  .split img { width: 100%; border-radius: 10px; border: 1px solid var(--border); display: block; }
+  .phones { display: grid; gap: 22px; margin-top: 28px; }
+  .phones div { padding: 20px 22px; background: var(--panel); border: 1px solid var(--border); border-radius: 10px; }
+  .phones h3 { margin: 0 0 6px; font-size: 18px; }
+  .phones p { margin: 0; color: var(--muted); font-size: 16px; }
 
-  .printer { position: relative; }
-  .slot {
-    position: relative;
-    z-index: 1;
-    height: 16px;
-    border-radius: 8px;
-    background: var(--slot);
-    box-shadow: inset 0 4px 5px rgba(0, 0, 0, 0.55);
-  }
-  .feed {
-    margin: -8px 1.25rem 0;
-    overflow: hidden;
-    filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.18));
-  }
-  .paper {
-    --tooth: 9px;
-    padding-top: 8px;
-    padding-bottom: var(--tooth);
-    background: #fff;
-    -webkit-mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / calc(2 * var(--tooth)) 100%;
-            mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / calc(2 * var(--tooth)) 100%;
-    animation: feed 1.8s steps(24, end) 0.3s both;
-  }
-  /* The 80 mm paper is 640 dots wide with the text block in the middle; trim the blank margins.
-     Like a real receipt it feeds out title first, so it hangs upside down, with the cut edge leading. */
-  .paper img { display: block; width: 100%; aspect-ratio: 480 / 704; object-fit: cover; transform: rotate(180deg); }
-  @keyframes feed { from { transform: translateY(-100%); } to { transform: none; } }
-  @media (prefers-reduced-motion: reduce) { .paper { animation: none; } }
-  .printer figcaption {
-    margin: 1rem 1.25rem 0;
-    color: var(--muted);
-    font-size: 0.95rem;
-  }
+  .downloads { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .downloads a { display: block; padding: 22px; border-radius: 10px; background: var(--panel); border: 1px solid var(--border);
+                 text-decoration: none; transition: background .12s; }
+  .downloads a:hover { background: var(--raised); }
+  .downloads strong { display: block; font-size: 19px; margin-bottom: 4px; }
+  .downloads span { color: var(--muted); font-size: 15px; }
 
-  /* Sections */
-  section { padding: 3.5rem 0; border-top: 1px solid var(--rule); }
-  h2 { margin: 0 0 1.5rem; font-size: 2rem; line-height: 1.2; font-weight: 600; }
-  h3 { margin: 2.5rem 0 0.75rem; font-size: 1.35rem; line-height: 1.3; font-weight: 600; }
-  li { margin-bottom: 0.5rem; }
+  footer { border-top: 1px solid var(--border); padding: 48px 0 64px; color: var(--muted); font-size: 15px; }
+  footer p { max-width: 75ch; margin: 0 0 12px; }
 
-  .shots {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 2rem 1.5rem;
+  @media (max-width: 900px) {
+    .hero, .split { grid-template-columns: 1fr; gap: 40px; }
+    .steps, .downloads { grid-template-columns: 1fr 1fr; }
+    header nav a.optional { display: none; }
   }
-  .shots figure { margin: 0; }
-  .shots a { display: block; }
-  .shots img {
-    display: block;
-    width: 100%;
-    aspect-ratio: 7 / 5; /* every screenshot is at most 7:5 wide, so only the bottom crops */
-    object-fit: cover;
-    object-position: top center;
-    border: 1px solid var(--rule);
-    border-radius: 6px;
-    background: var(--paper);
+  @media (max-width: 560px) {
+    .steps, .downloads { grid-template-columns: 1fr; }
+    .hero { padding-top: 40px; }
+    header nav { gap: 18px; }
+    header nav a.wide { display: none; }
+    .lead { font-size: 18px; }
   }
-  .shots figcaption { margin-top: 0.6rem; font-size: 1rem; }
-  .shots figcaption span { color: var(--muted); }
-  .shots .before figcaption strong { color: var(--thermal); }
-
-  .table-scroll { overflow-x: auto; margin: 1rem 0; }
-  table { border-collapse: collapse; min-width: 48rem; font-size: 1rem; line-height: 1.5; }
-  th, td { padding: 0.75rem 1rem 0.75rem 0; text-align: left; vertical-align: top; border-bottom: 1px solid var(--rule); }
-  th { font-weight: 600; }
-  tbody th { white-space: nowrap; }
-  td:last-child { max-width: 26rem; }
-
-  .timeline { list-style: none; padding: 0; margin: 1rem 0; }
-  .timeline li {
-    display: grid;
-    grid-template-columns: 9rem 1fr;
-    gap: 1rem;
-    padding: 0.6rem 0;
-    border-bottom: 1px solid var(--rule);
-    margin: 0;
-  }
-  .timeline time { font-weight: 600; }
-
-  .downloads { list-style: none; padding: 0; margin: 0 0 1.5rem; max-width: 42rem; }
-  .downloads li {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 0.75rem 0;
-    border-bottom: 1px solid var(--rule);
-    margin: 0;
-  }
-  .downloads span { color: var(--muted); }
-
-  footer { padding: 2.5rem 0 3.5rem; border-top: 1px solid var(--rule); color: var(--muted); font-size: 1rem; }
-
-  @media (max-width: 52rem) {
-    .hero { grid-template-columns: 1fr; gap: 2.5rem; padding-top: 3rem; }
-    .printer { max-width: 26rem; }
-  }
-  @media (max-width: 36rem) {
-    .shots { grid-template-columns: 1fr; }
-    .timeline li { grid-template-columns: 1fr; gap: 0.1rem; }
-    .downloads li { flex-direction: column; gap: 0.1rem; }
-  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto; } }
 </style>
 </head>
 <body>
-<main class="wrap">
-
-  <header class="hero">
-    <div>
-      <h1>Tillroll</h1>
-      <p class="lead">A receipt printer emulator for testing ESC/POS code. Point your point-of-sale software at it over TCP, serial or USB, and the receipt prints on screen.</p>
-      <p>It started as a Windows-only WPF app. This is the Avalonia 12 port: one codebase that runs on Windows, macOS, Linux and in the browser.</p>
-      <div class="actions">
-        <a class="button primary" href="./app/">Run it in your browser</a>
-        <a class="button" href="#downloads">Download for desktop</a>
-        <a class="button" href="https://github.com/hasana3n/tillroll">View the source</a>
-      </div>
-    </div>
-    <figure class="printer">
-      <div class="slot" aria-hidden="true"></div>
-      <div class="feed">
-        <div class="paper">
-          <img src="receipt.png" width="640" height="704"
-               alt="A receipt hanging upside down from the printer, reading Tillroll, ported from WPF on .NET 9 to Avalonia 12 on .NET 10, running on Windows, macOS, Linux and the browser, with a QR code.">
-        </div>
-      </div>
-      <figcaption>Printed by the emulator from an ESC/POS job. Like a real receipt, it feeds out title first and hangs upside down. Scan the code to open the browser version.</figcaption>
-    </figure>
+<div class="wrap">
+  <header>
+    <a href="./" aria-label="Tillroll home"><img src="img/tillroll-lockup-dark.svg" alt="Tillroll"></a>
+    <nav>
+      <a class="wide" href="#how">How it works</a>
+      <a class="optional" href="#phones">Phones</a>
+      <a href="https://github.com/hasana3n/tillroll/tree/main/docs">Docs</a>
+      <a href="https://github.com/hasana3n/tillroll">GitHub</a>
+    </nav>
   </header>
 
-  <section id="before-after" aria-labelledby="before-after-title">
-    <h2 id="before-after-title">Before and after</h2>
-    <div class="shots">
-      <figure class="before">
-        <a href="img/before-wpf.png"><img src="img/before-wpf.png" width="1069" height="1185" loading="lazy" alt="The original WPF app: a grey sidebar with Reset and Test print buttons beside plain text receipts."></a>
-        <figcaption><strong>Before:</strong> WPF <span>on Windows only</span></figcaption>
-      </figure>
-      <figure>
-        <a href="img/after-macos.png"><img src="img/after-macos.png" width="2248" height="1696" loading="lazy" alt="The Avalonia app on macOS with connection settings, a receipt with text styles and barcodes, and the printer state panel."></a>
-        <figcaption><strong>After:</strong> Avalonia 12 <span>on macOS</span></figcaption>
-      </figure>
-      <figure>
-        <a href="img/after-linux.png"><img src="img/after-linux.png" width="1400" height="1062" loading="lazy" alt="The same app on Linux rendering QR, PDF417, DataMatrix and Aztec codes."></a>
-        <figcaption><strong>After:</strong> the same app <span>on Linux</span></figcaption>
-      </figure>
-      <figure>
-        <a href="img/after-browser.png"><img src="img/after-browser.png" width="1400" height="1000" loading="lazy" alt="The same app in a browser tab, connected to a TCP proxy and showing a received receipt."></a>
-        <figcaption><strong>After:</strong> the same app <span>in the browser (WebAssembly)</span></figcaption>
-      </figure>
-    </div>
-  </section>
+  <main>
+    <section class="hero">
+      <div>
+        <h1>A receipt printer that lives on your screen.</h1>
+        <p class="lead">Print from your app or phone over Bluetooth, TCP, serial or USB, and see every receipt dot for dot.</p>
+        <div class="actions">
+          <a class="button primary" href="#download">Download</a>
+          <a class="button" href="app/">Try it in the browser</a>
+        </div>
+        <p class="meta">Free and open source (MIT) · Windows, Linux, macOS and the browser</p>
+      </div>
+      <div class="slip" aria-hidden="true">
+        <div class="head"></div>
+        <div class="paper">
+          <b>CORNER CAFE</b>
+          <div class="c">Table 7 · Order 1042</div>
+          <hr>
+          <div class="row"><span>Flat white x2</span><span>7.00</span></div>
+          <div class="row"><span>Croissant x2</span><span>6.40</span></div>
+          <div class="row"><span>Orange juice</span><span>5.00</span></div>
+          <hr>
+          <div class="row"><strong>TOTAL</strong><strong>18.40</strong></div>
+          <div class="c" style="margin-top:12px">Thank you!</div>
+        </div>
+      </div>
+    </section>
 
-  <section id="migration" aria-labelledby="migration-title">
-    <div class="prose">
-      <h2 id="migration-title">What the migration cost</h2>
+    <section class="shot">
+      <img src="img/tillroll-window.png" alt="Tillroll showing two receipts that arrived over TCP, with the arrivals board and the connections panel" width="1822" height="1226">
+    </section>
 
-      <h3>Starting point</h3>
-      <p>The upstream app, <a href="https://github.com/roydejong/EscPosEmulator">roydejong/EscPosEmulator</a>, targeted <code>net9.0-windows7.0</code> with <code>UseWPF</code>: 48 C# and XAML files, about 2,400 lines. Windows was wired in at four levels.</p>
-      <ul>
-        <li><strong>Rendering.</strong> Every receipt line drew itself with GDI+ (<code>System.Drawing</code>), which is Windows-only on .NET 6 and later. The GDI+ types were part of the core interface, <code>IReceiptPrintable.Render(Bitmap, Graphics, int, int)</code>. To show a receipt, the window saved each bitmap to a BMP stream and loaded it back as a WPF <code>BitmapImage</code>.</li>
-        <li><strong>UI.</strong> Code-behind only. The window created <code>Image</code> controls by hand, found them again by a GUID-based name, and added or removed them from a <code>StackPanel</code>.</li>
-        <li><strong>OS calls.</strong> A <code>user32!FlashWindow</code> P/Invoke and <code>SystemSounds</code> signalled new jobs.</li>
-        <li><strong>Assumptions.</strong> TCP was the only transport, and the test receipt was read from the current working directory.</li>
-      </ul>
-      <p>The ESC/POS interpreter (one command class per opcode) had no UI or Windows dependency, so its design carried over unchanged. It is now the headless <code>Tillroll.Core</code> package.</p>
+    <section class="band" id="how">
+      <h2>No paper, no walking to the printer.</h2>
+      <p class="intro">Tillroll stands in for an ESC/POS thermal printer. Your app can't tell the difference, so you test the real thing: the bytes, the layout and the error handling.</p>
+      <div class="steps">
+        <div>
+          <h3>Connect</h3>
+          <p>It listens on TCP port <code>9100</code> as soon as it starts. Serial, USB and Bluetooth are a click away.</p>
+        </div>
+        <div>
+          <h3>Print</h3>
+          <p>Each receipt appears as it arrives, one screen pixel per printer dot, with its time and length on the arrivals board.</p>
+        </div>
+        <div>
+          <h3>Break it on purpose</h3>
+          <p>Open the cover, run out of paper or raise an error. Status queries get real answers and jobs are dropped, like on real hardware.</p>
+        </div>
+      </div>
+    </section>
 
-      <h3>What changed, and what each part took</h3>
-    </div>
-    <div class="table-scroll">
-      <table>
-        <thead>
-          <tr><th scope="col">Area</th><th scope="col">WPF original</th><th scope="col">Avalonia port</th><th scope="col">What it took</th></tr>
-        </thead>
-        <tbody>
-          <tr><th scope="row">Rendering</th><td>GDI+ <code>Bitmap</code> and <code>Graphics</code></td><td>SkiaSharp behind a backend-neutral <code>IReceiptCanvas</code>, plus a fully managed ImageSharp backend</td><td>The biggest single job. The text-line renderer was rewritten. System fonts differ per OS, so the same receipt measured differently on each; embedding JetBrains Mono made output identical everywhere.</td></tr>
-          <tr><th scope="row">UI</th><td>XAML and code-behind</td><td>AXAML and MVVM (CommunityToolkit.Mvvm), with receipts bound to a reusable <code>ReceiptView</code></td><td>The markup ported almost line for line. The work was moving code-behind into view models and bindings.</td></tr>
-          <tr><th scope="row">Win32 calls</th><td><code>FlashWindow</code>, <code>SystemSounds</code></td><td>A notification service: <code>afplay</code>, <code>Console.Beep</code> or <code>paplay</code> per OS, plus an in-window toast</td><td>There is no cross-platform system-sound API, so each OS gets its own strategy.</td></tr>
-          <tr><th scope="row">Files</th><td>Relative to the working directory</td><td>Avalonia <code>StorageProvider</code> for PNG export; app-relative asset paths</td><td>The working-directory assumption broke in the packaged app and was fixed right after the first release.</td></tr>
-          <tr><th scope="row">Transports</th><td>TCP</td><td>TCP and serial; the built-in Monitor adds direct USB through libusb</td><td>Port names differ per OS. A Homebrew-installed libusb wasn't found until the app added the usual install paths to the native search path at startup.</td></tr>
-          <tr><th scope="row">Packaging</th><td>One Windows <code>.exe</code></td><td>Self-contained builds for four targets from one CI matrix, including a macOS <code>.app</code></td><td>Unsigned macOS bundles were reported as damaged, so the bundle is ad-hoc signed and the README explains how to clear the quarantine flag.</td></tr>
-          <tr><th scope="row">Browser</th><td>None</td><td>The same app as an Avalonia WebAssembly head</td><td>A browser can't listen on TCP, so an ASP.NET Core SignalR host opens the socket and relays jobs to the page. Serial and USB use Web Serial and WebUSB. Export downloads a file instead of opening a save dialog.</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="prose">
-      <h3>The numbers</h3>
-      <p>Seven days with commits over five weeks, according to the git history:</p>
-      <ol class="timeline">
-        <li><time datetime="2026-06-05">June 5–6, 2026</time><span>The port itself and desktop feature parity (PRs #1–#7).</span></li>
-        <li><time datetime="2026-06-20">June 20–21</time><span>Split into layered packages with a swappable render backend (#8–#10).</span></li>
-        <li><time datetime="2026-07-04">July 4–7</time><span>Managed ImageSharp backend, then the browser version (#11–#16).</span></li>
-      </ol>
-      <ul>
-        <li>From 48 files and about 2,400 lines to 168 files and about 10,000 lines of C# and AXAML, across 11 projects, 2 samples and 2 test projects. Most of the growth is new features, such as barcodes, 2D codes, status replies, printer-state simulation, the Monitor and the browser version, not port overhead.</li>
-        <li>131 xUnit tests (89 test methods) run the interpreter against a synthetic render backend, which proves the core runs headless. The controls are tested with Avalonia.Headless.</li>
-        <li>Built with AI assistance (Claude Code). The commits say so in their <code>Co-Authored-By</code> trailers.</li>
-      </ul>
+    <section class="band" id="phones">
+      <div class="split">
+        <div>
+          <h2>Your computer becomes a Bluetooth printer.</h2>
+          <p class="intro" style="margin-bottom:0">On Windows and Linux, start a Bluetooth row and print straight from your phone app. No printer on the desk.</p>
+          <div class="phones">
+            <div><h3>Android</h3><p>Classic Bluetooth with the standard SPP UUID. Pair once in the phone's settings.</p></div>
+            <div><h3>iPhone and iPad</h3><p>Bluetooth LE with the common printer service <code>18F0</code>. No pairing needed.</p></div>
+          </div>
+        </div>
+        <img src="img/tillroll-printer-state.png" alt="The printer panel with the cover open: the status strip turns red and names the cause" width="1822" height="1226" loading="lazy">
+      </div>
+    </section>
 
-      <h3>What was easy, and what hurt</h3>
-      <p><strong>Easy:</strong> XAML to AXAML, the Fluent theme, <code>Dispatcher.UIThread</code> and headless UI testing. The UI layer was the smallest part of the port.</p>
-      <p><strong>Hurt:</strong> removing GDI+. It was part of the core interfaces, not just the view, so the renderer had to be redesigned before anything else could move. After that came native dependencies that differ per OS (libusb, fontconfig on Linux, macOS signing) and the browser sandbox, which has no sockets and no raw file system.</p>
-      <p><strong>Would do again:</strong> put the drawing surface behind an interface first. Once <code>IReceiptCanvas</code> existed, the ImageSharp backend (a community contribution) and the browser version each landed within a few days.</p>
-    </div>
-  </section>
+    <section class="band">
+      <div class="split">
+        <img src="img/tillroll-monitor.png" alt="The Monitor test client connected over TCP, reporting that the printer is not ready because the cover is open" width="802" height="1196" loading="lazy" style="max-width:420px;justify-self:center">
+        <div>
+          <h2>A test client is built in.</h2>
+          <p class="intro">The Monitor prints sample receipts, every barcode, QR, PDF417, DataMatrix and Aztec, opens the cash drawer and sounds the buzzer. It shows the status Tillroll reports back, so you see what your app would see.</p>
+        </div>
+      </div>
+    </section>
 
-  <section id="downloads" aria-labelledby="downloads-title">
-    <h2 id="downloads-title">Downloads</h2>
-    <ul class="downloads">
-      <li><a href="https://github.com/hasana3n/tillroll/releases/latest/download/Tillroll-win-x64.zip">Windows (x64)</a><span>zip, self-contained</span></li>
-      <li><a href="https://github.com/hasana3n/tillroll/releases/latest/download/Tillroll-osx-arm64.zip">macOS (Apple silicon)</a><span>.app bundle</span></li>
-      <li><a href="https://github.com/hasana3n/tillroll/releases/latest/download/Tillroll-osx-x64.zip">macOS (Intel)</a><span>.app bundle</span></li>
-      <li><a href="https://github.com/hasana3n/tillroll/releases/latest/download/Tillroll-linux-x64.tar.gz">Linux (x64)</a><span>tar.gz, self-contained</span></li>
-      <li><a href="./app/">Browser</a><span>no install; Web Serial and WebUSB need Chrome or Edge</span></li>
-    </ul>
-    <div class="prose">
-      <p>No .NET install is needed. On macOS, if the app is reported as damaged, run <code>xattr -dr com.apple.quarantine Tillroll.app</code> once. In the browser, TCP printing needs the small relay host: run <code>dotnet run --project samples/Tillroll.Host</code> and open the page it serves.</p>
-    </div>
-  </section>
+    <section class="band" id="download">
+      <h2>Download</h2>
+      <p class="intro">Self-contained builds: nothing else to install. On Windows and Linux, unpack and run.</p>
+      <div class="downloads">
+        <a href="https://github.com/hasana3n/tillroll/releases/latest/download/Tillroll-win-x64.zip"><strong>Windows</strong><span>x64 · portable .exe</span></a>
+        <a href="https://github.com/hasana3n/tillroll/releases/latest/download/Tillroll-linux-x64.tar.gz"><strong>Linux</strong><span>x64 · portable binary</span></a>
+        <a href="https://github.com/hasana3n/tillroll/releases/latest/download/Tillroll-osx-arm64.zip"><strong>macOS</strong><span>Apple silicon · .app</span></a>
+        <a href="https://github.com/hasana3n/tillroll/releases/latest/download/Tillroll-osx-x64.zip"><strong>macOS</strong><span>Intel · .app</span></a>
+      </div>
+    </section>
+  </main>
 
-</main>
-<footer>
-  <div class="wrap">
-    <p>Based on <a href="https://github.com/roydejong/EscPosEmulator">EscPosEmulator</a> by Roy de Jong. Ported and extended by <a href="https://github.com/danielmeza">Daniel Meza</a> for the <a href="https://avaloniaui.net/blog/avalonia-port-challenge">Avalonia Port Challenge</a>. <a href="https://github.com/hasana3n/tillroll">Source, license and full README on GitHub</a>.</p>
-  </div>
-</footer>
+  <footer>
+    <p>Tillroll is free and open source under the MIT licence. It builds on
+      <a href="https://github.com/danielmeza/CrossEscPosEmulator">CrossEscPosEmulator</a> by Daniel Meza, a cross-platform
+      port of <a href="https://github.com/roydejong/EscPosEmulator">EscPosEmulator</a> by Roy de Jong. Thank you both.</p>
+    <p><a href="https://github.com/hasana3n/tillroll">Source</a> · <a href="https://github.com/hasana3n/tillroll/releases">Releases</a> ·
+      <a href="https://github.com/hasana3n/tillroll/issues">Report a problem</a></p>
+  </footer>
+</div>
 </body>
 </html>
