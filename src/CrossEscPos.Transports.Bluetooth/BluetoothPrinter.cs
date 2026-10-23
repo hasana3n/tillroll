@@ -17,7 +17,11 @@ public static class BluetoothPrinter
     {
         ArgumentNullException.ThrowIfNull(printer);
         ArgumentNullException.ThrowIfNull(options);
+#if WINDOWS_BT
+        return new Windows.WinRtSppServer(printer, options);
+#else
         return new UnsupportedBluetoothServer(SppDisplayName, UnsupportedReason());
+#endif
     }
 
     /// <summary>A BLE GATT peripheral exposing the common thermal-printer services (what iPhone apps use).</summary>
