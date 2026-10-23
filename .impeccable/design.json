@@ -1,0 +1,487 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-23T12:52:18+00:00",
+  "title": "Design System: CrossEscPos",
+  "extensions": {
+    "colorMeta": {
+      "ground": {
+        "role": "neutral",
+        "displayName": "Concourse Black",
+        "canonical": "oklch(19.2% 0.004 286)",
+        "tonalRamp": [
+          "#0B0B0D",
+          "#242426",
+          "#3F3F42",
+          "#5D5D60",
+          "#7D7D7F",
+          "#9E9EA1",
+          "#C4C4C7",
+          "#EEEEF0"
+        ]
+      },
+      "panel": {
+        "role": "neutral",
+        "displayName": "Platform Black",
+        "canonical": "oklch(17.4% 0.004 286)",
+        "tonalRamp": [
+          "#0B0B0D",
+          "#242426",
+          "#3F3F42",
+          "#5D5D60",
+          "#7D7D80",
+          "#9E9EA1",
+          "#C4C4C7",
+          "#EEEEF0"
+        ]
+      },
+      "raised": {
+        "role": "neutral",
+        "displayName": "Raised Slate",
+        "canonical": "oklch(23.6% 0.006 286)",
+        "tonalRamp": [
+          "#0B0B0D",
+          "#242427",
+          "#3F3F43",
+          "#5D5D61",
+          "#7D7D81",
+          "#9E9EA2",
+          "#C3C4C8",
+          "#EEEEF1"
+        ]
+      },
+      "hover": {
+        "role": "neutral",
+        "displayName": "Hover Slate",
+        "canonical": "oklch(27.0% 0.007 286)",
+        "tonalRamp": [
+          "#0B0B0E",
+          "#242427",
+          "#3F3F44",
+          "#5D5D62",
+          "#7D7D82",
+          "#9E9EA3",
+          "#C3C3C9",
+          "#EEEEF1"
+        ]
+      },
+      "pressed": {
+        "role": "neutral",
+        "displayName": "Pressed Slate",
+        "canonical": "oklch(30.3% 0.009 286)",
+        "tonalRamp": [
+          "#0B0B0F",
+          "#232328",
+          "#3F3F44",
+          "#5D5D63",
+          "#7C7D82",
+          "#9E9EA4",
+          "#C3C3CA",
+          "#EEEEF2"
+        ]
+      },
+      "hairline": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "oklch(25.8% 0.007 286)",
+        "tonalRamp": [
+          "#0B0B0E",
+          "#242428",
+          "#3F3F44",
+          "#5D5D62",
+          "#7D7D82",
+          "#9E9EA3",
+          "#C3C3C9",
+          "#EEEEF1"
+        ]
+      },
+      "control-border": {
+        "role": "neutral",
+        "displayName": "Control Border",
+        "canonical": "oklch(35.0% 0.007 286)",
+        "tonalRamp": [
+          "#0B0B0E",
+          "#242427",
+          "#3F3F43",
+          "#5D5D61",
+          "#7D7D81",
+          "#9E9EA3",
+          "#C3C3C8",
+          "#EEEEF1"
+        ]
+      },
+      "control-border-hover": {
+        "role": "neutral",
+        "displayName": "Control Border Hover",
+        "canonical": "oklch(45.2% 0.010 286)",
+        "tonalRamp": [
+          "#0B0B0F",
+          "#232329",
+          "#3F3F45",
+          "#5D5D63",
+          "#7C7C83",
+          "#9E9EA4",
+          "#C3C3CA",
+          "#EEEEF2"
+        ]
+      },
+      "idle-dot": {
+        "role": "neutral",
+        "displayName": "Idle Dot",
+        "canonical": "oklch(47.0% 0.010 286)",
+        "tonalRamp": [
+          "#0B0B0F",
+          "#232329",
+          "#3F3F45",
+          "#5D5D63",
+          "#7C7C83",
+          "#9E9EA4",
+          "#C3C3CA",
+          "#EEEEF2"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "oklch(96.7% 0.001 286)",
+        "tonalRamp": [
+          "#0B0B0C",
+          "#242425",
+          "#404040",
+          "#5D5D5E",
+          "#7D7D7E",
+          "#9E9E9F",
+          "#C4C4C5",
+          "#EEEEEF"
+        ]
+      },
+      "ink-muted": {
+        "role": "neutral",
+        "displayName": "Ink Muted",
+        "canonical": "oklch(71.2% 0.013 286)",
+        "tonalRamp": [
+          "#0B0A10",
+          "#23232A",
+          "#3F3F46",
+          "#5D5D65",
+          "#7C7C85",
+          "#9D9DA6",
+          "#C3C3CC",
+          "#EEEEF4"
+        ]
+      },
+      "ink-faint": {
+        "role": "neutral",
+        "displayName": "Ink Faint",
+        "canonical": "oklch(64.0% 0.009 271)",
+        "tonalRamp": [
+          "#0A0B0F",
+          "#222429",
+          "#3E4045",
+          "#5C5D63",
+          "#7B7D83",
+          "#9C9EA4",
+          "#C2C4CA",
+          "#EDEEF2"
+        ]
+      },
+      "signage-amber": {
+        "role": "primary",
+        "displayName": "Signage Amber",
+        "canonical": "oklch(80.6% 0.147 79)",
+        "tonalRamp": [
+          "#5A3E0E",
+          "#8A6016",
+          "#B07C1E",
+          "#D99A28",
+          "#F2B33D",
+          "#F6C462",
+          "#F8D088",
+          "#FADCA8"
+        ]
+      },
+      "positive": {
+        "role": "state",
+        "displayName": "Positive Green",
+        "canonical": "oklch(64.7% 0.102 168)",
+        "tonalRamp": [
+          "#001603",
+          "#00321A",
+          "#005035",
+          "#006F52",
+          "#309071",
+          "#56B392",
+          "#7DDAB7",
+          "#C8FCE7"
+        ]
+      },
+      "negative": {
+        "role": "state",
+        "displayName": "Negative Red",
+        "canonical": "oklch(64.8% 0.178 13)",
+        "tonalRamp": [
+          "#390000",
+          "#5E0008",
+          "#840023",
+          "#AA1840",
+          "#D0435E",
+          "#F8677E",
+          "#FF8EA3",
+          "#FFD1DA"
+        ]
+      },
+      "warning": {
+        "role": "state",
+        "displayName": "Warning Amber",
+        "canonical": "oklch(75.1% 0.130 80)",
+        "tonalRamp": [
+          "#240000",
+          "#421400",
+          "#623300",
+          "#835200",
+          "#A57300",
+          "#C8942E",
+          "#F0BA59",
+          "#FFEAB4"
+        ]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Paper",
+        "canonical": "oklch(100.0% 0.000 90)",
+        "tonalRamp": [
+          "#0B0B0B",
+          "#242424",
+          "#404040",
+          "#5D5D5D",
+          "#7D7D7D",
+          "#9E9E9E",
+          "#C4C4C4",
+          "#EEEEEE"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "title": {
+        "displayName": "Title",
+        "purpose": "Canvas heading (Receipts); one per screen."
+      },
+      "section": {
+        "displayName": "Section",
+        "purpose": "Side-panel, Monitor and empty-state headings."
+      },
+      "row-title": {
+        "displayName": "Row title",
+        "purpose": "Connection names, printer-state rows, Arrivals, health text."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Running text; muted for panel introductions."
+      },
+      "small": {
+        "displayName": "Small",
+        "purpose": "Descriptions, notes, status lines, column headers, status strip."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Field labels and control-group headings; sentence case, never tracked uppercase."
+      },
+      "figure": {
+        "displayName": "Figure",
+        "purpose": "Every time, count, size and scale, and the activity log, in the receipt face."
+      },
+      "lamp": {
+        "displayName": "Lamp",
+        "purpose": "The literal NEW on an unseen arrival; the only bold mono and the only uppercase."
+      }
+    },
+    "shadows": [
+      {
+        "name": "drawer",
+        "value": "-8px 0 32px 0 rgba(0,0,0,0.5)",
+        "purpose": "Only the in-browser Monitor drawer, over a rgba(0,0,0,0.6) scrim. Every resting surface is flat."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out-quint",
+        "value": "cubic-bezier(0.23, 1, 0.32, 1)",
+        "purpose": "Easing for every transform and fade."
+      },
+      {
+        "name": "press",
+        "value": "scale(0.97), 120ms",
+        "purpose": "Button press feedback."
+      },
+      {
+        "name": "colour",
+        "value": "120ms",
+        "purpose": "Button fill changes on hover and press."
+      },
+      {
+        "name": "disclose",
+        "value": "rotate(-90deg) to rotate(0), 160ms",
+        "purpose": "Settings disclosure chevron."
+      },
+      {
+        "name": "announce",
+        "value": "opacity 0 to 1 with translateY(4px) to 0, 180ms",
+        "purpose": "Status-strip announcement in and out. No entrance motion on screens, panels or receipts."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "board-steps-aside",
+        "value": "canvas width minus 248px can no longer hold the widest receipt at a whole-pixel scale",
+        "purpose": "The arrivals board hides so receipts stay pixel-exact; it stays if even the full canvas can't hold them."
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Default pill for ordinary actions.",
+      "html": "<button class=\"ds-btn\">Find ports again</button>",
+      "css": ".ds-btn{font-family:'Public Sans',sans-serif;font-size:13px;font-weight:500;min-height:32px;padding:0 14px;border-radius:999px;border:1px solid transparent;background:#1E1E21;color:#F4F4F5;cursor:pointer;transition:background .12s,transform .12s cubic-bezier(.23,1,.32,1);}.ds-btn:hover{background:#26262A;}.ds-btn:active{background:#2E2E33;transform:scale(.97);}.ds-btn:focus-visible{outline:1px solid #F2B33D;outline-offset:2px;}"
+    },
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one action that moves the job forward. Inverted, never amber.",
+      "html": "<button class=\"ds-btn-primary\">Start</button>",
+      "css": ".ds-btn-primary{font-family:'Public Sans',sans-serif;font-size:13px;font-weight:600;min-height:32px;min-width:64px;padding:0 14px;border-radius:999px;border:1px solid transparent;background:#F4F4F5;color:#101012;cursor:pointer;transition:background .12s,transform .12s cubic-bezier(.23,1,.32,1);}.ds-btn-primary:hover{background:#FFFFFF;}.ds-btn-primary:active{background:#DADADE;transform:scale(.97);}.ds-btn-primary:focus-visible{outline:1px solid #F2B33D;outline-offset:2px;}"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Outlined pill beside or instead of a primary (Stop, Clear, Export).",
+      "html": "<button class=\"ds-btn-ghost\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M3 6 H21 M19 6 V20 C19 21 18 22 17 22 H7 C6 22 5 21 5 20 V6 M8 6 V4 C8 3 9 2 10 2 H14 C15 2 16 3 16 4 V6\"/></svg>Clear</button>",
+      "css": ".ds-btn-ghost{font-family:'Public Sans',sans-serif;display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:500;min-height:32px;padding:0 14px;border-radius:999px;border:1px solid #3A3A3E;background:transparent;color:#F4F4F5;cursor:pointer;transition:background .12s,transform .12s cubic-bezier(.23,1,.32,1);}.ds-btn-ghost:hover{background:#26262A;}.ds-btn-ghost:active{background:#2E2E33;transform:scale(.97);}.ds-btn-ghost:focus-visible{outline:1px solid #F2B33D;outline-offset:2px;}"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "text-input",
+      "description": "Field on Platform Black; amber border, caret and selection on focus.",
+      "html": "<label class=\"ds-field\"><span>Port</span><input class=\"ds-input\" value=\"9100\"></label>",
+      "css": ".ds-field{font-family:'Public Sans',sans-serif;display:flex;flex-direction:column;gap:6px;width:240px;}.ds-field span{font-size:12px;font-weight:500;color:#A1A1AA;}.ds-input{font-family:'Public Sans',sans-serif;font-size:13px;min-height:32px;box-sizing:border-box;padding:6px 10px;border-radius:6px;border:1px solid #3A3A3E;background:#101012;color:#F4F4F5;caret-color:#F2B33D;outline:none;}.ds-input:hover{border-color:#55555B;}.ds-input:focus-visible,.ds-input:focus{border-color:#F2B33D;}.ds-input::selection{background:rgba(242,179,61,.4);}"
+    },
+    {
+      "name": "Rail",
+      "kind": "nav",
+      "refersTo": "rail-destination",
+      "description": "56px icon rail; the active destination gets Raised Slate and a 1px amber edge line.",
+      "html": "<nav class=\"ds-rail\"><button class=\"ds-rail-btn is-active\" aria-label=\"Connections\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 22 V17 M9 8 V2 M15 8 V2 M18 8 V13 A4 4 0 0 1 14 17 H10 A4 4 0 0 1 6 13 V8 Z\"/></svg></button><button class=\"ds-rail-btn\" aria-label=\"Test print\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M16 18 L22 12 L16 6 M8 6 L2 12 L8 18\"/></svg></button></nav>",
+      "css": ".ds-rail{display:flex;flex-direction:column;gap:6px;width:56px;padding:14px 0;background:#101012;border-right:1px solid #232327;}.ds-rail-btn{position:relative;align-self:center;width:40px;height:40px;border:0;border-radius:8px;background:transparent;color:#A1A1AA;cursor:pointer;display:grid;place-items:center;transition:background .12s,transform .12s cubic-bezier(.23,1,.32,1);}.ds-rail-btn:hover{background:#26262A;color:#F4F4F5;}.ds-rail-btn:active{transform:scale(.97);}.ds-rail-btn:focus-visible{outline:1px solid #F2B33D;}.ds-rail-btn.is-active{background:#1E1E21;color:#F4F4F5;}.ds-rail-btn.is-active::after{content:'';position:absolute;right:-8px;top:9px;width:1px;height:22px;background:#F2B33D;}"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Flat Platform Black container with a hairline border; here a printer health card.",
+      "html": "<div class=\"ds-card\"><span class=\"ds-dot\"></span>Ready</div>",
+      "css": ".ds-card{font-family:'Public Sans',sans-serif;display:flex;align-items:center;gap:10px;width:240px;padding:14px;border-radius:6px;border:1px solid #232327;background:#101012;color:#F4F4F5;font-size:13px;font-weight:600;}.ds-dot{width:8px;height:8px;border-radius:50%;background:#44A282;}"
+    },
+    {
+      "name": "Segmented Control",
+      "kind": "chip",
+      "refersTo": "segment",
+      "description": "Paper level choice; the checked segment is lifted and underlined by the 1px amber line.",
+      "html": "<div class=\"ds-seg\" role=\"radiogroup\"><button class=\"ds-seg-item is-on\">Plenty</button><button class=\"ds-seg-item\">Near end</button><button class=\"ds-seg-item\">Out</button></div>",
+      "css": ".ds-seg{display:grid;grid-template-columns:repeat(3,1fr);width:260px;padding:2px;border-radius:7px;border:1px solid #232327;background:#101012;}.ds-seg-item{font-family:'Public Sans',sans-serif;position:relative;height:28px;border:1px solid transparent;border-radius:5px;background:transparent;color:#A1A1AA;font-size:12px;font-weight:500;cursor:pointer;}.ds-seg-item:hover{color:#F4F4F5;}.ds-seg-item:focus-visible{outline:none;border-color:#F2B33D;}.ds-seg-item.is-on{background:#26262A;color:#F4F4F5;}.ds-seg-item.is-on::after{content:'';position:absolute;left:14px;right:14px;bottom:5px;height:1px;background:#F2B33D;}"
+    },
+    {
+      "name": "Arrivals Board",
+      "kind": "custom",
+      "refersTo": "board-row",
+      "description": "One mono row per cut; the selected row gets the amber line, unseen arrivals the NEW lamp.",
+      "html": "<div class=\"ds-board\"><div class=\"ds-board-head\"><span>Arrivals</span><span class=\"ds-mono\">15:47:50</span></div><div class=\"ds-board-cols\"><span>Cut</span><span>Arrived</span><span class=\"r\">Length</span><span></span></div><div class=\"ds-board-row is-sel\"><span class=\"ds-num\">#1</span><span>15:47:46</span><span class=\"r\">73 mm</span><span class=\"ds-lamp\">NEW</span></div><div class=\"ds-board-row\"><span class=\"ds-num\">#2</span><span>15:47:47</span><span class=\"r\">73 mm</span><span></span></div></div>",
+      "css": ".ds-board{font-family:'Public Sans',sans-serif;width:248px;box-sizing:border-box;padding:16px 8px;background:#141416;border-left:1px solid #232327;}.ds-board-head{display:flex;justify-content:space-between;align-items:center;margin:0 10px 10px;font-size:13px;font-weight:600;color:#F4F4F5;}.ds-mono{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:400;color:#A1A1AA;}.ds-board-cols{display:grid;grid-template-columns:40px 1fr 64px 44px;margin:0 10px 4px;padding-bottom:6px;border-bottom:1px solid #232327;font-size:12px;color:#A1A1AA;}.ds-board-row{font-family:'JetBrains Mono',monospace;display:grid;grid-template-columns:40px 1fr 64px 44px;align-items:center;height:34px;padding:0 10px;border-radius:6px;font-size:12px;color:#A1A1AA;cursor:pointer;}.ds-board-row:hover,.ds-board-row.is-sel{background:#1E1E21;}.r{text-align:right;}.ds-num{color:#F4F4F5;justify-self:start;}.ds-board-row.is-sel .ds-num{box-shadow:inset 0 -1px 0 #F2B33D;}.ds-lamp{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#F2B33D;text-align:right;}"
+    },
+    {
+      "name": "Status Strip",
+      "kind": "custom",
+      "refersTo": "status-strip",
+      "description": "28px strip: health on the left, announcements centred, mono paper and scale on the right.",
+      "html": "<div class=\"ds-strip\"><span class=\"ds-health\"><i></i>Ready</span><span class=\"ds-announce\">Cash drawer opened</span><span class=\"ds-meta\">1 connection running<b>80 mm · 640 dots</b><b class=\"warn\">0.5 px per dot</b></span></div>",
+      "css": ".ds-strip{font-family:'Public Sans',sans-serif;display:grid;grid-template-columns:auto 1fr auto;align-items:center;height:28px;padding:0 16px;background:#101012;border-top:1px solid #232327;font-size:12px;color:#A1A1AA;}.ds-health{display:flex;align-items:center;gap:8px;color:#F4F4F5;}.ds-health i{width:7px;height:7px;border-radius:50%;background:#44A282;}.ds-announce{justify-self:center;padding:2px 12px;border-radius:999px;background:#1E1E21;color:#F4F4F5;font-weight:500;animation:ds-announce .18s cubic-bezier(.23,1,.32,1);}.ds-meta{display:flex;gap:14px;}.ds-meta b{font-family:'JetBrains Mono',monospace;font-weight:400;}.ds-meta b.warn{color:#D9A441;}@keyframes ds-announce{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Arrivals Hall",
+    "overview": "CrossEscPos is an arrivals hall for print jobs. The interface is a dark concourse, and receipts are the arrivals. The white paper is the only bright thing on screen, and everything around it steps back so the print reads at full pixel truth. Signage amber is the one accent. It works like a station's departure board: it marks where you are and what has just landed, and does nothing else. Green, red and amber also appear, but only to report state.\n\nThe density is a data terminal's: 12–13px Public Sans for the interface and JetBrains Mono for every figure, time and size, so the numbers stack in columns like a board. Surfaces are flat, toned in near-black steps and divided by 1px hairlines rather than boxes or shadows. Controls are pills. The one primary action in any group is inverted (light on dark), never painted amber. One dark world runs unchanged on Windows, Linux, macOS and the browser. Both faces are embedded so every platform draws the same letters.\n\nMotion is only feedback. Presses scale, colours ease, a disclosure chevron turns, and an announcement fades into the status strip. Screens, panels and receipts never animate in.",
+    "keyCharacteristics": [
+      "Concourse black in four tonal steps; the paper is the only bright surface.",
+      "Signage amber is the only accent: selection lines, focus, caret, and the NEW lamp.",
+      "Every figure, time and size is set in JetBrains Mono, so columns align like an arrivals board.",
+      "Flat at rest, with 1px hairlines. Depth comes from tone, not shadow.",
+      "Pill buttons. The primary action is inverted, not accented.",
+      "Lucide outline icons with a 1.5px round stroke, coloured by the surrounding text."
+    ],
+    "rules": [
+      {
+        "name": "The One Lamp Rule",
+        "body": "Signage amber marks only where you are and what is new: 1px selection lines, focus, caret, and the NEW lamp. If amber appears anywhere else, it is a defect.",
+        "section": "colors"
+      },
+      {
+        "name": "The State Speaks Rule",
+        "body": "Green, red and warning amber appear only on elements that report a state (dots, health, switches, the scale readout). Never use them for decoration or emphasis.",
+        "section": "colors"
+      },
+      {
+        "name": "The Paper Is The Light Rule",
+        "body": "No surface other than the receipt paper (and the momentary primary-button hover) is lighter than Raised Slate. The paper stays the brightest thing on screen.",
+        "section": "colors"
+      },
+      {
+        "name": "The Timetable Rule",
+        "body": "If it's a number a person might compare (time, count, size, dots, scale), set it in JetBrains Mono. Sentences around it stay in Public Sans.",
+        "section": "typography"
+      },
+      {
+        "name": "The Sentence Case Rule",
+        "body": "Every label, heading, column header and group heading is in sentence case with no added letter spacing. Tracked uppercase labels are banned. The NEW lamp is a status signal, not a label, and stays the only uppercase.",
+        "section": "typography"
+      },
+      {
+        "name": "The Pixel Truth Rule",
+        "body": "Receipts are never scaled by a fraction. Layout gives way first: the arrivals board hides before the paper blurs, and any non-exact scale is reported in the status strip.",
+        "section": "layout"
+      },
+      {
+        "name": "The Strip Speaks Rule",
+        "body": "Announcements (buzzer, cash drawer, dropped print) appear in the centre of the status strip, never over the paper.",
+        "section": "layout"
+      },
+      {
+        "name": "The Flat Concourse Rule",
+        "body": "No shadows on cards, buttons, rows or panels. Use a darker or lighter tonal step, or a 1px hairline, to separate.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** keep signage amber to 1px selection lines, focus, caret, selection highlight and the NEW lamp.",
+      "**Do** make the one forward action an inverted Ink pill, with every other action as a secondary or ghost pill.",
+      "**Do** set every time, count, size and scale in JetBrains Mono 12px.",
+      "**Do** separate surfaces with a tonal step or a 1px Hairline, and leave resting surfaces flat.",
+      "**Do** let the arrivals board step aside before a receipt loses pixel-exact scale, and report any non-exact scale in the status strip.",
+      "**Do** put announcements in the status strip.",
+      "**Do** draw icons as Lucide outlines at 1.5px stroke, coloured by the surrounding text.",
+      "**Do** keep the brand logo in its own colours at the top of the rail."
+    ],
+    "donts": [
+      "**Don't** fill buttons, backgrounds or icons with signage amber.",
+      "**Don't** use green, red or warning amber for anything that isn't reporting a state.",
+      "**Don't** add shadows to cards, rows, buttons or panels. Only the in-browser Monitor drawer is lifted.",
+      "**Don't** use tracked uppercase labels, eyebrows or kickers. Labels and headings are sentence case.",
+      "**Don't** animate screens, panels or receipts in. Motion is press, hover, disclosure and announcement feedback only, at 120–180ms.",
+      "**Don't** overlay announcements on the paper.",
+      "**Don't** scale a receipt by a fractional factor or smooth its pixels.",
+      "**Don't** use glyph or filled icons, or a system display face. Both faces are embedded."
+    ]
+  }
+}
