@@ -33,7 +33,7 @@
 
   <!-- NuGet package metadata, applied to the projects that set IsPackable=true. -->
   <PropertyGroup>
-    <Version>1.0.0</Version>
+    <Version>1.0.1</Version>
     <Authors>Hasanain Abdullah</Authors>
     <Product>Tillroll</Product>
     <!-- Tillroll builds on CrossEscPosEmulator by Daniel Meza (MIT); both notices stay, see LICENSE. -->
