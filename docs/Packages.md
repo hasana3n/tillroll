@@ -10,6 +10,7 @@ the headless emulator, a render backend, the transports, and/or the Avalonia con
 | **CrossEscPos.Rendering.Skia** | The default render backend (SkiaSharp, native); fonts embedded | Abstractions |
 | **CrossEscPos.Rendering.ImageSharp** | A 100% managed render backend (ImageSharp) — no native dependency, runs in the browser (WASM) with no native relink; byte-compatible output with Skia | Abstractions |
 | **CrossEscPos.Transports** | TCP / serial / USB transports that feed a printer (desktop) | Core |
+| **CrossEscPos.Transports.Bluetooth** | Makes the computer a Bluetooth printer: Classic SPP (Android) and a BLE GATT peripheral (iPhone). Windows (WinRT, `net10.0-windows10.0.19041.0`) and Linux (BlueZ). See [Bluetooth](Bluetooth.md) | Core, Tmds.DBus.Protocol (Linux) |
 | **CrossEscPos.Controls** | Reusable Avalonia controls: `ReceiptView`, `PrinterStatePanel` | Core, Avalonia |
 
 Everything lives under the single `CrossEscPos.*` namespace root (organized by feature, e.g.
@@ -25,6 +26,7 @@ flowchart BT
     Skia["CrossEscPos.Rendering.Skia"] --> Abstractions
     ImageSharp["CrossEscPos.Rendering.ImageSharp"] --> Abstractions
     Transports["CrossEscPos.Transports"] --> Core
+    Bluetooth["CrossEscPos.Transports.Bluetooth"] --> Core
     Controls["CrossEscPos.Controls"] --> Core
     Controls --> Abstractions
 
@@ -33,6 +35,7 @@ flowchart BT
     Host -.->|"…or"| ImageSharp
     Host -.-> Controls
     Host -.-> Transports
+    Host -.-> Bluetooth
 ```
 
 ## Choosing a render backend

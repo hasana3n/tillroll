@@ -1,6 +1,6 @@
 # CrossEscPos documentation
 
-CrossEscPos emulates a networked, serial or USB receipt printer so you can test the ESC/POS your
+CrossEscPos emulates a networked, serial, USB or Bluetooth receipt printer so you can test the ESC/POS your
 point-of-sale software sends. It renders the receipts, answers status queries, and simulates paper,
 cover, drawer and error states. It ships as:
 
@@ -17,7 +17,10 @@ regenerated from here.
 
 - [Using the app](Using-the-App.md): the Monitor test client, the printer state panel, exporting PNGs,
   choosing the render backend.
-- [Connecting](Connecting.md): TCP and serial, environment variables, and testing serial without hardware.
+- [Connecting](Connecting.md): TCP and serial, environment variables, testing serial without hardware, and
+  adding the emulator as an OS printer.
+- [Bluetooth](Bluetooth.md): make the computer a Bluetooth printer for Android (SPP) and iPhone (BLE) apps,
+  with phone-side code and a test script.
 - [Browser app](Browser-App.md): the browser version, its transports, and the SignalR host for TCP.
 - [Supported commands](Supported-Commands.md): the emulated printer, the ESC/POS it understands, and
   what is missing.
@@ -31,7 +34,7 @@ regenerated from here.
 - [Rendering and backends](Rendering-and-Backends.md): the Skia and managed ImageSharp backends, exporting.
 - [Adding a render backend](Adding-a-Render-Backend.md): step by step, using the ImageSharp backend as
   the worked example.
-- [Transports](Transports.md): feed the emulator over TCP, serial or USB.
+- [Transports](Transports.md): feed the emulator over TCP, serial, USB or Bluetooth.
 - [Controls](Controls.md): the reusable Avalonia `ReceiptView` and `PrinterStatePanel`.
 
 ## Working on CrossEscPos

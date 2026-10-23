@@ -26,8 +26,8 @@
 </p>
 
 Testing receipt printing usually means a real printer, a roll of paper and a lot of walking back and
-forth. CrossEscPos stands in for the printer: point your point-of-sale software at it over TCP, serial or
-USB, and each receipt prints on screen. Status queries get real answers, so you can also test how your
+forth. CrossEscPos stands in for the printer: point your point-of-sale software at it over TCP, serial, USB or
+Bluetooth, and each receipt prints on screen. Status queries get real answers, so you can also test how your
 software handles paper-out, an open cover or a cash drawer.
 
 > **Avalonia Port Challenge entry.** CrossEscPos is a cross-platform port of
@@ -39,6 +39,9 @@ software handles paper-out, an open cover or a cash drawer.
 
 - **The connections a real printer has.** TCP/IP (port 9100) and serial on the desktop; Web Serial,
   WebUSB and a TCP proxy in the browser.
+- **A Bluetooth printer for phones.** On Windows and Linux the computer can act as a Bluetooth receipt
+  printer: Classic SPP for Android apps and BLE for iPhone apps, with status replies. See
+  [Bluetooth](docs/Bluetooth.md).
 - **Real receipts.** Text styles, 1D barcodes, 2D codes (QR, PDF417, DataMatrix, Aztec), bit images and
   page mode. See [Supported commands](docs/Supported-Commands.md).
 - **It talks back.** Answers `DLE EOT`, `GS r` and Automatic Status Back. The **Printer state** panel
@@ -171,7 +174,8 @@ The long-form guides live in [`docs/`](docs/README.md) and are published as the
 | Guide | What's in it |
 |-------|--------------|
 | [Using the app](docs/Using-the-App.md) | The Monitor, the printer state panel, PNG export, choosing the render backend |
-| [Connecting](docs/Connecting.md) | TCP and serial, environment variables, testing serial without hardware |
+| [Connecting](docs/Connecting.md) | TCP and serial, environment variables, testing serial without hardware, adding it as an OS printer |
+| [Bluetooth](docs/Bluetooth.md) | Android (SPP) and iPhone (BLE) printing, UUIDs, phone-side code, a phone test script |
 | [Browser app](docs/Browser-App.md) | The browser version, Web Serial and WebUSB, and the SignalR host for TCP |
 | [Supported commands](docs/Supported-Commands.md) | The emulated printer, the ESC/POS it understands, and what's missing |
 | [Getting started](docs/Getting-Started.md) and [Packages](docs/Packages.md) | Using the NuGet libraries in your own app |
@@ -218,6 +222,16 @@ Pick another port in the **TCP/IP** panel and click **Start**, or start the app 
 USB printing needs the native libusb library: `brew install libusb` on macOS, or
 `sudo apt install libusb-1.0-0` on Debian and Ubuntu. It ships with the Windows build. The operating
 system must not already be holding the printer.
+
+</details>
+
+<details>
+<summary>The phone can't find the Bluetooth printer</summary>
+
+Click **Start** on the Bluetooth row first; that's what makes the computer discoverable. Android apps pair
+with the computer from the phone's Bluetooth settings and connect with the SPP UUID. iPhone apps scan for the
+BLE service `18F0`; on Windows it carries the computer's name. On Linux, `bluetoothd` must be running and your
+user needs to be in the `bluetooth` group. See [Bluetooth](docs/Bluetooth.md#troubleshooting).
 
 </details>
 

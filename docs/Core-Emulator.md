@@ -34,7 +34,8 @@ printer.FeedEscPos("Hello\n");                // string convenience
 ```
 
 Each call is parsed and executed immediately. Malformed / unsupported commands are logged and skipped —
-a bad byte never throws out of `FeedEscPos`.
+a bad byte never throws out of `FeedEscPos`, and parsing carries on with the bytes after it (and with later
+jobs).
 
 ## Receipts
 
@@ -97,6 +98,18 @@ mutations onto the UI thread via `UiDispatch` (it runs synchronously by default 
 
 ```csharp
 printer.UiDispatch = action => Dispatcher.UIThread.Post(action);  // Avalonia example
+```
+
+`FeedEscPos` itself is safe to call from several threads (several transports feeding one printer). Pass a
+responder per connection: that sender owns the printer for its job, and other senders wait until it has been
+quiet for `JobIdleTimeout` (default 1 second) or until `ReleaseOwnership(responder)` /
+`UnregisterResponder(responder)` is called when it disconnects. A waiting sender's real-time status queries
+(`DLE EOT`, `DLE ENQ`, `DLE DC4`) are answered immediately. Feeds without a responder never wait.
+
+```csharp
+printer.JobIdleTimeout = TimeSpan.FromMilliseconds(500);
+printer.FeedEscPos(chunk, connection);      // connection : IPrinterResponder
+printer.ReleaseOwnership(connection);       // when it disconnects
 ```
 
 ## Code pages

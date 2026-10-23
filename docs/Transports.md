@@ -45,6 +45,27 @@ To test serial without hardware, create a virtual serial bridge (a linked pair o
 server at one end and your client at the other — see the repository README's *"Testing serial without
 hardware"*.
 
+## Bluetooth
+
+Bluetooth lives in its own package, `CrossEscPos.Transports.Bluetooth`, because it needs platform APIs
+(WinRT on Windows, BlueZ over D-Bus on Linux). It makes the computer a Bluetooth receipt printer for phones:
+Classic SPP for Android and a BLE GATT peripheral for iPhone. Setup, UUIDs and phone-side code are in
+[Bluetooth](Bluetooth.md).
+
+```csharp
+await using var spp = BluetoothPrinter.CreateSpp(printer, new BluetoothPrinterOptions { Name = "Kitchen" });
+var result = await spp.StartAsync();   // result.Message explains anything that stops it
+```
+
+## Several transports at once
+
+`ReceiptPrinter.FeedEscPos` is safe to call from several transports at the same time. The transport passes
+itself as the responder, and that sender owns the printer for its job: other senders wait until it has
+been quiet for `printer.JobIdleTimeout` (1 second by default) or disconnects, so their bytes never land in
+the middle of its commands. Their real-time status queries (`DLE EOT`) are still answered at once. Stream
+transports can use `PrinterStreamFeeder.PumpAsync(printer, stream, responder, token)`, which handles end of
+stream and releases the printer when the stream closes.
+
 ## USB
 
 `UsbPrinter` is a USB client (libusb) used to drive a real or emulated printer over a bulk endpoint. It

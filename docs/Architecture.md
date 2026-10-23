@@ -15,6 +15,7 @@ swappable** and the **core runs headless** (and in the browser). The namespace i
 | `CrossEscPos.Rendering.Skia` | `CrossEscPos.Rendering.Skia` | The default **render backend** (SkiaSharp). Swap it for another `IReceiptImageFactory`/`ITypefaceProvider`/`IImageEncoder` | Abstractions, SkiaSharp |
 | `CrossEscPos.Rendering.ImageSharp` | `CrossEscPos.Rendering.ImageSharp` | A **100% managed render backend** (ImageSharp) — no native dependency, so it runs in the browser (WebAssembly) without a native relink. Same output as the Skia backend | Abstractions, SixLabors.ImageSharp.Drawing |
 | `CrossEscPos.Transports` | `CrossEscPos.Transports` | TCP / serial / USB transports (desktop only) | Core, System.IO.Ports, LibUsbDotNet, ESC-POS-.NET |
+| `CrossEscPos.Transports.Bluetooth` | `CrossEscPos.Transports.Bluetooth` | Bluetooth printer: Classic SPP + BLE GATT peripheral. A platform-neutral BLE engine plus WinRT (`net10.0-windows10.0.19041.0`) and BlueZ/D-Bus (`net10.0`) servers | Core, Tmds.DBus.Protocol (Linux build) |
 | `CrossEscPos.Controls` | `CrossEscPos.Controls` | Reusable Avalonia controls (`ReceiptView`, `PrinterStatePanel`) — host apps consume these. **Backend-agnostic** (no SkiaSharp dependency) | Core, Avalonia |
 
 `Core` carries **no UI and no graphics-backend dependency**, so the library works headless or in WASM.
@@ -42,7 +43,7 @@ panel, PNG export, and the Monitor test-client. Only the platform edges differ, 
 
 | | Desktop head | Browser head |
 |---|---|---|
-| Transports | TCP + serial | **Web Serial + WebUSB + SignalR TCP proxy** |
+| Transports | TCP + serial + Bluetooth (SPP, BLE) | **Web Serial + WebUSB + SignalR TCP proxy** |
 | Export | native save dialog | browser **download** (same Avalonia storage API) |
 | Monitor | test-client **window** | in-page **overlay** (SignalR round-trip) |
 

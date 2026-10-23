@@ -6,6 +6,7 @@
 **Using the emulator**
 - [Using the app](Using-the-App.md)
 - [Connecting](Connecting.md)
+- [Bluetooth](Bluetooth.md)
 - [Browser app](Browser-App.md)
 - [Supported commands](Supported-Commands.md)
 - [ESC/POS notes](ESC-POS-Notes.md)

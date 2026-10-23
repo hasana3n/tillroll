@@ -32,7 +32,7 @@ dotnet test CrossEscPos.slnx
 
 ## Testing
 
-Two test projects under [`tests/`](../tests):
+Four test projects under [`tests/`](../tests):
 
 - **`CrossEscPos.Core.Tests`** — emulation coverage. ESC/POS sequences are fed through the interpreter
   and the observable results (rendered draws, printer state, host responses, events) asserted: text
@@ -43,6 +43,19 @@ Two test projects under [`tests/`](../tests):
   with no SkiaSharp (proving the core is headless).
 - **`CrossEscPos.Controls.Tests`** — headless Avalonia UI tests for the controls (two-way state binding,
   receipt image rendering).
+- **`CrossEscPos.Transports.Tests`** — the TCP server (client clean-up, stop, status replies) and the shared
+  stream feeder.
+- **`CrossEscPos.Transports.Bluetooth.Tests`** — the BLE engine and chunking (always run), plus two opt-in
+  groups:
+  - **Fake BlueZ** (`Linux/`): the Linux servers against a fake `bluetoothd` on a private D-Bus. CI runs them
+    with `ESCPOS_BT_FAKE_BLUEZ=1 dbus-run-session -- dotnet test tests/CrossEscPos.Transports.Bluetooth.Tests`.
+    The socket-passing tests need Linux; the rest also run against any D-Bus daemon whose address is in
+    `DBUS_SESSION_BUS_ADDRESS`.
+  - **Hardware** (`Windows/`): start the real Windows servers on this PC's adapter (they make the PC
+    discoverable). Run with
+    `ESCPOS_BT_HARDWARE_TESTS=1 dotnet test tests/CrossEscPos.Transports.Bluetooth.Tests -f net10.0-windows10.0.19041.0`.
+
+  Testing with a real phone is described in [Bluetooth](Bluetooth.md#test-it-with-a-phone-no-code-needed).
 
 ```sh
 dotnet test CrossEscPos.slnx

@@ -1,7 +1,8 @@
 # Connecting
 
 How print jobs reach the emulator: TCP and serial on the desktop, and how to test serial without hardware.
-For the browser version's transports (Web Serial, WebUSB and the TCP proxy), see [Browser app](Browser-App.md).
+For Bluetooth (phones printing over SPP or BLE), see [Bluetooth](Bluetooth.md). For the browser version's
+transports (Web Serial, WebUSB and the TCP proxy), see [Browser app](Browser-App.md).
 
 ## TCP and serial
 
@@ -17,6 +18,9 @@ port + baud and Open/Close it (⟳ refreshes the port list). The environment var
 | `ESCPOS_SERIAL_PORT` | *(unset)* | Serial device to auto-open (e.g. `/dev/ttys004`, `COM3`). Unset = serial closed. |
 | `ESCPOS_SERIAL_BAUD` | `9600` | Serial baud rate. |
 | `ESCPOS_DEBUG_DUMP` | *(off)* | Set to `1` to dump every received payload to `last_*` files. |
+| `ESCPOS_BT_SPP` / `ESCPOS_BT_BLE` | *(off)* | Set to `1` to start the Bluetooth SPP / BLE printer at launch. See [Bluetooth](Bluetooth.md). |
+| `ESCPOS_BT_NAME` | `CrossEscPos` | Bluetooth printer name. |
+| `ESCPOS_BT_AUTO_PAIR` | *(off)* | Linux: set to `1` to accept Bluetooth pairing automatically (headless machines). |
 | `ESCPOS_RENDER_BACKEND` | `skia` | Render backend: `skia` (default) or `imagesharp` (managed). The `--backend` arg overrides it. |
 
 Examples:
@@ -66,3 +70,27 @@ fragmented serial writes (commands split across packets) are handled correctly.
 **Windows** — install [com0com](https://com0com.sourceforge.net/) and create a linked pair
 (e.g. `COM3` ↔ `COM4`). Run the emulator with `ESCPOS_SERIAL_PORT=COM3` and have your application
 write to `COM4`.
+
+## Printing from any app (add the emulator as an OS printer)
+
+You can register the emulator's TCP port as a printer, so any program's **Print** dialog can send to it. Use a
+raw / text-only driver: the emulator understands ESC/POS and plain text, not the page data that document
+drivers (PDF, XPS, PCL) produce.
+
+**Windows** (PowerShell as administrator):
+
+```powershell
+Add-PrinterPort -Name "CrossEscPos_9100" -PrinterHostAddress "127.0.0.1" -PortNumber 9100
+Add-Printer -Name "CrossEscPos" -DriverName "Generic / Text Only" -PortName "CrossEscPos_9100"
+# remove later: Remove-Printer -Name "CrossEscPos"; Remove-PrinterPort -Name "CrossEscPos_9100"
+```
+
+**Linux / macOS** (CUPS):
+
+```sh
+sudo lpadmin -p CrossEscPos -E -v socket://127.0.0.1:9100 -m raw
+lp -d CrossEscPos -o raw receipt.bin          # send ESC/POS bytes straight through
+# remove later: sudo lpadmin -x CrossEscPos
+```
+
+Newer CUPS versions warn that raw queues are deprecated; they still work.
