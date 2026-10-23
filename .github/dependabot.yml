@@ -18,6 +18,9 @@ updates:
         update-types: ["version-update:semver-major"]
       - dependency-name: "HarfBuzzSharp*"
         update-types: ["version-update:semver-major"]
+      # Avalonia.Headless.XUnit is built on xunit v3 3.x, and xunit v3 4 needs a move to Microsoft.Testing.Platform.
+      - dependency-name: "xunit.v3*"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: github-actions
     directory: /
     schedule:
