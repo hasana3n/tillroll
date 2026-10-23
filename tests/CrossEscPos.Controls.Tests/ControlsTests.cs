@@ -34,6 +34,28 @@ public class ControlsTests
     }
 
     [AvaloniaFact]
+    public void PrinterStatePanel_PaperSegmentsSetPaperLevel()
+    {
+        var state = new PrinterState();
+        var panel = new PrinterStatePanel { State = state };
+        var window = new Window { Content = panel };
+        window.Show();
+        Dispatcher.UIThread.RunJobs();
+
+        var segments = panel.GetVisualDescendants().OfType<RadioButton>().ToList();
+        Assert.Equal(new object?[] { "Plenty", "Near end", "Out" }, segments.Select(s => s.Content));
+        Assert.True(segments[0].IsChecked);
+
+        segments[2].IsChecked = true;
+        Dispatcher.UIThread.RunJobs();
+        Assert.Equal(PaperLevel.Out, state.Paper);
+
+        state.Paper = PaperLevel.NearEnd;
+        Dispatcher.UIThread.RunJobs();
+        Assert.True(segments[1].IsChecked);
+    }
+
+    [AvaloniaFact]
     public void ReceiptView_RendersReceiptImages()
     {
         var printer = new ReceiptPrinter(PaperConfiguration.Default, new SkiaImageFactory(), new SkiaTypefaceProvider());

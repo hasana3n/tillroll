@@ -3,34 +3,48 @@
              xmlns:controls="using:CrossEscPos.Controls"
              x:Class="CrossEscPos.Controls.ReceiptView">
 
-    <!-- Renders the live stream of receipts (one image per cut) with a per-page export toolbar.
+    <UserControl.Styles>
+        <Style Selector="TextBlock.caption">
+            <Setter Property="FontFamily" Value="{DynamicResource MonoFont}"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="{DynamicResource InkMutedBrush}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+    </UserControl.Styles>
+
+    <!-- The live stream of receipts, one paper slip per cut, each shown pixel-exact with a caption underneath.
          Bind the Receipts property to an IEnumerable of ReceiptViewModel. -->
     <ScrollViewer Name="ReceiptScrollView"
                   HorizontalScrollBarVisibility="Disabled"
-                  VerticalScrollBarVisibility="Visible">
-        <ItemsControl Margin="0 12 0 0"
+                  VerticalScrollBarVisibility="Auto">
+        <ItemsControl Name="ReceiptItems" Margin="16 24 16 32"
                       ItemsSource="{Binding Receipts, RelativeSource={RelativeSource AncestorType=controls:ReceiptView}}">
             <ItemsControl.ItemTemplate>
                 <DataTemplate x:DataType="controls:ReceiptViewModel">
-                    <Border Background="White" CornerRadius="4"
-                            Margin="0 0 0 16" HorizontalAlignment="Center"
-                            BoxShadow="0 2 10 0 #50000000">
-                        <StackPanel>
-                            <!-- Pixel-exact: each printer dot is a whole number of screen pixels, unsmoothed, like thermal dots. -->
+                    <StackPanel HorizontalAlignment="Center" Margin="0 0 0 28">
+                        <!-- The paper. Pixel-exact: each printer dot is a whole number of screen pixels, unsmoothed. -->
+                        <Border Background="{DynamicResource PaperBrush}">
                             <controls:PixelPerfectImage Source="{Binding Image}"/>
-                            <!-- Page toolbar (below the receipt, after the cut) -->
-                            <Border Background="#3b3b3b" CornerRadius="0 0 4 4">
-                                <Grid ColumnDefinitions="*,Auto" Margin="10 4">
-                                    <TextBlock Grid.Column="0" Text="{Binding Title}"
-                                               Foreground="White" FontSize="12"
-                                               VerticalAlignment="Center"/>
-                                    <Button Grid.Column="1" Command="{Binding ExportCommand}"
-                                            Content="↓ PNG" Padding="8 2" FontSize="12"
-                                            ToolTip.Tip="Export this page as PNG"/>
-                                </Grid>
-                            </Border>
-                        </StackPanel>
-                    </Border>
+                        </Border>
+                        <!-- Caption: the arrival lamp, the cut, when it came and how long it is. -->
+                        <Grid ColumnDefinitions="Auto,*,Auto" Margin="2 6 0 0">
+                            <Ellipse Width="6" Height="6" Margin="0 0 8 0" VerticalAlignment="Center"
+                                     Fill="{DynamicResource AccentBrush}" IsVisible="{Binding IsNew}"
+                                     ToolTip.Tip="New: not looked at yet"/>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10">
+                                <TextBlock Classes="caption" Text="{Binding Title}"
+                                           Foreground="{DynamicResource InkBrush}"/>
+                                <TextBlock Classes="caption" Text="{Binding ArrivalTime}"/>
+                                <TextBlock Classes="caption" Text="{Binding LengthText}"
+                                           ToolTip.Tip="{Binding SizeText}"/>
+                            </StackPanel>
+                            <Button Grid.Column="2" Classes="icon" Command="{Binding ExportCommand}"
+                                    ToolTip.Tip="Save this receipt as PNG"
+                                    AutomationProperties.Name="Save this receipt as PNG">
+                                <controls:IconView Data="{DynamicResource Icon.Download}"/>
+                            </Button>
+                        </Grid>
+                    </StackPanel>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>
