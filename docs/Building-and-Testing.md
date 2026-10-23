@@ -50,7 +50,7 @@ dotnet publish src/CrossEscPos.App.Desktop -r linux-x64 -p:PublishProfile=Portab
 - Rename the file freely (the releases call it `CrossEscPos.exe` / `CrossEscPos`).
 - The first start unpacks the native libraries to a temp folder, so it takes a moment longer than later starts.
 - The app keeps no settings files; configuration comes only from the [environment variables](Connecting.md). It
-  does write a log, to `%LOCALAPPDATA%\CrossEscPosEmulator\logspp.log` on Windows (`~/.local/share/...` on
+  does write a log, to `%LOCALAPPDATA%\CrossEscPosEmulator\logs\app.log` on Windows (`~/.local/share/...` on
   Linux).
 - The build isn't trimmed: Avalonia and the transports load types by reflection, and trimming breaks them.
 
