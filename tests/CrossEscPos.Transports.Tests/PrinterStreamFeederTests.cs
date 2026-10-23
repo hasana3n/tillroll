@@ -61,4 +61,29 @@ public class PrinterStreamFeederTests
 
         Assert.Single(responder.Bytes);
     }
+
+    [Fact]
+    public async Task Pump_UnexpectedStreamError_EndsThePumpAndReleasesThePrinter()
+    {
+        // e.g. a USB-serial adapter unplugged mid-read can surface as InvalidOperationException or
+        // UnauthorizedAccessException rather than IOException.
+        var printer = TestPrinter.Create(out _);
+        printer.JobIdleTimeout = TimeSpan.FromSeconds(30);
+        var a = new CapturingResponder();
+        printer.FeedEscPos("A", a);
+
+        var ex = await Record.ExceptionAsync(() => PrinterStreamFeeder.PumpAsync(printer, new ThrowingStream(), a, CancellationToken.None));
+
+        Assert.Null(ex);
+        var sw = Stopwatch.StartNew();
+        var fed = Task.Run(() => printer.FeedEscPos("B\n", new CapturingResponder()));
+        Assert.Same(fed, await Task.WhenAny(fed, Task.Delay(5000)));
+        Assert.True(sw.ElapsedMilliseconds < 500, $"took {sw.ElapsedMilliseconds} ms");
+    }
+
+    private sealed class ThrowingStream : MemoryStream
+    {
+        public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
+            => throw new InvalidOperationException("The port is closed.");
+    }
 }

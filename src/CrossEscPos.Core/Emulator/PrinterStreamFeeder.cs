@@ -45,8 +45,10 @@ public static class PrinterStreamFeeder
         {
             // The stream was closed under us (transport stopping).
         }
-        catch (IOException ex)
+        catch (Exception ex)
         {
+            // IOException, or e.g. InvalidOperationException / UnauthorizedAccessException when a serial
+            // adapter is unplugged mid-read: the connection is over either way.
             Logger.Exception(ex, "Stream read error");
         }
         finally
