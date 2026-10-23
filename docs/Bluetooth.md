@@ -32,6 +32,7 @@ From the command line (useful for automated tests):
 | `ESCPOS_BT_BLE=1` | Start the BLE row at launch. |
 | `ESCPOS_BT_NAME=Kitchen` | Printer name (default `CrossEscPos`). |
 | `ESCPOS_BT_AUTO_PAIR=1` | Linux only: accept pairing requests automatically (see below). |
+| `ESCPOS_PAPER_WIDTH=58` | Emulate 58 mm paper (384 dots), the size most Bluetooth printers use, so receipts wrap like on the real thing. |
 
 ```sh
 ESCPOS_BT_SPP=1 ESCPOS_BT_BLE=1 dotnet run --project src/CrossEscPos.App.Desktop

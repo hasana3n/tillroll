@@ -8,7 +8,21 @@ public class PaperConfiguration
 {
     private const double MmToInch = 0.0393701;
 
+    /// <summary>80 mm paper (the default).</summary>
     public static PaperConfiguration Default => new();
+
+    /// <summary>58 mm paper with a 48 mm / 384-dot print head: most handheld and Bluetooth printers.</summary>
+    public static PaperConfiguration Mm58 => new() { PaperWidthMm = 58, PrintWidthMm = 48 };
+
+    /// <summary>
+    /// Picks a preset from a setting such as the ESCPOS_PAPER_WIDTH environment variable: "58" or "58mm" gives
+    /// <see cref="Mm58"/>; anything else (including nothing) gives the 80 mm <see cref="Default"/>.
+    /// </summary>
+    public static PaperConfiguration FromSetting(string? setting)
+    {
+        var value = setting?.Trim().ToLowerInvariant();
+        return value is "58" or "58mm" ? Mm58 : Default;
+    }
 
     public double DotsPerInch = 203;
     public double PaperWidthMm = 80;

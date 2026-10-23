@@ -20,6 +20,7 @@ port + baud and Open/Close it (⟳ refreshes the port list). The environment var
 | `ESCPOS_DEBUG_DUMP` | *(off)* | Set to `1` to dump every received payload to `last_*` files. |
 | `ESCPOS_BT_SPP` / `ESCPOS_BT_BLE` | *(off)* | Set to `1` to start the Bluetooth SPP / BLE printer at launch. See [Bluetooth](Bluetooth.md). |
 | `ESCPOS_BT_NAME` | `CrossEscPos` | Bluetooth printer name. |
+| `ESCPOS_PAPER_WIDTH` | `80` | Paper width: `58` emulates a 58 mm printer (384-dot head, typical of Bluetooth/handheld printers). |
 | `ESCPOS_BT_AUTO_PAIR` | *(off)* | Linux: set to `1` to accept Bluetooth pairing automatically (headless machines). |
 | `ESCPOS_RENDER_BACKEND` | `skia` | Render backend: `skia` (default) or `imagesharp` (managed). The `--backend` arg overrides it. |
 

@@ -27,7 +27,9 @@ public partial class App : Application
         var platform = Platform ?? throw new InvalidOperationException(
             "App.Platform must be set by the head before startup.");
 
-        var printer = new ReceiptPrinter(PaperConfiguration.Default, platform.ImageFactory, platform.Typefaces);
+        // ESCPOS_PAPER_WIDTH=58 emulates a 58 mm printer (384 dots, typical of Bluetooth printers); default 80 mm.
+        var paper = PaperConfiguration.FromSetting(Environment.GetEnvironmentVariable("ESCPOS_PAPER_WIDTH"));
+        var printer = new ReceiptPrinter(paper, platform.ImageFactory, platform.Typefaces);
         // Transports fire events from background threads (desktop) — marshal to the UI thread.
         printer.UiDispatch = a => Dispatcher.UIThread.Post(a);
 
