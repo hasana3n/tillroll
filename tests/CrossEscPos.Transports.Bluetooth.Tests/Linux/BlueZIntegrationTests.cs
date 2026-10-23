@@ -151,6 +151,28 @@ public class BlueZIntegrationTests
         Assert.False(server.IsRunning);
     }
 
+    [Fact]
+    public async Task BothRows_StoppingOne_KeepsTheAdapterReadyForTheOther()
+    {
+        var address = TestBus.Require();
+        await using var bluez = await FakeBlueZ.StartAsync(address);
+        var printer = NewPrinter(out _);
+        await using var ble = new BlueZBleServer(printer, Options(address));
+        await using var spp = new BlueZSppServer(printer, Options(address));
+        await ble.StartAsync(TestContext.Current.CancellationToken);       // changes Powered/Pairable/Discoverable
+        await spp.StartAsync(TestContext.Current.CancellationToken);       // nothing left to change
+
+        await ble.StopAsync();
+        Assert.True(spp.IsRunning);
+        Assert.True(bluez.AdapterBool("Discoverable"));                    // SPP still needs it
+        Assert.True(bluez.AdapterBool("Powered"));
+
+        await spp.StopAsync();
+        Assert.False(bluez.AdapterBool("Discoverable"));                   // last one out restores
+        Assert.False(bluez.AdapterBool("Powered"));
+        Assert.Equal(180u, bluez.AdapterUInt("DiscoverableTimeout"));
+    }
+
     // ---- pairing agent ----------------------------------------------------------------------------
 
     [Fact]

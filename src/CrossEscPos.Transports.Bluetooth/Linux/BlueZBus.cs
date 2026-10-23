@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using CrossEscPos.Logging;
 using Tmds.DBus.Protocol;
@@ -27,9 +28,14 @@ internal sealed class BlueZBus : IAsyncDisposable
         ("Discoverable", true),
     };
 
-    private readonly List<(string Path, string Name, VariantValue Original)> _changed = new();
+    private readonly string _address;
+    private string? _adapterLease; // set while this connection holds a share of the adapter settings
 
-    private BlueZBus(DBusConnection connection) => Connection = connection;
+    private BlueZBus(DBusConnection connection, string address)
+    {
+        Connection = connection;
+        _address = address;
+    }
 
     public DBusConnection Connection { get; }
 
@@ -38,7 +44,8 @@ internal sealed class BlueZBus : IAsyncDisposable
 
     public static async Task<BlueZBus> ConnectAsync(string? address)
     {
-        var connection = new DBusConnection(address ?? DBusAddress.System ?? "unix:path=/var/run/dbus/system_bus_socket");
+        address ??= DBusAddress.System ?? "unix:path=/var/run/dbus/system_bus_socket";
+        var connection = new DBusConnection(address);
         try
         {
             await connection.ConnectAsync().ConfigureAwait(false);
@@ -48,7 +55,7 @@ internal sealed class BlueZBus : IAsyncDisposable
             connection.Dispose();
             throw;
         }
-        return new BlueZBus(connection);
+        return new BlueZBus(connection, address);
     }
 
     public ValueTask DisposeAsync()
@@ -109,41 +116,120 @@ internal sealed class BlueZBus : IAsyncDisposable
             w.WriteVariant(value);
         });
 
-    /// <summary>Powers the adapter and makes it discoverable and pairable with no timeout, remembering what it changed.</summary>
+    /// <summary>
+    /// Powers the adapter and makes it discoverable and pairable with no timeout. The settings are shared by
+    /// every server in this process using the adapter (the SPP and BLE rows): the first one to start changes
+    /// them and remembers the originals; only the last one to stop puts them back.
+    /// </summary>
     public async Task PrepareAdapterAsync(string adapterPath)
     {
-        foreach (var (name, desired) in PrinterAdapterSettings)
+        if (_adapterLease is not null)
+            return;
+        var key = _address + "|" + adapterPath;
+        await SharedAdapterSettings.AcquireAsync(this, key, adapterPath).ConfigureAwait(false);
+        _adapterLease = key;
+    }
+
+    /// <summary>Gives up this connection's share; restores the original settings if it was the last. Never throws.</summary>
+    public async Task RestoreAdapterAsync()
+    {
+        var key = _adapterLease;
+        _adapterLease = null;
+        if (key is not null)
+            await SharedAdapterSettings.ReleaseAsync(this, key).ConfigureAwait(false);
+    }
+
+    /// <summary>Applies the printer settings to an adapter and returns the originals of what it changed.</summary>
+    private async Task<List<(string Name, VariantValue Original)>> ApplyPrinterSettingsAsync(string adapterPath)
+    {
+        var changed = new List<(string Name, VariantValue Original)>();
+        try
         {
-            var current = await GetAsync(adapterPath, Adapter1, name).ConfigureAwait(false);
-            if (SameValue(current, desired))
-                continue;
-            await SetAsync(adapterPath, Adapter1, name, desired).ConfigureAwait(false);
-            lock (_changed) _changed.Add((adapterPath, name, current));
-            Logger.Info($"BlueZ adapter {adapterPath}: {name} set for the printer");
+            foreach (var (name, desired) in PrinterAdapterSettings)
+            {
+                var current = await GetAsync(adapterPath, Adapter1, name).ConfigureAwait(false);
+                if (SameValue(current, desired))
+                    continue;
+                await SetAsync(adapterPath, Adapter1, name, desired).ConfigureAwait(false);
+                changed.Add((name, current));
+                Logger.Info($"BlueZ adapter {adapterPath}: {name} set for the printer");
+            }
+            return changed;
+        }
+        catch
+        {
+            await RestoreSettingsAsync(adapterPath, changed).ConfigureAwait(false);
+            throw;
         }
     }
 
-    /// <summary>Puts back every adapter setting <see cref="PrepareAdapterAsync"/> changed. Never throws.</summary>
-    public async Task RestoreAdapterAsync()
+    private async Task RestoreSettingsAsync(string adapterPath, List<(string Name, VariantValue Original)> changed)
     {
-        (string Path, string Name, VariantValue Original)[] changed;
-        lock (_changed)
+        for (int i = changed.Count - 1; i >= 0; i--)
         {
-            changed = _changed.ToArray();
-            _changed.Clear();
-        }
-
-        for (int i = changed.Length - 1; i >= 0; i--)
-        {
-            var (path, name, original) = changed[i];
+            var (name, original) = changed[i];
             try
             {
-                await SetAsync(path, Adapter1, name, original).ConfigureAwait(false);
+                await SetAsync(adapterPath, Adapter1, name, original).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
                 Logger.Exception(ex, $"Couldn't restore adapter setting {name}");
             }
+        }
+    }
+
+    /// <summary>Process-wide, reference-counted record of the adapter settings changed for the printer.</summary>
+    private static class SharedAdapterSettings
+    {
+        private static readonly SemaphoreSlim Gate = new(1, 1);
+        private static readonly Dictionary<string, Entry> Entries = new();
+
+        public static async Task AcquireAsync(BlueZBus bus, string key, string adapterPath)
+        {
+            await Gate.WaitAsync().ConfigureAwait(false);
+            try
+            {
+                if (!Entries.TryGetValue(key, out var entry))
+                {
+                    var changed = await bus.ApplyPrinterSettingsAsync(adapterPath).ConfigureAwait(false);
+                    Entries[key] = entry = new Entry(adapterPath, changed);
+                }
+                entry.Users++;
+            }
+            finally
+            {
+                Gate.Release();
+            }
+        }
+
+        public static async Task ReleaseAsync(BlueZBus bus, string key)
+        {
+            await Gate.WaitAsync().ConfigureAwait(false);
+            try
+            {
+                if (!Entries.TryGetValue(key, out var entry) || --entry.Users > 0)
+                    return;
+                Entries.Remove(key);
+                await bus.RestoreSettingsAsync(entry.AdapterPath, entry.Changed).ConfigureAwait(false);
+            }
+            finally
+            {
+                Gate.Release();
+            }
+        }
+
+        private sealed class Entry
+        {
+            public Entry(string adapterPath, List<(string Name, VariantValue Original)> changed)
+            {
+                AdapterPath = adapterPath;
+                Changed = changed;
+            }
+
+            public string AdapterPath { get; }
+            public List<(string Name, VariantValue Original)> Changed { get; }
+            public int Users;
         }
     }
 
