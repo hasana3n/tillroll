@@ -14,7 +14,7 @@
   <ItemGroup>
     <!-- INotifyPropertyChanged for PrinterState (UI-framework-agnostic source generators; WASM-safe),
          so host UI panels can two-way bind directly to the simulated printer state. -->
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
     <!-- Class-based enums: behaviour-carrying ESC/POS code maps (2D families, code tables, barcode
          systems, status requests) as objects instead of magic-number switches. -->
     <PackageReference Include="Ardalis.SmartEnum" Version="8.2.0" />
