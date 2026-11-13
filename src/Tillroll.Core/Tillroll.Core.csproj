@@ -19,7 +19,7 @@
          systems, status requests) as objects instead of magic-number switches. -->
     <PackageReference Include="Ardalis.SmartEnum" Version="8.2.0" />
     <!-- Barcode/QR matrix generation (managed only — drawn via the rendering abstraction). -->
-    <PackageReference Include="QRCoder" Version="1.8.0" />
+    <PackageReference Include="QRCoder" Version="1.8.1" />
     <PackageReference Include="ZXing.Net" Version="0.16.11" />
     <!-- Legacy code pages (437/850/852/858/866/1252…) for ESC t character-table support are provided
          by the .NET 10 shared framework (CodePagesEncodingProvider), so no package reference is needed. -->
